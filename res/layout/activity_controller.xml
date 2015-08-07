@@ -1,0 +1,67 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="${relativePackage}.${activityClass}" >
+
+   
+ <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#673AB7"
+        android:orientation="horizontal" >
+
+        <LinearLayout
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:background="#673AB7" >
+
+            <TextView
+                android:id="@+id/left_arrow"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="←"
+                android:gravity="center"
+                android:textColor="#FFF"
+                android:textSize="80sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:layout_weight="2"
+            android:background="#7E57C2" >
+            <TextView
+                android:id="@+id/oK_mid"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="○"
+                android:gravity="center"
+                android:textColor="#FFF"
+                android:textSize="80sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:background="#673AB7" >
+
+            <TextView
+                android:id="@+id/right_arrow"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="→"
+                android:gravity="center"
+                android:textColor="#FFF"
+                android:textSize="80sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+    </LinearLayout>
+</RelativeLayout>

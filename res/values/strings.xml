@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">InterActiveSocialTvService</string>
+    <string name="title_activity_controller">ControllerActivity</string>
+    <string name="title_activity_tvcontroller">ControllerActivity</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="title_activity_main">MainActivity</string>
+     <string name="bbc_infor">The British Broadcasting Corporation is the public-service broadcaster of the United Kingdom, headquartered at Broadcasting House in London."</string>
+ 
+
+</resources>
