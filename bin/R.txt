@@ -11,7 +11,8 @@ int anim abc_slide_out_top 0x7f040009
 int anim fadein 0x7f04000a
 int anim fadeout 0x7f04000b
 int anim rotate_picture 0x7f04000c
-int array list_content 0x7f0c0000
+int array bookmarkChannels 0x7f0c0000
+int array historyChannels 0x7f0c0001
 int attr actionBarDivider 0x7f010018
 int attr actionBarItemBackground 0x7f010019
 int attr actionBarPopupTheme 0x7f010012
@@ -469,7 +470,6 @@ int id bottomLayout 0x7f090077
 int id bottom_container 0x7f09005e
 int id buttonPanel 0x7f090036
 int id cancel_action 0x7f090083
-int id ch_layout 0x7f090064
 int id channel_delta 0x7f090068
 int id channel_img 0x7f090058
 int id channel_infor 0x7f09005a
@@ -478,6 +478,7 @@ int id channel_txt 0x7f090059
 int id channel_value 0x7f090065
 int id checkbox 0x7f090038
 int id chronometer 0x7f090089
+int id cn_layout 0x7f090064
 int id collapseActionView 0x7f09001a
 int id connectLayout 0x7f090074
 int id connect_fail 0x7f090072

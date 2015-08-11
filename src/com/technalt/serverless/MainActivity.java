@@ -79,12 +79,11 @@ public class MainActivity extends Activity implements Observer {
 			@Override
 			public void onClick(View v) {
 				controller_clicked = true;
-				
-					
-						Intent intent = new Intent(MainActivity.this, ControllerActivity.class);
-						startActivity(intent);
-						overridePendingTransition(R.anim.fadein, R.anim.fadeout);
-				
+
+				Intent intent = new Intent(MainActivity.this, ControllerActivity.class);
+				startActivity(intent);
+				overridePendingTransition(R.anim.fadein, R.anim.fadeout);
+
 			}
 		});
 		final LinearLayout settingLayout = (LinearLayout) findViewById(R.id.helpLayout);

@@ -64,6 +64,7 @@ public class TvControllerActivity extends Activity {
 	private final String CONTROLLER_CMD_UI_RIGHT = "ISTVSgoright";
 	private final String CONTROLLER_CMD_UI_OK = "ISTVSok";
 	private final String CONTROLLER_CMD_VL = "ISTVSvl-";
+	private final String CONTROLLER_CMD_CN = "ISTVScn-";
 	private final String CONTROLLER_CMD_UI_BM_OP = "ISTVSsb";
 	private final String CONTROLLER_CMD_UI_BM_CL = "ISTVShb";
 	private final String CONTROLLER_CMD_UI_HT_OP = "ISTVSsh";
@@ -73,17 +74,9 @@ public class TvControllerActivity extends Activity {
 		LEFT, RIGHT
 	};
 
-	private float a_x;
-	private float a_y;
-	private float a_z;
-	private float g_x;
-	private float g_y;
-	private float g_z;
-
-	private boolean is_up = false;
-	private boolean is_up_long = false;
-	private boolean is_down = false;
-	private boolean is_down_long = false;
+	private float a_x, a_y, a_z, g_x, g_y, g_z;
+	private boolean is_up = false, is_up_long = false;
+	private boolean is_down = false, is_down_long = false;
 	private boolean is_controllable = true;
 
 	private CafeApplication mChatApplication = null;
@@ -92,26 +85,22 @@ public class TvControllerActivity extends Activity {
 	private Sensor aSensor;
 	private Sensor gSensor;
 
-	/*------------- UI --------*/
+	/* UI */
 	DrawerLayout drawerLayout;
 	View leftDrawerView, rightDrawerView;
 	ListView bookmarkDrawerList, historyDrawerList;
 	TextView textSelection, channel_information;
 	Button share_btn, snap_btn, gesture_btn;
-
-	private String[] bookmark_Channels = { "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday",
-			"sad", "BBC", "CNN", "ESPN", "lor", "asd", "asdas" };
-	private String[] history_Channels = { "HBO", "Annimax", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday",
-			"sad", "BBC", "CNN", "ESPN", "lor", "asd", "asdas" };
-
 	ArrayAdapter<String> arrayAdapter1;
 	ArrayAdapter<String> arrayAdapter2;
+	boolean left_open = false, right_open = false;
 
-	/*----------- Channel -----*/
+	/* Channel */
 	SeekBar ChannelBar;
-	int shift = 0, delta = 0, pos_count = 0, neg_count = 0;
+	int shift = 0, delta = 0;
 	boolean channelBarOnTouched = false;
 
+	/* ---- */
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -124,11 +113,11 @@ public class TvControllerActivity extends Activity {
 			@Override
 			public void onClick(View v) {
 				LinearLayout vl_layout = (LinearLayout) findViewById(R.id.vl_layout);
-				LinearLayout ch_layout = (LinearLayout) findViewById(R.id.ch_layout);
+				LinearLayout cn_layout = (LinearLayout) findViewById(R.id.cn_layout);
 				LinearLayout gt_layout = (LinearLayout) findViewById(R.id.gesture_layout);
 				LinearLayout bottom_container = (LinearLayout) findViewById(R.id.bottom_container);
 				vl_layout.setVisibility(View.GONE);
-				ch_layout.setVisibility(View.GONE);
+				cn_layout.setVisibility(View.GONE);
 				gt_layout.setVisibility(View.VISIBLE);
 				// bottom_container.getBackground().setColorFilter(Color.parseColor("#333333"),
 				// PorterDuff.Mode.MULTIPLY);
@@ -166,12 +155,11 @@ public class TvControllerActivity extends Activity {
 
 			@Override
 			public void onStartTrackingTouch(SeekBar seekBar) {
-				// TODO Auto-generated method stub
+
 			}
 
 			@Override
 			public void onStopTrackingTouch(SeekBar seekBar) {
-
 				Log.d("TESsT", "IS THIS A CAKE");
 			}
 		});
@@ -184,7 +172,6 @@ public class TvControllerActivity extends Activity {
 		ChannelBar.setOnSeekBarChangeListener(new VerticalSeekBar.OnSeekBarChangeListener() {
 			@Override
 			public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-				// TODO Auto-generated method stub
 				int x = ChannelBar.getProgress();
 				channel_value.setText(String.valueOf(x));
 
@@ -194,57 +181,54 @@ public class TvControllerActivity extends Activity {
 				shift_Value.setText(String.valueOf(shift));
 
 				channelBarOnTouched = true;
-				new android.os.Handler().postDelayed(new Runnable() {
-					public void run() {
-						if (channelBarOnTouched) {
-							channelFastCheck();
+				if (shift > 0) {
+					new android.os.Handler().postDelayed(new Runnable() {
+						public void run() {
+							if (channelBarOnTouched) {
+								channelFastCheck_pos();
+							}
 						}
-					}
-				}, 500);
-
-				// channel
-
+					}, 500);
+				}
+				if (shift < 0) {
+					new android.os.Handler().postDelayed(new Runnable() {
+						public void run() {
+							if (channelBarOnTouched) {
+								channelFastCheck_neg();
+							}
+						}
+					}, 500);
+				}
 			}
 
 			@Override
 			public void onStartTrackingTouch(SeekBar seekBar) {
-				// TODO Auto-generated method stub
 				Log.d("Tracking", "msg");
 			}
 
 			@Override
 			public void onStopTrackingTouch(SeekBar seekBar) {
-				delta++;
-				TextView delta_value = (TextView) findViewById(R.id.channel_delta);
-				delta_value.setText(String.valueOf(delta));
+				if (shift > 0) {
+					channelCMD(++delta);
+				}
+				if (shift < 0) {
+					channelCMD(--delta);
+				}
 				ChannelBar.setProgress(50);
 				channelBarOnTouched = false;
+				TextView delta_value = (TextView) findViewById(R.id.channel_delta);
+				delta_value.setText(String.valueOf(delta));
 				Log.d("TEST", "IS THIS A CAKE");
 			}
 		});
 
-		/* Channel Shifting */
-
 		/* For TextView Scroll */
 		channel_information = (TextView) findViewById(R.id.channel_infor);
 		channel_information.setMovementMethod(new ScrollingMovementMethod());
-
-		// textPrompt = (TextView) findViewById(R.id.prompt);
-		// textPrompt2 = (TextView) findViewById(R.id.prompt2);
-
 		drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
 		leftDrawerView = (View) findViewById(R.id.leftdrawer);
 		rightDrawerView = (View) findViewById(R.id.rightdrawer);
-
 		drawerLayout.setDrawerListener(myDrawerListener);
-
-		/*
-		 * In my trial experiment: Without dummy OnTouchListener for the
-		 * drawView to consume the onTouch event, touching/clicking on
-		 * un-handled view on drawView will pass to the view under it! -
-		 * Touching on the Android icon will trigger the
-		 * TextView("http://android-er.blogspot.com/") to open the web.
-		 */
 
 		/* ------Bookmark Drawer List---- */
 
@@ -256,10 +240,10 @@ public class TvControllerActivity extends Activity {
 				return true;
 			}
 		});
-
 		textSelection = (TextView) findViewById(R.id.selection);
 		bookmarkDrawerList = (ListView) findViewById(R.id.bookmarklist);
-		arrayAdapter1 = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, bookmark_Channels) {
+		arrayAdapter1 = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1,
+				getResources().getStringArray(R.array.bookmarkChannels)) {
 
 			@Override
 			public View getView(int position, View convertView, ViewGroup parent) {
@@ -276,15 +260,6 @@ public class TvControllerActivity extends Activity {
 		};
 		bookmarkDrawerList.setAdapter(arrayAdapter1);
 
-		/*
-		 * Select which channel bookmarkDrawerList.setOnItemClickListener(new
-		 * OnItemClickListener() {
-		 * 
-		 * @Override public void onItemClick(AdapterView<?> parent, View view,
-		 * int position, long id) { String sel = (String)
-		 * parent.getItemAtPosition(position); textSelection.setText(sel); } });
-		 */
-
 		/* ------History Drawer List---- */
 		rightDrawerView.setOnTouchListener(new OnTouchListener() {
 
@@ -294,10 +269,10 @@ public class TvControllerActivity extends Activity {
 				return true;
 			}
 		});
-
 		textSelection = (TextView) findViewById(R.id.selection);
 		historyDrawerList = (ListView) findViewById(R.id.historylist);
-		arrayAdapter2 = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, history_Channels) {
+		arrayAdapter2 = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1,
+				getResources().getStringArray(R.array.historyChannels)) {
 
 			@Override
 			public View getView(int position, View convertView, ViewGroup parent) {
@@ -314,15 +289,7 @@ public class TvControllerActivity extends Activity {
 		};
 		historyDrawerList.setAdapter(arrayAdapter2);
 
-		/*
-		 * Select which channel historyDrawerList.setOnItemClickListener(new
-		 * OnItemClickListener() {
-		 * 
-		 * @Override public void onItemClick(AdapterView<?> parent, View view,
-		 * int position, long id) { String sel = (String)
-		 * parent.getItemAtPosition(position); textSelection.setText(sel); } });
-		 */
-
+		/* ------Start AllJoyn Service KEYWORD!!---- */
 		mChatApplication = (CafeApplication) getApplication();
 
 	}
@@ -476,32 +443,53 @@ public class TvControllerActivity extends Activity {
 		} else {
 			return;
 		}
-		// Toast.makeText(TvControllerActivity.this,cmd,100).show();
+
 		mChatApplication.newLocalUserMessage(cmd);
 	}
 
-	private void channelChangeCheck() {
-		if (shift > 10) {
-			delta++;
-			pos_count++;
-		}
+	private void channelCMD(int delta) {
+		String cmd = CONTROLLER_CMD_CN;
+		cmd = cmd.concat(String.valueOf(delta));
+		mChatApplication.newLocalUserMessage(cmd);
 	}
 
 	DrawerListener myDrawerListener = new DrawerListener() {
 
 		@Override
 		public void onDrawerClosed(View drawerView) {
-
-			mChatApplication.newLocalUserMessage(CONTROLLER_CMD_UI_BM_CL);
+			if (left_open) {
+				// Toast.makeText(TvControllerActivity.this,"Left is
+				// open",Toast.LENGTH_SHORT).show();
+				mChatApplication.newLocalUserMessage(CONTROLLER_CMD_UI_BM_CL);
+				left_open = false;
+				// Toast.makeText(TvControllerActivity.this,"Left is
+				// closed",Toast.LENGTH_SHORT).show();
+			}
+			if (right_open) {
+				// Toast.makeText(TvControllerActivity.this,"Right is
+				// open",Toast.LENGTH_SHORT).show();
+				mChatApplication.newLocalUserMessage(CONTROLLER_CMD_UI_HT_CL);
+				right_open = false;
+				// Toast.makeText(TvControllerActivity.this,"Rght is
+				// closed",Toast.LENGTH_SHORT).show();
+			}
 		}
 
 		@Override
 		public void onDrawerOpened(View drawerView) {
-			if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
-				mChatApplication.newLocalUserMessage(CONTROLLER_CMD_UI_BM_OP);
+			if (!left_open) {
+				if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
+					left_open = true;
+					right_open = false;
+					mChatApplication.newLocalUserMessage(CONTROLLER_CMD_UI_BM_OP);
+				}
 			}
-			if (drawerLayout.isDrawerOpen(GravityCompat.END)) {
-				mChatApplication.newLocalUserMessage(CONTROLLER_CMD_UI_HT_OP);
+			if (!right_open) {
+				if (drawerLayout.isDrawerOpen(GravityCompat.END)) {
+					right_open = true;
+					left_open = false;
+					mChatApplication.newLocalUserMessage(CONTROLLER_CMD_UI_HT_OP);
+				}
 			}
 		}
 
@@ -512,44 +500,53 @@ public class TvControllerActivity extends Activity {
 
 		@Override
 		public void onDrawerStateChanged(int newState) {
-			String state;
-			switch (newState) {
-			case DrawerLayout.STATE_IDLE:
-				state = "STATE_IDLE";
-				break;
-			case DrawerLayout.STATE_DRAGGING:
-				state = "STATE_DRAGGING";
-				break;
-			case DrawerLayout.STATE_SETTLING:
-				state = "STATE_SETTLING";
-				break;
-			default:
-				state = "unknown!";
-			}
 
 		}
 	};
 
-	private void channelFastCheck() {
+	private void channelFastCheck_pos() {
 		if (is_controllable) {
 			is_controllable = false;
 			new android.os.Handler().postDelayed(new Runnable() {
 				public void run() {
 					is_controllable = true;
 				}
-			}, 400);
+			}, 200);
 		} else {
 			return;
 		}
 		if (channelBarOnTouched) {
-			delta++;
+			channelCMD(++delta);
 			TextView delta_value = (TextView) findViewById(R.id.channel_delta);
 			delta_value.setText(String.valueOf(delta));
 			new android.os.Handler().postDelayed(new Runnable() {
 				public void run() {
-					channelFastCheck();
+					channelFastCheck_pos();
 				}
-			}, 500);
+			}, 250);
+		}
+	}
+
+	private void channelFastCheck_neg() {
+		if (is_controllable) {
+			is_controllable = false;
+			new android.os.Handler().postDelayed(new Runnable() {
+				public void run() {
+					is_controllable = true;
+				}
+			}, 200);
+		} else {
+			return;
+		}
+		if (channelBarOnTouched) {
+			channelCMD(--delta);
+			TextView delta_value = (TextView) findViewById(R.id.channel_delta);
+			delta_value.setText(String.valueOf(delta));
+			new android.os.Handler().postDelayed(new Runnable() {
+				public void run() {
+					channelFastCheck_neg();
+				}
+			}, 250);
 		}
 	}
 

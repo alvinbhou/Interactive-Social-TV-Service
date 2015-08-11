@@ -88,7 +88,7 @@ public class SettingsActivity extends Activity {
 
 		}
 
-		String[] strings = getResources().getStringArray(R.array.list_content);
+		String[] strings = getResources().getStringArray(R.array.bookmarkChannels);
 
 		// Prepare the header view for our list
 		headerView = new View(this);
