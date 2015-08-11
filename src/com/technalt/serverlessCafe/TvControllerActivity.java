@@ -1,10 +1,17 @@
 package com.technalt.serverlessCafe;
 
+import java.io.File;
+import java.security.PublicKey;
+
+import com.npi.blureffect.Blur;
+import com.npi.blureffect.ImageUtils;
 import com.technalt.serverless.CafeApplication;
 
+import android.R.string;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
@@ -16,10 +23,14 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.renderscript.Sampler.Value;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.VerticalSeekBar;
+import android.widget.AbsListView.LayoutParams;
 import android.os.Bundle;
 import android.app.Activity;
 import android.media.Image;
+import android.opengl.Visibility;
+import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.DrawerLayout.DrawerListener;
 import android.text.method.ScrollingMovementMethod;
@@ -31,24 +42,32 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.graphics.PorterDuff;
 
 public class TvControllerActivity extends Activity {
 
+	/* AllJoyn Controll */
 	private final String CONTROLLER_CMD_UI_LEFT = "ISTVSgoleft";
 	private final String CONTROLLER_CMD_UI_RIGHT = "ISTVSgoright";
 	private final String CONTROLLER_CMD_UI_OK = "ISTVSok";
-	private final String CONTTOLLER_CMD_VL = "ISTVvolume";
+	private final String CONTROLLER_CMD_VL = "ISTVSvl-";
+	private final String CONTROLLER_CMD_UI_BM_OP = "ISTVSsb";
+	private final String CONTROLLER_CMD_UI_BM_CL = "ISTVShb";
+	private final String CONTROLLER_CMD_UI_HT_OP = "ISTVSsh";
+	private final String CONTROLLER_CMD_UI_HT_CL = "ISTVShh";
 
 	private enum Direction {
 		LEFT, RIGHT
@@ -74,13 +93,11 @@ public class TvControllerActivity extends Activity {
 	private Sensor gSensor;
 
 	/*------------- UI --------*/
-
 	DrawerLayout drawerLayout;
 	View leftDrawerView, rightDrawerView;
-	TextView textPrompt, textPrompt2;
 	ListView bookmarkDrawerList, historyDrawerList;
 	TextView textSelection, channel_information;
-	Button share_btn, snap_btn;
+	Button share_btn, snap_btn, gesture_btn;
 
 	private String[] bookmark_Channels = { "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday",
 			"sad", "BBC", "CNN", "ESPN", "lor", "asd", "asdas" };
@@ -90,23 +107,33 @@ public class TvControllerActivity extends Activity {
 	ArrayAdapter<String> arrayAdapter1;
 	ArrayAdapter<String> arrayAdapter2;
 
+	/*----------- Channel -----*/
 	SeekBar ChannelBar;
+	int shift = 0, delta = 0, pos_count = 0, neg_count = 0;
+	boolean channelBarOnTouched = false;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_tvcontroller);
 
-		/*
-		 * Create Bitmap Failed FrameLayout view = (FrameLayout)
-		 * findViewById(R.id.root_layout); view.setDrawingCacheEnabled(true);
-		 * view.buildDrawingCache(); Bitmap bm = view.getDrawingCache(); Blut
-		 * bitmap Bitmap blur_bm = Bitmap.createScaledBitmap(bm, bm.getWidth(),
-		 * bm.getHeight(), true);
-		 * 
-		 * 
-		 * /* BLur btn
-		 */
+		/* Gesture Btn */
+		gesture_btn = (Button) findViewById(R.id.gesture_btn);
+		gesture_btn.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				LinearLayout vl_layout = (LinearLayout) findViewById(R.id.vl_layout);
+				LinearLayout ch_layout = (LinearLayout) findViewById(R.id.ch_layout);
+				LinearLayout gt_layout = (LinearLayout) findViewById(R.id.gesture_layout);
+				LinearLayout bottom_container = (LinearLayout) findViewById(R.id.bottom_container);
+				vl_layout.setVisibility(View.GONE);
+				ch_layout.setVisibility(View.GONE);
+				gt_layout.setVisibility(View.VISIBLE);
+				// bottom_container.getBackground().setColorFilter(Color.parseColor("#333333"),
+				// PorterDuff.Mode.MULTIPLY);
+			}
+		});
 
 		/* Share Btn */
 		share_btn = (Button) findViewById(R.id.share_btn);
@@ -129,10 +156,12 @@ public class TvControllerActivity extends Activity {
 		volume_bar.setOnSeekBarChangeListener(new VerticalSeekBar.OnSeekBarChangeListener() {
 			@Override
 			public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-				// TODO Auto-generated method stub
-				volume_value.setText(String.valueOf(progress));
-				mChatApplication.newLocalUserMessage(CONTTOLLER_CMD_VL);
-
+				String s, cmd;
+				s = String.valueOf(progress);
+				cmd = CONTROLLER_CMD_VL;
+				cmd = cmd.concat(s);
+				volume_value.setText(s);
+				volumeCMD(cmd);
 			}
 
 			@Override
@@ -142,50 +171,59 @@ public class TvControllerActivity extends Activity {
 
 			@Override
 			public void onStopTrackingTouch(SeekBar seekBar) {
+
 				Log.d("TESsT", "IS THIS A CAKE");
 			}
 		});
-
-		// Handler seekBarHandler = new Handler();
 
 		/* Channel Seekbar */
 		ChannelBar = (SeekBar) findViewById(R.id.customSeekBar);
 		ChannelBar.setProgress(50);
 		final TextView channel_value = (TextView) findViewById(R.id.channel_value);
-		final TextView shift_Value = (TextView)findViewById(R.id.channel_shift);
+		final TextView shift_Value = (TextView) findViewById(R.id.channel_shift);
 		ChannelBar.setOnSeekBarChangeListener(new VerticalSeekBar.OnSeekBarChangeListener() {
 			@Override
 			public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
 				// TODO Auto-generated method stub
-				channel_value.setText(String.valueOf(progress));
-				
+				int x = ChannelBar.getProgress();
+				channel_value.setText(String.valueOf(x));
+
 				// CHannel Processing
-				int shift = 0;
+				Log.d("ChannelBar", "Touched");
 				shift = progress - 50;
 				shift_Value.setText(String.valueOf(shift));
-				
-				// Channel Increasing
-				if(shift > 20 && shift < 100){
-					
-				}
-				
+
+				channelBarOnTouched = true;
+				new android.os.Handler().postDelayed(new Runnable() {
+					public void run() {
+						if (channelBarOnTouched) {
+							channelFastCheck();
+						}
+					}
+				}, 500);
+
+				// channel
+
 			}
 
 			@Override
 			public void onStartTrackingTouch(SeekBar seekBar) {
 				// TODO Auto-generated method stub
+				Log.d("Tracking", "msg");
 			}
 
 			@Override
 			public void onStopTrackingTouch(SeekBar seekBar) {
+				delta++;
+				TextView delta_value = (TextView) findViewById(R.id.channel_delta);
+				delta_value.setText(String.valueOf(delta));
 				ChannelBar.setProgress(50);
+				channelBarOnTouched = false;
 				Log.d("TEST", "IS THIS A CAKE");
 			}
 		});
 
-	
-		
-		
+		/* Channel Shifting */
 
 		/* For TextView Scroll */
 		channel_information = (TextView) findViewById(R.id.channel_infor);
@@ -198,7 +236,7 @@ public class TvControllerActivity extends Activity {
 		leftDrawerView = (View) findViewById(R.id.leftdrawer);
 		rightDrawerView = (View) findViewById(R.id.rightdrawer);
 
-		// drawerLayout.setDrawerListener(myDrawerListener);
+		drawerLayout.setDrawerListener(myDrawerListener);
 
 		/*
 		 * In my trial experiment: Without dummy OnTouchListener for the
@@ -286,7 +324,7 @@ public class TvControllerActivity extends Activity {
 		 */
 
 		mChatApplication = (CafeApplication) getApplication();
-		
+
 	}
 
 	/* Sensor Event */
@@ -425,7 +463,94 @@ public class TvControllerActivity extends Activity {
 			break;
 		}
 		}
+	}
 
+	private void volumeCMD(String cmd) {
+		if (is_controllable) {
+			is_controllable = false;
+			new android.os.Handler().postDelayed(new Runnable() {
+				public void run() {
+					is_controllable = true;
+				}
+			}, 10);
+		} else {
+			return;
+		}
+		// Toast.makeText(TvControllerActivity.this,cmd,100).show();
+		mChatApplication.newLocalUserMessage(cmd);
+	}
+
+	private void channelChangeCheck() {
+		if (shift > 10) {
+			delta++;
+			pos_count++;
+		}
+	}
+
+	DrawerListener myDrawerListener = new DrawerListener() {
+
+		@Override
+		public void onDrawerClosed(View drawerView) {
+
+			mChatApplication.newLocalUserMessage(CONTROLLER_CMD_UI_BM_CL);
+		}
+
+		@Override
+		public void onDrawerOpened(View drawerView) {
+			if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
+				mChatApplication.newLocalUserMessage(CONTROLLER_CMD_UI_BM_OP);
+			}
+			if (drawerLayout.isDrawerOpen(GravityCompat.END)) {
+				mChatApplication.newLocalUserMessage(CONTROLLER_CMD_UI_HT_OP);
+			}
+		}
+
+		@Override
+		public void onDrawerSlide(View drawerView, float slideOffset) {
+
+		}
+
+		@Override
+		public void onDrawerStateChanged(int newState) {
+			String state;
+			switch (newState) {
+			case DrawerLayout.STATE_IDLE:
+				state = "STATE_IDLE";
+				break;
+			case DrawerLayout.STATE_DRAGGING:
+				state = "STATE_DRAGGING";
+				break;
+			case DrawerLayout.STATE_SETTLING:
+				state = "STATE_SETTLING";
+				break;
+			default:
+				state = "unknown!";
+			}
+
+		}
+	};
+
+	private void channelFastCheck() {
+		if (is_controllable) {
+			is_controllable = false;
+			new android.os.Handler().postDelayed(new Runnable() {
+				public void run() {
+					is_controllable = true;
+				}
+			}, 400);
+		} else {
+			return;
+		}
+		if (channelBarOnTouched) {
+			delta++;
+			TextView delta_value = (TextView) findViewById(R.id.channel_delta);
+			delta_value.setText(String.valueOf(delta));
+			new android.os.Handler().postDelayed(new Runnable() {
+				public void run() {
+					channelFastCheck();
+				}
+			}, 500);
+		}
 	}
 
 }

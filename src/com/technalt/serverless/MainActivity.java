@@ -32,6 +32,7 @@ import android.widget.Toast;
 
 import com.technalt.serverlessCafe.ControllerActivity;
 import com.technalt.serverlessCafe.R;
+import com.technalt.serverlessCafe.SettingsActivity;
 
 public class MainActivity extends Activity implements Observer {
 
@@ -78,7 +79,21 @@ public class MainActivity extends Activity implements Observer {
 			@Override
 			public void onClick(View v) {
 				controller_clicked = true;
-				Intent intent = new Intent(MainActivity.this, ControllerActivity.class);
+				
+					
+						Intent intent = new Intent(MainActivity.this, ControllerActivity.class);
+						startActivity(intent);
+						overridePendingTransition(R.anim.fadein, R.anim.fadeout);
+				
+			}
+		});
+		final LinearLayout settingLayout = (LinearLayout) findViewById(R.id.helpLayout);
+		// click listeners
+		settingLayout.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				// controller_clicked = true;
+				Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
 				startActivity(intent);
 			}
 		});
