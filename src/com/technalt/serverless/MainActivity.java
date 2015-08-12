@@ -78,91 +78,34 @@ public class MainActivity extends Activity implements Observer {
 			@Override
 			public void onClick(View v) {
 				controller_clicked = true;
-
 				Intent intent = new Intent(MainActivity.this, ControllerActivity.class);
 				startActivity(intent);
 				overridePendingTransition(R.anim.fadein, R.anim.fadeout);
 
 			}
 		});
-//		final LinearLayout settingLayout = (LinearLayout) findViewById(R.id.helpLayout);
-//		// click listeners
-//		settingLayout.setOnClickListener(new OnClickListener() {
-//			@Override
-//			public void onClick(View v) {
-//				// controller_clicked = true;
-//				Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
-//				startActivity(intent);
-//			}
-//		});
+		// final LinearLayout settingLayout = (LinearLayout)
+		// findViewById(R.id.helpLayout);
+		// // click listeners
+		// settingLayout.setOnClickListener(new OnClickListener() {
+		// @Override
+		// public void onClick(View v) {
+		// // controller_clicked = true;
+		// Intent intent = new Intent(MainActivity.this,
+		// SettingsActivity.class);
+		// startActivity(intent);
+		// }
+		// });
 
 		// alljoyn
-		start = (Button) findViewById(R.id.startchannel);
-		stop = (Button) findViewById(R.id.stopchannel);
-		join = (Button) findViewById(R.id.joinchannel);
-
+		stop = new Button(this);
+		join = new Button(this);
 		preview = (TextView) findViewById(R.id.textpreview);
-		edit = (EditText) findViewById(R.id.editpreview);
-
-		sendjson = (Button) findViewById(R.id.sendjson);
-
-		leave = (Button) findViewById(R.id.leavechannel);
-
+		edit = new EditText(this);
+		sendjson = new Button(this);
+		leave = new Button(this);
 		stop.setEnabled(false);
-		sendjson.setEnabled(false);
 		leave.setEnabled(false);
-
-		sendjson.setOnClickListener(new OnClickListener() {
-
-			@Override
-			public void onClick(View arg0) {
-
-				String s = edit.getText().toString() + "";
-
-				mChatApplication.newLocalUserMessage(s);
-
-				edit.setText("");
-
-			}
-		});
-
-		start.setOnClickListener(new OnClickListener() {
-
-			@Override
-			public void onClick(View arg0) {
-
-				mChatApplication.hostSetChannelName("FutureInsighters");
-				mChatApplication.hostInitChannel();
-				mChatApplication.hostStartChannel();
-
-				start.setEnabled(false);
-
-				stop.setEnabled(true);
-
-			}
-		});
-
-		// new android.os.Handler().postDelayed(
-		// new Runnable() {
-		// public void run() {
-		// start.performClick();
-		// }
-		// },
-		// 300);
-
-		stop.setOnClickListener(new OnClickListener() {
-
-			@Override
-			public void onClick(View v) {
-				mChatApplication.hostStopChannel();
-
-				stop.setEnabled(false);
-				start.setEnabled(true);
-				leave.setEnabled(false);
-				sendjson.setEnabled(false);
-
-			}
-		});
 
 		join.setOnClickListener(new OnClickListener() {
 
@@ -199,12 +142,14 @@ public class MainActivity extends Activity implements Observer {
 					name = channelList.getItemAtPosition(i).toString();
 					if (name.equals("FutureInsighters")) {
 						found = true;
+
 					}
-
-					// String name =
-					// channelList.getItemAtPosition(0).toString();
-
 					if (!found) {
+						new android.os.Handler().postDelayed(new Runnable() {
+							public void run() {
+								join.performClick();
+							}
+						}, 500);
 						return;
 					}
 					mChatApplication.useSetChannelName(name);
@@ -215,49 +160,22 @@ public class MainActivity extends Activity implements Observer {
 					join.setEnabled(false);
 					sendjson.setEnabled(true);
 					leave.setEnabled(true);
-
 				}
-
-				// dialog.dismiss();
-
-				// channelList.setOnItemClickListener(new
-				// ListView.OnItemClickListener() {
-				// public void onItemClick(AdapterView<?> parent, View view, int
-				// position, long id) {
-				// String name =
-				// channelList.getItemAtPosition(position).toString();
-				// mChatApplication.useSetChannelName(name);
-				// mChatApplication.useJoinChannel();
-				//
-				//
-				// start.setEnabled(false);
-				// stop.setEnabled(false);
-				// join.setEnabled(false);
-				// sendjson.setEnabled(true);
-				// leave.setEnabled(true);
-				//
-				// dialog.dismiss();
-				// }
-				// });
-
-				//// Button cancel =
-				//// (Button)dialog.findViewById(R.id.useJoinCancel);
-				// cancel.setOnClickListener(new View.OnClickListener() {
-				// public void onClick(View view) {
-				//
-				// dialog.dismiss();
-				// }
-				// });
-
-				// dialog.show();
 			}
 		});
 
-		new android.os.Handler().postDelayed(new Runnable() {
-			public void run() {
-				join.performClick();
+		stop.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				mChatApplication.hostStopChannel();
+				stop.setEnabled(false);
+				start.setEnabled(true);
+				leave.setEnabled(false);
+				sendjson.setEnabled(false);
+
 			}
-		}, 500);
+		});
 
 		leave.setOnClickListener(new OnClickListener() {
 
@@ -460,12 +378,6 @@ public class MainActivity extends Activity implements Observer {
 		params.height = (int) (screenWidth / 2);
 		connect_logo.setLayoutParams(params);
 
-		// layoutParams.setMargins(70, 70, 70, 70);
-
-		// logoLayout.setLayoutParams(params);
-
-		// connect_logo.setLayoutParams(layoutParams);
-
 		params = connectLayout.getLayoutParams();
 		params.width = (int) (screenWidth);
 		params.height = (int) (screenHeight * 0.45);
@@ -474,19 +386,6 @@ public class MainActivity extends Activity implements Observer {
 		params = bottomLayout.getLayoutParams();
 		params.width = (int) screenWidth;
 		params.height = (int) (screenWidth / 2);
-
-		// bottomLayout.setLayoutParams(params);
-		//
-		// params = controllerLayout.getLayoutParams();
-		// params.width = (int)(screenWidth*0.46);
-		// params.height = (int)(screenWidth*0.4);
-		// controllerLayout.setLayoutParams(params);
-		//
-		// params = helpLayout.getLayoutParams();
-		// params.width = (int)(screenWidth*0.46);
-		// params.height = (int)(screenWidth*0.4);
-		// helpLayout.setLayoutParams(params);
-
 	}
 
 	// connection image (rotate and stuff)
@@ -496,12 +395,19 @@ public class MainActivity extends Activity implements Observer {
 		connect_img.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				if (flag_connect) {
-					flash();
-					flag_connect = true;
-				}
+
+				// if (flag_connect) {
+				// flash();
+				// flag_connect = true;
+				// }
 				connect_img.startAnimation(rotate);
 				connect_img.setEnabled(false);
+
+				new android.os.Handler().postDelayed(new Runnable() {
+					public void run() {
+						join.performClick();
+					}
+				}, 1000);
 			}
 		});
 

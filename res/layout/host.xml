@@ -30,14 +30,12 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Connect Failure!" />
-            
+
             <TextView
-                 android:id="@+id/size"
+                android:id="@+id/size"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="List size!"/>                
-                
-                
+                android:text="List size!" />
         </LinearLayout>
 
         <LinearLayout
@@ -106,36 +104,6 @@
                 android:clickable="true"
                 android:orientation="horizontal" >
 
-                <Button
-                    android:id="@+id/startchannel"
-                    android:layout_width="1dp"
-                    android:layout_height="wrap_content"
-                    android:text="Start Session" />
-
-                <Button
-                    android:id="@+id/stopchannel"
-                    android:layout_width="1dp"
-                    android:layout_height="wrap_content"
-                    android:text="Stop Session" />
-
-                <Button
-                    android:id="@+id/joinchannel"
-                    android:layout_width="1dp"
-                    android:layout_height="wrap_content"
-                    android:text="Join Session" />
-
-                <Button
-                    android:id="@+id/sendjson"
-                    android:layout_width="1dp"
-                    android:layout_height="wrap_content"
-                    android:text="Send Data" />
-
-                <Button
-                    android:id="@+id/leavechannel"
-                    android:layout_width="1dp"
-                    android:layout_height="wrap_content"
-                    android:text="Leave Session" />
-
                 <TextView
                     android:id="@+id/textpreview"
                     android:layout_width="match_parent"
@@ -143,14 +111,6 @@
                     android:hint="message"
                     android:padding="10dp"
                     android:textAppearance="?android:attr/textAppearanceLarge" />
-
-                <EditText
-                    android:id="@+id/editpreview"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="Add msg to Sync"
-                    android:padding="10dp" >
-                </EditText>
             </LinearLayout>
         </LinearLayout>
     </LinearLayout>
