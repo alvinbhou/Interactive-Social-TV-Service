@@ -7,6 +7,7 @@ import com.npi.blureffect.Blur;
 import com.npi.blureffect.ImageUtils;
 import com.technalt.serverless.CafeApplication;
 
+import android.R.anim;
 import android.R.string;
 import android.app.Activity;
 import android.content.Intent;
@@ -118,7 +119,9 @@ public class TvControllerActivity extends Activity {
 				LinearLayout bottom_container = (LinearLayout) findViewById(R.id.bottom_container);
 				vl_layout.setVisibility(View.GONE);
 				cn_layout.setVisibility(View.GONE);
+				
 				gt_layout.setVisibility(View.VISIBLE);
+				
 				// bottom_container.getBackground().setColorFilter(Color.parseColor("#333333"),
 				// PorterDuff.Mode.MULTIPLY);
 			}
