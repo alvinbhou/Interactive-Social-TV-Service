@@ -71,7 +71,19 @@ public class ControllerActivity extends Activity {
 
 		
 	}
+	
+	protected void onPause(){
+		super.onPause();
+		sensorManager.unregisterListener(aSensorListener);
+		sensorManager.unregisterListener(gSensorListener);
+	}
 
+	protected void onResume(){
+		super.onResume();
+		sensorManager.registerListener(aSensorListener, aSensor, SensorManager.SENSOR_DELAY_NORMAL);
+		sensorManager.registerListener(gSensorListener, gSensor, SensorManager.SENSOR_DELAY_NORMAL);
+
+	}
 	private SensorEventListener aSensorListener = new SensorEventListener() {
 		public void onSensorChanged(SensorEvent event) {
 			a_x = event.values[0];
