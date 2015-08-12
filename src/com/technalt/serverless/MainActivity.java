@@ -53,11 +53,13 @@ public class MainActivity extends Activity implements Observer {
 	private static final int HANDLE_APPLICATION_QUIT_EVENT = 0;
 	private static final int HANDLE_CHANNEL_STATE_CHANGED_EVENT = 1;
 	private static final int HANDLE_ALLJOYN_ERROR_EVENT = 2;
+	private int retry_count = 0;
 
 	// icons
 	ImageView connect_img;
 	Boolean flag_connect = true;
 	Boolean controller_clicked = false;
+	Button connect_success, connect_failure;
 	// boolean found = false;
 
 	@Override
@@ -142,25 +144,32 @@ public class MainActivity extends Activity implements Observer {
 					name = channelList.getItemAtPosition(i).toString();
 					if (name.equals("FutureInsighters")) {
 						found = true;
+						connect_success.performClick();
 
 					}
-					if (!found) {
-						new android.os.Handler().postDelayed(new Runnable() {
-							public void run() {
-								join.performClick();
-							}
-						}, 500);
-						return;
-					}
-					mChatApplication.useSetChannelName(name);
-					mChatApplication.useJoinChannel();
-
-					start.setEnabled(false);
-					stop.setEnabled(false);
-					join.setEnabled(false);
-					sendjson.setEnabled(true);
-					leave.setEnabled(true);
 				}
+				if (!found) {
+					new android.os.Handler().postDelayed(new Runnable() {
+						public void run() {							
+							retry_count++;
+							if (retry_count > 20) {
+								connect_failure.performClick();
+								return;
+							}
+							join.performClick();
+						}
+					}, 500);
+					return;
+				}
+				mChatApplication.useSetChannelName(name);
+				mChatApplication.useJoinChannel();
+
+				start.setEnabled(false);
+				stop.setEnabled(false);
+				join.setEnabled(false);
+				sendjson.setEnabled(true);
+				leave.setEnabled(true);
+
 			}
 		});
 
@@ -407,17 +416,18 @@ public class MainActivity extends Activity implements Observer {
 					public void run() {
 						join.performClick();
 					}
-				}, 1000);
+				}, 2000);
 			}
 		});
 
-		Button connect_success = (Button) findViewById(R.id.connect_success);
-		Button connect_failure = (Button) findViewById(R.id.connect_fail);
+		connect_success = (Button) findViewById(R.id.connect_success);
+		connect_failure = (Button) findViewById(R.id.connect_fail);
 		connect_success.setOnClickListener(new OnClickListener() {
 
 			@Override
 			public void onClick(View v) {
 				connect_img.setImageResource(R.drawable.icon_connect_success);
+				connect_img.clearAnimation();
 			}
 		});
 		connect_failure.setOnClickListener(new OnClickListener() {
@@ -425,6 +435,7 @@ public class MainActivity extends Activity implements Observer {
 			@Override
 			public void onClick(View v) {
 				connect_img.setImageResource(R.drawable.icon_connect_fail);
+				connect_img.clearAnimation();			
 			}
 		});
 	}
