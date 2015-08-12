@@ -1,7 +1,6 @@
 package com.technalt.serverlessCafe;
 
 import com.technalt.serverless.CafeApplication;
-
 import android.app.Activity;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
@@ -96,6 +95,10 @@ public class TvControllerActivity extends Activity {
 		public String name;
 		public String intro;
 	}
+	
+	/* String arrays */
+	private String[] bookmark_Channels = { "sad", "BBC", "CNN", "ESPN", "lor", "asd", "asdas" };
+	private String[] history_Channels = { "HBO", "STAR", "TVBS", "sad", "BBC", "CNN", "ESPN" };
 
 	/* ---- */
 	@Override
@@ -290,7 +293,7 @@ public class TvControllerActivity extends Activity {
 		textSelection = (TextView) findViewById(R.id.selection);
 		bookmarkDrawerList = (ListView) findViewById(R.id.bookmarklist);
 		arrayAdapter1 = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1,
-				getResources().getStringArray(R.array.bookmarkChannels)) {
+				bookmark_Channels) {
 
 			@Override
 			public View getView(int position, View convertView, ViewGroup parent) {
@@ -328,7 +331,7 @@ public class TvControllerActivity extends Activity {
 		textSelection = (TextView) findViewById(R.id.selection);
 		historyDrawerList = (ListView) findViewById(R.id.historylist);
 		arrayAdapter2 = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1,
-				getResources().getStringArray(R.array.historyChannels)) {
+				history_Channels) {
 
 			@Override
 			public View getView(int position, View convertView, ViewGroup parent) {

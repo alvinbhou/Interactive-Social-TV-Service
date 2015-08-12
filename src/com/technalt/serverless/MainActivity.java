@@ -41,7 +41,7 @@ public class MainActivity extends Activity implements Observer {
 	// alljoyn
 
 	private Button join;
-	private Button stop;	
+	private Button stop;
 	private Button leave;
 	private Button sendjson;
 
@@ -54,15 +54,17 @@ public class MainActivity extends Activity implements Observer {
 	private static final int HANDLE_ALLJOYN_ERROR_EVENT = 2;
 	private int retry_count = 0;
 
-	
+	/* Layout */
+	private LinearLayout controllerLayout;
+
 	/* TV to client CMD */
 	private final String TV_RESPONSE_CHANNEL = "SVTSIcurchannel";
 	private final String TV_RESPONSE_CHANNEL_INFO = "SVTSIcurchannelinfo";
-	
+
 	// icons
 	ImageView connect_img;
 	Boolean flag_connect = true;
-	Boolean controller_clicked = false;
+	Boolean controller_connected_clicked = false;
 	Button connect_success, connect_failure;
 	// boolean found = false;
 
@@ -78,12 +80,14 @@ public class MainActivity extends Activity implements Observer {
 		uiInit();
 		connection_image();
 
-		final LinearLayout controllerLayout = (LinearLayout) findViewById(R.id.controllerLayout);
+		controllerLayout = (LinearLayout) findViewById(R.id.controllerLayout);
+		controllerLayout.setEnabled(false);
+
 		// click listeners
 		controllerLayout.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				controller_clicked = true;
+				controller_connected_clicked = true;
 				Intent intent = new Intent(MainActivity.this, ControllerActivity.class);
 				startActivity(intent);
 				overridePendingTransition(R.anim.fadein, R.anim.fadeout);
@@ -154,9 +158,10 @@ public class MainActivity extends Activity implements Observer {
 				}
 				if (!found) {
 					new android.os.Handler().postDelayed(new Runnable() {
-						public void run() {							
+						public void run() {
 							retry_count++;
 							if (retry_count > 20) {
+								retry_count = 0;
 								connect_failure.performClick();
 								return;
 							}
@@ -168,7 +173,6 @@ public class MainActivity extends Activity implements Observer {
 				mChatApplication.useSetChannelName(name);
 				mChatApplication.useJoinChannel();
 
-				
 				stop.setEnabled(false);
 				join.setEnabled(false);
 				sendjson.setEnabled(true);
@@ -182,7 +186,7 @@ public class MainActivity extends Activity implements Observer {
 			@Override
 			public void onClick(View v) {
 				mChatApplication.hostStopChannel();
-				stop.setEnabled(false);				
+				stop.setEnabled(false);
 				leave.setEnabled(false);
 				sendjson.setEnabled(false);
 
@@ -292,12 +296,12 @@ public class MainActivity extends Activity implements Observer {
 		String messager = mChatApplication.getHistoryMessage();
 
 		preview.setText(messager);
-		
-		if(messager.contains(TV_RESPONSE_CHANNEL_INFO)){
+
+		if (messager.contains(TV_RESPONSE_CHANNEL_INFO)) {
 			Intent intent = new Intent("channelInfo");
-			intent.putExtra("number", messager.substring(messager.indexOf(" --") + 3, messager.indexOf(" ---") ));
-			intent.putExtra("name", messager.substring(messager.indexOf(" ---") + 4, messager.indexOf(" ----") ));
-			intent.putExtra("intro",messager.substring(messager.indexOf(" ----") + 5));
+			intent.putExtra("number", messager.substring(messager.indexOf(" --") + 3, messager.indexOf(" ---")));
+			intent.putExtra("name", messager.substring(messager.indexOf(" ---") + 4, messager.indexOf(" ----")));
+			intent.putExtra("intro", messager.substring(messager.indexOf(" ----") + 5));
 			this.sendBroadcast(intent);
 			Toast.makeText(getApplicationContext(), "MSG sent!", Toast.LENGTH_SHORT).show();
 		}
@@ -415,8 +419,8 @@ public class MainActivity extends Activity implements Observer {
 				// flash();
 				// flag_connect = true;
 				// }
+				connect_img.setImageResource(R.drawable.icon_connecting);
 				connect_img.startAnimation(rotate);
-				connect_img.setEnabled(false);
 
 				new android.os.Handler().postDelayed(new Runnable() {
 					public void run() {
@@ -434,6 +438,9 @@ public class MainActivity extends Activity implements Observer {
 			public void onClick(View v) {
 				connect_img.setImageResource(R.drawable.icon_connect_success);
 				connect_img.clearAnimation();
+				connect_img.setEnabled(false);
+				controllerLayout.setEnabled(true);
+				flash();
 			}
 		});
 		connect_failure.setOnClickListener(new OnClickListener() {
@@ -441,7 +448,7 @@ public class MainActivity extends Activity implements Observer {
 			@Override
 			public void onClick(View v) {
 				connect_img.setImageResource(R.drawable.icon_connect_fail);
-				connect_img.clearAnimation();			
+				connect_img.clearAnimation();
 			}
 		});
 	}
@@ -464,7 +471,7 @@ public class MainActivity extends Activity implements Observer {
 			}
 		}, 1000);
 
-		if (!controller_clicked) {
+		if (!controller_connected_clicked) {
 			new android.os.Handler().postDelayed(new Runnable() {
 				public void run() {
 					flash();
