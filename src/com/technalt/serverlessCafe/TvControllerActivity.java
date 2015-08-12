@@ -10,6 +10,7 @@ import com.technalt.serverless.CafeApplication;
 import android.R.anim;
 import android.R.string;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -38,16 +39,19 @@ import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -56,6 +60,8 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.graphics.PorterDuff;
 
 public class TvControllerActivity extends Activity {
@@ -100,13 +106,34 @@ public class TvControllerActivity extends Activity {
 	SeekBar ChannelBar;
 	int shift = 0, delta = 0;
 	boolean channelBarOnTouched = false;
+	EditText channel_edit;
+	Button channel_submit;
+	ImageView bookmark_img;
 
 	/* ---- */
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_tvcontroller);
-
+		
+		/* Keyboard */
+		/* Avoid auto appear */
+		getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
+		channel_edit = (EditText)findViewById(R.id.editText_cn);	
+		channel_submit = (Button)findViewById(R.id.submit_cn);
+		channel_edit.setOnEditorActionListener(new EditText.OnEditorActionListener() {  
+			@Override
+			public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+				 if ((event != null && (event.getKeyCode() == KeyEvent.KEYCODE_ENTER)) || (actionId == EditorInfo.IME_ACTION_DONE)) {
+					 channel_submit.performClick();
+		            }    
+		         return false;
+				
+			}
+		 });
+		
+		
+		
 		/* Gesture Btn */
 		gesture_btn = (Button) findViewById(R.id.gesture_btn);
 		gesture_btn.setOnClickListener(new OnClickListener() {
@@ -221,6 +248,7 @@ public class TvControllerActivity extends Activity {
 				channelBarOnTouched = false;
 				TextView delta_value = (TextView) findViewById(R.id.channel_delta);
 				delta_value.setText(String.valueOf(delta));
+				
 				Log.d("TEST", "IS THIS A CAKE");
 			}
 		});
@@ -262,6 +290,15 @@ public class TvControllerActivity extends Activity {
 			}
 		};
 		bookmarkDrawerList.setAdapter(arrayAdapter1);
+		
+		bookmark_img = (ImageView)findViewById(R.id.bookmark_img);
+		bookmark_img.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				bookmark_img.setImageResource(R.drawable.bookmark_added);				
+			}
+		});
 
 		/* ------History Drawer List---- */
 		rightDrawerView.setOnTouchListener(new OnTouchListener() {
@@ -465,6 +502,7 @@ public class TvControllerActivity extends Activity {
 				// open",Toast.LENGTH_SHORT).show();
 				mChatApplication.newLocalUserMessage(CONTROLLER_CMD_UI_BM_CL);
 				left_open = false;
+				bookmark_img.setImageResource(R.drawable.bookmark_add3);			
 				// Toast.makeText(TvControllerActivity.this,"Left is
 				// closed",Toast.LENGTH_SHORT).show();
 			}

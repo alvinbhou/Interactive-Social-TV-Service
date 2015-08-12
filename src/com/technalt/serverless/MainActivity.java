@@ -32,7 +32,6 @@ import android.widget.Toast;
 
 import com.technalt.serverlessCafe.ControllerActivity;
 import com.technalt.serverlessCafe.R;
-import com.technalt.serverlessCafe.SettingsActivity;
 
 public class MainActivity extends Activity implements Observer {
 
@@ -86,16 +85,16 @@ public class MainActivity extends Activity implements Observer {
 
 			}
 		});
-		final LinearLayout settingLayout = (LinearLayout) findViewById(R.id.helpLayout);
-		// click listeners
-		settingLayout.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				// controller_clicked = true;
-				Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
-				startActivity(intent);
-			}
-		});
+//		final LinearLayout settingLayout = (LinearLayout) findViewById(R.id.helpLayout);
+//		// click listeners
+//		settingLayout.setOnClickListener(new OnClickListener() {
+//			@Override
+//			public void onClick(View v) {
+//				// controller_clicked = true;
+//				Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
+//				startActivity(intent);
+//			}
+//		});
 
 		// alljoyn
 		start = (Button) findViewById(R.id.startchannel);

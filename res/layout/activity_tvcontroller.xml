@@ -119,7 +119,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_marginTop="10dp"
-                android:background="#604DB6AC"
+                android:background="#60FFEB3B"
                 android:orientation="horizontal"
                 android:paddingBottom="@dimen/activity_vertical_margin"
                 android:paddingLeft="@dimen/activity_horizontal_margin"
@@ -127,15 +127,38 @@
                 android:paddingTop="@dimen/activity_vertical_margin" >
 
                 <LinearLayout
+                    android:id="@+id/gesture_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:animateLayoutChanges="true"
+                    android:background="#90333333"
+                    android:orientation="vertical"
+                    android:visibility="gone" >
+
+                    <TextView
+                        android:id="@+id/gesture_txt"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:shadowColor="#FFF176"
+                        android:shadowDx="0"
+                        android:shadowDy="0"
+                        android:shadowRadius="25"
+                        android:text="Touch and start!"
+                        android:textColor="#FFF"
+                        android:textSize="30sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+                <LinearLayout
                     android:id="@+id/vl_layout"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:layout_marginRight="@dimen/activity_horizontal_margin"
                     android:layout_weight="1"
-                    android:background="#8081C784"
+                    android:animateLayoutChanges="true"
+                    android:background="#80EF5350"
                     android:orientation="vertical"
-                    android:visibility="visible" 
-                    android:animateLayoutChanges="true">
+                    android:visibility="visible" >
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -163,38 +186,14 @@
                 </LinearLayout>
 
                 <LinearLayout
-                    android:id="@+id/gesture_layout"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:background="#90333333"
-                    android:orientation="vertical"
-                    android:visibility="gone" 
-                    android:animateLayoutChanges="true">
-                    
-                   <TextView
-                    android:id="@+id/gesture_txt"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"   
-                    android:shadowColor="#FFF176"
-                    android:shadowDx="0"
-                    android:shadowDy="0"
-                    android:shadowRadius="25"
-                    android:text="Touch and start!"
-                    android:textColor="#FFF"
-                    android:textSize="30sp"
-                    android:textStyle="bold" />
-                        
-                </LinearLayout>
-
-                <LinearLayout
                     android:id="@+id/cn_layout"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:layout_weight="3"
-                    android:background="#4081C784"
+                    android:animateLayoutChanges="true"
+                    android:background="#80EF5350"
                     android:orientation="vertical"
-                    android:paddingLeft="@dimen/activity_horizontal_margin"
-                    android:animateLayoutChanges="true" >
+                    android:paddingLeft="@dimen/activity_horizontal_margin" >
 
                     <TextView
                         android:id="@+id/channel_value"
@@ -250,6 +249,32 @@
                         android:layout_height="wrap_content"
                         android:background="@drawable/raised_button"
                         android:text="+" />
+
+                    <LinearLayout
+                        android:id="@+id/ch_block"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="5dp"
+                        android:background="@drawable/customborder"
+                        android:orientation="horizontal" >
+
+                        <EditText
+                            android:id="@+id/editText_cn"
+                            android:layout_width="50dp"
+                            android:layout_height="wrap_content"
+                            android:imeOptions="actionDone"
+                            android:inputType="number"
+                            android:singleLine="true" />
+
+                        <Button
+                            android:id="@+id/submit_cn"
+                            style="?android:attr/borderlessButtonStyle"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_toRightOf="@id/editText_cn"
+                            android:text="Submit"
+                            android:textColor="#ffffff" />
+                    </LinearLayout>
                 </LinearLayout>
             </LinearLayout>
         </LinearLayout>
@@ -276,7 +301,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="5dp"
-                android:src="@drawable/bookmark_add" />
+                android:src="@drawable/bookmark_add3" />
 
             <ListView
                 android:id="@+id/bookmarklist"
