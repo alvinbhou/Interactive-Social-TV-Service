@@ -1,37 +1,19 @@
 package com.technalt.serverlessCafe;
 
-import java.io.File;
-import java.security.PublicKey;
-
-import com.npi.blureffect.Blur;
-import com.npi.blureffect.ImageUtils;
 import com.technalt.serverless.CafeApplication;
 
-import android.R.anim;
-import android.R.string;
 import android.app.Activity;
+import android.app.Activity;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.drawable.BitmapDrawable;
+import android.content.IntentFilter;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
-import android.os.Handler;
-import android.renderscript.Sampler.Value;
-import android.widget.TextView;
-import android.widget.Toast;
-import android.widget.VerticalSeekBar;
-import android.widget.AbsListView.LayoutParams;
 import android.os.Bundle;
-import android.app.Activity;
-import android.media.Image;
-import android.opengl.Visibility;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.DrawerLayout.DrawerListener;
@@ -45,24 +27,19 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
-import android.view.Window;
 import android.view.WindowManager;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
+import android.view.inputmethod.EditorInfo;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.SeekBar;
 import android.widget.TextView;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
-import android.view.inputmethod.EditorInfo;
-import android.view.inputmethod.InputMethodManager;
-import android.graphics.PorterDuff;
+import android.widget.TextView;
+import android.widget.Toast;
+import android.widget.VerticalSeekBar;
 
 public class TvControllerActivity extends Activity {
 
@@ -76,6 +53,7 @@ public class TvControllerActivity extends Activity {
 	private final String CONTROLLER_CMD_UI_BM_CL = "ISTVShb";
 	private final String CONTROLLER_CMD_UI_HT_OP = "ISTVSsh";
 	private final String CONTROLLER_CMD_UI_HT_CL = "ISTVShh";
+	private final String CONTROLLER_CMD_GET_CUR_CHANNEL_INFO = "ISTVScurchannelinfo";
 
 	private enum Direction {
 		LEFT, RIGHT
@@ -93,47 +71,85 @@ public class TvControllerActivity extends Activity {
 	private Sensor gSensor;
 
 	/* UI */
-	DrawerLayout drawerLayout;
-	View leftDrawerView, rightDrawerView;
-	ListView bookmarkDrawerList, historyDrawerList;
-	TextView textSelection, channel_information;
-	Button share_btn, snap_btn, gesture_btn;
-	ArrayAdapter<String> arrayAdapter1;
-	ArrayAdapter<String> arrayAdapter2;
+	private DrawerLayout drawerLayout;
+	private View leftDrawerView, rightDrawerView;
+	private ListView bookmarkDrawerList, historyDrawerList;
+	private TextView textSelection, channel_information;
+	private Button share_btn, snap_btn, gesture_btn;
+	private ArrayAdapter<String> arrayAdapter1;
+	private ArrayAdapter<String> arrayAdapter2;
 	boolean left_open = false, right_open = false;
 
 	/* Channel */
-	SeekBar ChannelBar;
-	int shift = 0, delta = 0;
-	boolean channelBarOnTouched = false;
-	EditText channel_edit;
-	Button channel_submit;
-	ImageView bookmark_img;
+	private SeekBar ChannelBar;
+	private int shift = 0, delta = 0;
+	private boolean channelBarOnTouched = false;
+	private EditText channel_edit;
+	private Button channel_submit;
+	private ImageView bookmark_img;
+
+	/* Channel Info */
+	private ChannelInfo channelInfo = new ChannelInfo();
+
+	private class ChannelInfo {
+		public int number;
+		public String name;
+		public String intro;
+	}
 
 	/* ---- */
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_tvcontroller);
-		
+
+		/* ------Start AllJoyn Service KEYWORD!!---- */
+		mChatApplication = (CafeApplication) getApplication();
+
+		/* channel info reciever */
+
+		BroadcastReceiver channelInfoBroadcastReciever = new BroadcastReceiver() {
+			@Override
+			public void onReceive(Context context, Intent intent) {
+				Toast.makeText(context, "MSG Got!", Toast.LENGTH_SHORT).show();
+				String name = intent.getStringExtra("name");
+				if (name == null || name.equals(""))
+					return;
+				int number = Integer.parseInt(intent.getStringExtra("number"));
+				String intro = intent.getStringExtra("intro");
+				Toast.makeText(context, "name: " + name + "  number: " + Integer.toString(number) + "  intro" + intro,
+						Toast.LENGTH_LONG).show();
+				channelInfo.name = name;
+				channelInfo.number = number;
+				channelInfo.intro = intro;
+				// updateChannelInfoUI();
+			}
+		};
+		IntentFilter channelInfoFilter = new IntentFilter("channelInfo");
+		registerReceiver(channelInfoBroadcastReciever, channelInfoFilter);
+
+		// FOR TEST ONLY !!!!!
+		requestCurChannelInfo();
+
+		/******* UI *******/
+
 		/* Keyboard */
 		/* Avoid auto appear */
 		getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
-		channel_edit = (EditText)findViewById(R.id.editText_cn);	
-		channel_submit = (Button)findViewById(R.id.submit_cn);
-		channel_edit.setOnEditorActionListener(new EditText.OnEditorActionListener() {  
+		channel_edit = (EditText) findViewById(R.id.editText_cn);
+		channel_submit = (Button) findViewById(R.id.submit_cn);
+		channel_edit.setOnEditorActionListener(new EditText.OnEditorActionListener() {
 			@Override
 			public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-				 if ((event != null && (event.getKeyCode() == KeyEvent.KEYCODE_ENTER)) || (actionId == EditorInfo.IME_ACTION_DONE)) {
-					 channel_submit.performClick();
-		            }    
-		         return false;
-				
+				if ((event != null && (event.getKeyCode() == KeyEvent.KEYCODE_ENTER))
+						|| (actionId == EditorInfo.IME_ACTION_DONE)) {
+					channel_submit.performClick();
+				}
+				return false;
+
 			}
-		 });
-		
-		
-		
+		});
+
 		/* Gesture Btn */
 		gesture_btn = (Button) findViewById(R.id.gesture_btn);
 		gesture_btn.setOnClickListener(new OnClickListener() {
@@ -146,9 +162,9 @@ public class TvControllerActivity extends Activity {
 				LinearLayout bottom_container = (LinearLayout) findViewById(R.id.bottom_container);
 				vl_layout.setVisibility(View.GONE);
 				cn_layout.setVisibility(View.GONE);
-				
+
 				gt_layout.setVisibility(View.VISIBLE);
-				
+
 				// bottom_container.getBackground().setColorFilter(Color.parseColor("#333333"),
 				// PorterDuff.Mode.MULTIPLY);
 			}
@@ -248,7 +264,7 @@ public class TvControllerActivity extends Activity {
 				channelBarOnTouched = false;
 				TextView delta_value = (TextView) findViewById(R.id.channel_delta);
 				delta_value.setText(String.valueOf(delta));
-				
+
 				Log.d("TEST", "IS THIS A CAKE");
 			}
 		});
@@ -290,13 +306,13 @@ public class TvControllerActivity extends Activity {
 			}
 		};
 		bookmarkDrawerList.setAdapter(arrayAdapter1);
-		
-		bookmark_img = (ImageView)findViewById(R.id.bookmark_img);
+
+		bookmark_img = (ImageView) findViewById(R.id.bookmark_img);
 		bookmark_img.setOnClickListener(new OnClickListener() {
-			
+
 			@Override
 			public void onClick(View v) {
-				bookmark_img.setImageResource(R.drawable.bookmark_added);				
+				bookmark_img.setImageResource(R.drawable.bookmark_added);
 			}
 		});
 
@@ -328,9 +344,6 @@ public class TvControllerActivity extends Activity {
 			}
 		};
 		historyDrawerList.setAdapter(arrayAdapter2);
-
-		/* ------Start AllJoyn Service KEYWORD!!---- */
-		mChatApplication = (CafeApplication) getApplication();
 
 	}
 
@@ -502,7 +515,7 @@ public class TvControllerActivity extends Activity {
 				// open",Toast.LENGTH_SHORT).show();
 				mChatApplication.newLocalUserMessage(CONTROLLER_CMD_UI_BM_CL);
 				left_open = false;
-				bookmark_img.setImageResource(R.drawable.bookmark_add3);			
+				bookmark_img.setImageResource(R.drawable.bookmark_add3);
 				// Toast.makeText(TvControllerActivity.this,"Left is
 				// closed",Toast.LENGTH_SHORT).show();
 			}
@@ -589,6 +602,13 @@ public class TvControllerActivity extends Activity {
 				}
 			}, 250);
 		}
+	}
+	
+	/* get channel info */
+	private void requestCurChannelInfo() {
+		ChannelInfo newChannelInfo = new ChannelInfo();
+		mChatApplication.newLocalUserMessage(CONTROLLER_CMD_GET_CUR_CHANNEL_INFO);
+		
 	}
 
 }
