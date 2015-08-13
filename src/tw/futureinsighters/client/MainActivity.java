@@ -1,6 +1,12 @@
-package com.technalt.serverless;
+package tw.futureinsighters.client;
 
 import java.util.List;
+
+import org.allseenaliance.alljoyn.AllJoynService;
+import org.allseenaliance.alljoyn.CafeApplication;
+import org.allseenaliance.alljoyn.Observable;
+import org.allseenaliance.alljoyn.Observer;
+import org.allseenaliance.alljoyn.AllJoynService.HostChannelState;
 
 import android.R.string;
 import android.app.Activity;
@@ -30,9 +36,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.technalt.serverlessCafe.ControllerActivity;
 import com.technalt.serverlessCafe.R;
-import com.technalt.serverlessCafe.SettingsActivity;
 
 public class MainActivity extends Activity implements Observer {
 
@@ -81,7 +85,7 @@ public class MainActivity extends Activity implements Observer {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		setContentView(R.layout.host);
+		setContentView(R.layout.activity_main);
 
 		// main menu
 

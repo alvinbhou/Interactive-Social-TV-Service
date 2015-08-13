@@ -1,6 +1,9 @@
-package com.technalt.serverlessCafe;
+package tw.futureinsighters.client;
 
-import com.technalt.serverless.CafeApplication;
+import org.allseenaliance.alljoyn.CafeApplication;
+
+import com.technalt.serverlessCafe.R;
+
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;

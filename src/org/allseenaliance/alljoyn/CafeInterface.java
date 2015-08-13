@@ -1,5 +1,9 @@
-/*
- * Copyright (c) 2011, AllSeen Alliance. All rights reserved.
+/**
+ * AllJoyn Chat Android Sample code
+ *
+ * Implementation of AllJoyn interface.
+ *
+ * Copyright (c) 2010-2011, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -13,10 +17,20 @@
  *    ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
  *    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
-package com.technalt.serverless;
+package org.allseenaliance.alljoyn;
 
+import org.alljoyn.bus.BusException;
+import org.alljoyn.bus.annotation.BusInterface;
+import org.alljoyn.bus.annotation.BusSignal;
 
-
-public interface Observer {
-	public void update(Observable o, Object arg);
+@BusInterface (name = "com.technalt.cafe")
+public interface CafeInterface {
+    /*
+     * The BusSignal annotation signifies that this function should be used as
+     * part of the AllJoyn interface.  The runtime is smart enough to figure
+     * out that this is a used as a signal emitter and is only called to send
+     * signals and not to receive signals.
+     */
+    @BusSignal
+    public void Chat(String str) throws BusException;
 }

@@ -3,4 +3,5 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:dividerHeight="1dp"
-    android:divider="#9E9E9E"/>
+    android:divider="#9E9E9E"    
+    android:cacheColorHint="#40EEEEEE"/>

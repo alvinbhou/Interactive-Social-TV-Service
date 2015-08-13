@@ -1,10 +1,11 @@
-package com.technalt.serverlessCafe;
+package tw.futureinsighters.client;
 
 import java.util.Timer;
 import java.util.TimerTask;
 
-import com.technalt.serverless.CafeApplication;
-import com.technalt.serverless.MainActivity;
+import org.allseenaliance.alljoyn.CafeApplication;
+
+import com.technalt.serverlessCafe.R;
 
 import android.app.Activity;
 import android.content.Intent;

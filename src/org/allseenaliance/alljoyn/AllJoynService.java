@@ -13,7 +13,7 @@
  *    ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
  *    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
-package com.technalt.serverless;
+package org.allseenaliance.alljoyn;
 
 
 
@@ -43,6 +43,8 @@ import android.app.Service;
 import android.content.Intent;
 
 import android.util.Log;
+import tw.futureinsighters.client.MainActivity;
+
 import com.technalt.serverlessCafe.R;
 
 public class AllJoynService extends Service implements Observer {
