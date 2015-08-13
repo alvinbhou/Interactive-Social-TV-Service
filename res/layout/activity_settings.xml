@@ -2,6 +2,5 @@
     android:id="@+id/settingListView"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:dividerHeight="1dp"
-    android:divider="#9E9E9E"    
-    android:cacheColorHint="#40EEEEEE"/>
+    android:divider="#9E9E9E"
+    android:dividerHeight="1dp" />

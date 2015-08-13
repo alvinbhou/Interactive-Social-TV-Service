@@ -135,8 +135,8 @@ public class TvControllerActivity extends Activity {
 		IntentFilter channelInfoFilter = new IntentFilter("channelInfo");
 		registerReceiver(channelInfoBroadcastReciever, channelInfoFilter);
 
-		// FOR TEST ONLY !!!!!
-		requestCurChannelInfo();
+		// FOR TEST ONLY !!!!! 8
+//		requestCurChannelInfo();
 
 		/******* UI *******/
 
