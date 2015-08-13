@@ -32,6 +32,7 @@ import android.widget.Toast;
 
 import com.technalt.serverlessCafe.ControllerActivity;
 import com.technalt.serverlessCafe.R;
+import com.technalt.serverlessCafe.SettingsActivity;
 
 public class MainActivity extends Activity implements Observer {
 
@@ -57,6 +58,14 @@ public class MainActivity extends Activity implements Observer {
 	/* Layout */
 	private LinearLayout controllerLayout;
 
+	/* user settings */
+	String userName = "What's your name";
+	
+	/* client to TV CMD */
+	private final String CONTROLLER_CMD_CONN_CONN = "ISTVSconn";
+	private final String CONTROLLER_CMD_CONN_SETNAME = "ISTVSsetname";
+	private final String CONTROLLER_CMD_CONN_FINISHCONN = "ISTVSfinishconn";
+	private final String CONTROLLER_CMD_CONN_DISCONN = "ISTVSdisconn";
 	/* TV to client CMD */
 	private final String TV_RESPONSE_CHANNEL = "SVTSIcurchannel";
 	private final String TV_RESPONSE_CHANNEL_INFO = "SVTSIcurchannelinfo";
@@ -94,18 +103,18 @@ public class MainActivity extends Activity implements Observer {
 
 			}
 		});
-		// final LinearLayout settingLayout = (LinearLayout)
-		// findViewById(R.id.helpLayout);
-		// // click listeners
-		// settingLayout.setOnClickListener(new OnClickListener() {
-		// @Override
-		// public void onClick(View v) {
-		// // controller_clicked = true;
-		// Intent intent = new Intent(MainActivity.this,
-		// SettingsActivity.class);
-		// startActivity(intent);
-		// }
-		// });
+		
+		 final LinearLayout settingLayout = (LinearLayout)
+		 findViewById(R.id.helpLayout);
+		 // click listeners
+		 settingLayout.setOnClickListener(new OnClickListener() {
+		 @Override
+		 public void onClick(View v) {
+		 // controller_clicked = true;
+		 Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
+		 startActivity(intent);
+		 }
+		 });
 
 		// alljoyn
 		stop = new Button(this);
@@ -232,10 +241,9 @@ public class MainActivity extends Activity implements Observer {
 	}
 
 	public void onDestroy() {
-
+		userDisconn();
 		mChatApplication = (CafeApplication) getApplication();
 		mChatApplication.deleteObserver(this);
-
 		mChatApplication.quit();
 
 		super.onDestroy();
@@ -301,7 +309,8 @@ public class MainActivity extends Activity implements Observer {
 			Intent intent = new Intent("channelInfo");
 			intent.putExtra("number", messager.substring(messager.indexOf(" --") + 3, messager.indexOf(" ---")));
 			intent.putExtra("name", messager.substring(messager.indexOf(" ---") + 4, messager.indexOf(" ----")));
-			intent.putExtra("intro", messager.substring(messager.indexOf(" ----") + 5));
+			intent.putExtra("intro", messager.substring(messager.indexOf(" ----") + 5,messager.indexOf(" -----")));
+			intent.putExtra("isAds", messager.substring(messager.indexOf(" -----") + 6));
 			this.sendBroadcast(intent);
 			Toast.makeText(getApplicationContext(), "MSG sent!", Toast.LENGTH_SHORT).show();
 		}
@@ -415,10 +424,6 @@ public class MainActivity extends Activity implements Observer {
 			@Override
 			public void onClick(View v) {
 
-				// if (flag_connect) {
-				// flash();
-				// flag_connect = true;
-				// }
 				connect_img.setImageResource(R.drawable.icon_connecting);
 				connect_img.startAnimation(rotate);
 
@@ -440,6 +445,7 @@ public class MainActivity extends Activity implements Observer {
 				connect_img.clearAnimation();
 				connect_img.setEnabled(false);
 				controllerLayout.setEnabled(true);
+				userConnectTV();					
 				flash();
 			}
 		});
@@ -453,7 +459,8 @@ public class MainActivity extends Activity implements Observer {
 		});
 	}
 
-	// color flashes
+	/* color flashes */
+	  
 	private void flash() {
 		ColorDrawable[] color = { new ColorDrawable(0xFFFFEB3B), new ColorDrawable(0xFFF57F17) };
 		TransitionDrawable trans = new TransitionDrawable(color);
@@ -480,5 +487,18 @@ public class MainActivity extends Activity implements Observer {
 		}
 
 	}
+	
+	/* Connect TV and Set  */
+	private void userConnectTV(){
+		mChatApplication.newLocalUserMessage(CONTROLLER_CMD_CONN_CONN);
+		mChatApplication.newLocalUserMessage(CONTROLLER_CMD_CONN_SETNAME + " -" + userName);
+		mChatApplication.newLocalUserMessage(CONTROLLER_CMD_CONN_FINISHCONN);
+	}
+	
+	private void userDisconn(){
+		mChatApplication.newLocalUserMessage(CONTROLLER_CMD_CONN_DISCONN);
+	}
+	
+	
 
 }

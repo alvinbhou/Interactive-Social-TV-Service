@@ -2,7 +2,6 @@ package com.technalt.serverlessCafe;
 
 import com.technalt.serverless.CafeApplication;
 import android.app.Activity;
-import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -11,7 +10,6 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.os.Bundle;
 import android.os.Bundle;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -91,9 +89,10 @@ public class TvControllerActivity extends Activity {
 	private ChannelInfo channelInfo = new ChannelInfo();
 
 	private class ChannelInfo {
-		public int number;
-		public String name;
-		public String intro;
+		public int number = 0;
+		public String name = "defaule_name";
+		public String intro = "Sorry! Something went wrong.";
+		public Boolean isAds = false; 
 	}
 	
 	/* String arrays */
@@ -114,17 +113,19 @@ public class TvControllerActivity extends Activity {
 		BroadcastReceiver channelInfoBroadcastReciever = new BroadcastReceiver() {
 			@Override
 			public void onReceive(Context context, Intent intent) {
+				// NOT FINISHED YET!!! ERROR NOT¡@HANDLED
 				Toast.makeText(context, "MSG Got!", Toast.LENGTH_SHORT).show();
+				
 				String name = intent.getStringExtra("name");
-				if (name == null || name.equals(""))
-					return;
 				int number = Integer.parseInt(intent.getStringExtra("number"));
 				String intro = intent.getStringExtra("intro");
+				Boolean isAds = Boolean.valueOf(intent.getStringExtra("isAds"));
 				Toast.makeText(context, "name: " + name + "  number: " + Integer.toString(number) + "  intro" + intro,
 						Toast.LENGTH_LONG).show();
 				channelInfo.name = name;
 				channelInfo.number = number;
 				channelInfo.intro = intro;
+				channelInfo.isAds = isAds;
 				// updateChannelInfoUI();
 			}
 		};

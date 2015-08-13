@@ -4,17 +4,12 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
 
-    <com.npi.blureffect.TopCenterImageView
+    <ImageView
         android:id="@+id/normal_image"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:scaleType="fitXY"
         android:src="@drawable/setting_b" />
-
-    <com.npi.blureffect.TopCenterImageView
-        android:id="@+id/blurred_image"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:alpha="0" />
 
     <android.support.v4.widget.DrawerLayout
         android:id="@+id/drawer_layout"
