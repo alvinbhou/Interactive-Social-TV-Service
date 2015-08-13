@@ -37,7 +37,7 @@ public class SettingsActivity extends Activity implements AbsListView.OnScrollLi
 	private String[] settingText = { "Username", "Gender", "Age", "Pace of Life", "Notification", "Parents", "Privacy",
 			"Security", "Help", "About us" };
 	private String[] settingHint = { "Set your account name", "What's your gender?", "Set your age for channel filter",
-			"Customize controller mode based on your life pace!", "Stay connected with friends!", "Parent Mode",
+			"Customize controller mode based on your life pace!", "You can recieve notifications while watching TV! Stay connected with your friends!", "Parent Mode",
 			"Privacy settings", "Securtiy??", "Getting confused? Click Here!", "Contact FutureInsighters" };
 
 	private static final int MAX_ROWS = 50;
@@ -129,8 +129,7 @@ public class SettingsActivity extends Activity implements AbsListView.OnScrollLi
 				case 3:
 					String[] items = {"Below 12","12~18","Above 18"};
 					AlertDialog.Builder ageDialog = new AlertDialog.Builder(SettingsActivity.this)
-					.setTitle("AGE")
-					.setMessage("There may be a channel filter.")
+					.setTitle("AGE")					
 					.setIcon(R.drawable.ic_cake_black_24dp)				
 					.setSingleChoiceItems(items, 0, null)
 					.setPositiveButton("CONFIRM", new DialogInterface.OnClickListener() {
@@ -151,8 +150,7 @@ public class SettingsActivity extends Activity implements AbsListView.OnScrollLi
 				case 4:
 					String[] pace = {"Slow","Downshifting","Average","Fast"};
 					AlertDialog.Builder paceDialog = new AlertDialog.Builder(SettingsActivity.this)
-					.setTitle("LIFE OF PACE")	
-					.setMessage("Different settings may differ the control delay gap.")
+					.setTitle("LIFE OF PACE")						
 					.setIcon(R.drawable.ic_directions_walk_black_24dp)				
 					.setSingleChoiceItems(pace, 0, null)
 					.setPositiveButton("CONFIRM", new DialogInterface.OnClickListener() {
@@ -177,8 +175,7 @@ public class SettingsActivity extends Activity implements AbsListView.OnScrollLi
 					String[] notification = {"ON","OFF"};
 					AlertDialog.Builder notifDialog = new AlertDialog.Builder(SettingsActivity.this)
 					.setTitle("NOTIFICATION")				
-					.setIcon(R.drawable.ic_sms_failed_black_24dp)	
-					.setMessage("You can recieve notifications while watching TV!")
+					.setIcon(R.drawable.ic_sms_failed_black_24dp)						
 					.setSingleChoiceItems(notification, 0, null)
 					.setPositiveButton("CONFIRM", new DialogInterface.OnClickListener() {
 						public void onClick(DialogInterface dialog, int which) {						
