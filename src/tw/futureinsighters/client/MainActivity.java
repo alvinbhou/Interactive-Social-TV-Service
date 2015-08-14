@@ -173,7 +173,7 @@ public class MainActivity extends Activity implements Observer {
 					new android.os.Handler().postDelayed(new Runnable() {
 						public void run() {
 							retry_count++;
-							if (retry_count > 20) {
+							if (retry_count > 21) {
 								retry_count = 0;
 								connect_failure.performClick();
 								return;
@@ -447,7 +447,7 @@ public class MainActivity extends Activity implements Observer {
 			public void onClick(View v) {
 				connect_img.setImageResource(R.drawable.icon_connect_success);
 				connect_img.clearAnimation();
-				connect_img.setEnabled(false);
+//				connect_img.setEnabled(false);
 				controllerLayout.setEnabled(true);
 				userConnectTV();					
 				flash();

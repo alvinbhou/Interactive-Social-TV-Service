@@ -31,30 +31,33 @@ import android.widget.Toast;
 public class SettingsActivity extends Activity implements AbsListView.OnScrollListener {
 	public ListView listView;
 	public SimpleAdapter adapter;
-	private int[] image = { R.drawable.user, R.drawable.gender, R.drawable.age, R.drawable.pace,
-			R.drawable.notification, R.drawable.user, R.drawable.user, R.drawable.user, R.drawable.user,
-			R.drawable.user };
+	private int[] image = { R.drawable.ic_account_circle_black_48dp, R.drawable.ic_wc_black_24dp,
+			R.drawable.ic_cake_black_24dp, R.drawable.ic_directions_run_black_48dp, R.drawable.ic_textsms_black_48dp,
+			R.drawable.ic_account_circle_black_48dp, R.drawable.ic_account_circle_black_48dp,
+			R.drawable.ic_account_circle_black_48dp, R.drawable.ic_account_circle_black_48dp,
+			R.drawable.ic_account_circle_black_48dp };
 	private String[] settingText = { "Username", "Gender", "Age", "Pace of Life", "Notification", "Parents", "Privacy",
 			"Security", "Help", "About us" };
 	private String[] settingHint = { "Set your account name", "What's your gender?", "Set your age for channel filter",
-			"Customize controller mode based on your life pace!", "You can recieve notifications while watching TV! Stay connected with your friends!", "Parent Mode",
+			"Customize controller mode based on your life pace!",
+			"You can recieve notifications while watching TV! Stay connected with your friends!", "Parent Mode",
 			"Privacy settings", "Securtiy??", "Getting confused? Click Here!", "Contact FutureInsighters" };
 
 	private static final int MAX_ROWS = 50;
 	private int lastTopValue = 0;
 	private ImageView backgroundImage;
-	
-	private class UserInfo{
+
+	private class UserInfo {
 		public String name;
-		public int gender = 0;  
+		public int gender = 0;
 		/* male 1, female 2, other 3 */
 		public int age = 0;
 		/* Below 12 , 12 - 18, 18+ */
 		public int pace = 0;
 		/* 1,2,3,4 */
-		public boolean notification = true; 
+		public boolean notification = true;
 	}
-	
+
 	private UserInfo userInfo = new UserInfo();
 
 	@Override
@@ -83,112 +86,98 @@ public class SettingsActivity extends Activity implements AbsListView.OnScrollLi
 				switch (position) {
 				case 1:
 					final EditText input = new EditText(SettingsActivity.this);
-					input.setSingleLine(true);	
-					AlertDialog.Builder userDialog = new AlertDialog.Builder(SettingsActivity.this)
-					.setTitle("USERNAME")
-					.setMessage("Set your username:")
-					.setIcon(R.drawable.ic_face_black_24dp)											
-					.setView(input)
-					.setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
-						public void onClick(DialogInterface dialog, int which) {							 
+					input.setSingleLine(true);
+					AlertDialog.Builder userDialog = new AlertDialog.Builder(SettingsActivity.this).setTitle("USERNAME")
+							.setMessage("Set your username:").setIcon(R.drawable.ic_face_black_24dp).setView(input)
+							.setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
+						public void onClick(DialogInterface dialog, int which) {
 							userInfo.name = input.getText().toString();
 							Toast.makeText(SettingsActivity.this, userInfo.name, Toast.LENGTH_SHORT).show();
 						}
-					})
-					.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+					}).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
 						public void onClick(DialogInterface dialog, int which) {
 							Toast.makeText(SettingsActivity.this, "neg", Toast.LENGTH_SHORT).show();
 							dialog.cancel();
 						}
-					});					
+					});
 					userDialog.show();
 					break;
-					
+
 				case 2:
-					AlertDialog.Builder genderDialog = new AlertDialog.Builder(SettingsActivity.this)
-					.setTitle("GENDER")					
-					.setIcon(R.drawable.ic_wc_black_24dp)					
-					.setPositiveButton("MALE", new DialogInterface.OnClickListener() {
-						public void onClick(DialogInterface dialog, int which) {							 
+					AlertDialog.Builder genderDialog = new AlertDialog.Builder(SettingsActivity.this).setTitle("GENDER")
+							.setIcon(R.drawable.ic_wc_black_24dp)
+							.setPositiveButton("MALE", new DialogInterface.OnClickListener() {
+						public void onClick(DialogInterface dialog, int which) {
 							userInfo.gender = 1;
 						}
-					})					
-					.setNegativeButton("FEMALE", new DialogInterface.OnClickListener() {
+					}).setNegativeButton("FEMALE", new DialogInterface.OnClickListener() {
 						public void onClick(DialogInterface dialog, int which) {
-							userInfo.gender = 2;							
+							userInfo.gender = 2;
 						}
-					})	
-					.setNeutralButton("OTHER", new DialogInterface.OnClickListener() {
+					}).setNeutralButton("OTHER", new DialogInterface.OnClickListener() {
 						public void onClick(DialogInterface dialog, int which) {
-							userInfo.gender = 3;							
-						}
-					});	
-					genderDialog.show();
-					break;
-					
-				case 3:
-					String[] items = {"Below 12","12~18","Above 18"};
-					AlertDialog.Builder ageDialog = new AlertDialog.Builder(SettingsActivity.this)
-					.setTitle("AGE")					
-					.setIcon(R.drawable.ic_cake_black_24dp)				
-					.setSingleChoiceItems(items, 0, null)
-					.setPositiveButton("CONFIRM", new DialogInterface.OnClickListener() {
-						public void onClick(DialogInterface dialog, int which) {						
-			                int position = ((AlertDialog)dialog).getListView().getCheckedItemPosition();
-			                if(position == 1)
-			                	userInfo.age = 1;
-			                else if(position == 2){			                	
-			                	userInfo.age = 2;				                	
-			                }			                	
-			                else
-			                	userInfo.age = 3;	               	
+							userInfo.gender = 3;
 						}
 					});
-					ageDialog.show();					
+					genderDialog.show();
 					break;
-					
+
+				case 3:
+					String[] items = { "Below 12", "12~18", "Above 18" };
+					AlertDialog.Builder ageDialog = new AlertDialog.Builder(SettingsActivity.this).setTitle("AGE")
+							.setIcon(R.drawable.ic_cake_black_24dp).setSingleChoiceItems(items, 0, null)
+							.setPositiveButton("CONFIRM", new DialogInterface.OnClickListener() {
+						public void onClick(DialogInterface dialog, int which) {
+							int position = ((AlertDialog) dialog).getListView().getCheckedItemPosition();
+							if (position == 1)
+								userInfo.age = 1;
+							else if (position == 2) {
+								userInfo.age = 2;
+							} else
+								userInfo.age = 3;
+						}
+					});
+					ageDialog.show();
+					break;
+
 				case 4:
-					String[] pace = {"Slow","Downshifting","Average","Fast"};
+					String[] pace = { "Slow", "Downshifting", "Average", "Fast" };
 					AlertDialog.Builder paceDialog = new AlertDialog.Builder(SettingsActivity.this)
-					.setTitle("LIFE OF PACE")						
-					.setIcon(R.drawable.ic_directions_walk_black_24dp)				
-					.setSingleChoiceItems(pace, 0, null)
-					.setPositiveButton("CONFIRM", new DialogInterface.OnClickListener() {
-						public void onClick(DialogInterface dialog, int which) {						
-			                int position = ((AlertDialog)dialog).getListView().getCheckedItemPosition();
-			                if(position == 1)
-			                	userInfo.pace = 1;
-			                else if(position == 2){			                	
-			                	userInfo.pace = 2;				                	
-			                }			                	
-			                else if(position == 3)
-			                	userInfo.pace = 3;
-			                else {
-			                	userInfo.pace = 4;
+							.setTitle("LIFE OF PACE").setIcon(R.drawable.ic_directions_walk_black_24dp)
+							.setSingleChoiceItems(pace, 0, null)
+							.setPositiveButton("CONFIRM", new DialogInterface.OnClickListener() {
+						public void onClick(DialogInterface dialog, int which) {
+							int position = ((AlertDialog) dialog).getListView().getCheckedItemPosition();
+							if (position == 1)
+								userInfo.pace = 1;
+							else if (position == 2) {
+								userInfo.pace = 2;
+							} else if (position == 3)
+								userInfo.pace = 3;
+							else {
+								userInfo.pace = 4;
 							}
 						}
 					});
-					paceDialog.show();					
+					paceDialog.show();
 					break;
-					
+
 				case 5:
-					String[] notification = {"ON","OFF"};
+					String[] notification = { "ON", "OFF" };
 					AlertDialog.Builder notifDialog = new AlertDialog.Builder(SettingsActivity.this)
-					.setTitle("NOTIFICATION")				
-					.setIcon(R.drawable.ic_sms_failed_black_24dp)						
-					.setSingleChoiceItems(notification, 0, null)
-					.setPositiveButton("CONFIRM", new DialogInterface.OnClickListener() {
-						public void onClick(DialogInterface dialog, int which) {						
-			                int position = ((AlertDialog)dialog).getListView().getCheckedItemPosition();
-			                if(position == 1)
-			                	userInfo.notification= true;
-			                else
-			                	userInfo.notification= false;
+							.setTitle("NOTIFICATION").setIcon(R.drawable.ic_sms_failed_black_24dp)
+							.setSingleChoiceItems(notification, 0, null)
+							.setPositiveButton("CONFIRM", new DialogInterface.OnClickListener() {
+						public void onClick(DialogInterface dialog, int which) {
+							int position = ((AlertDialog) dialog).getListView().getCheckedItemPosition();
+							if (position == 1)
+								userInfo.notification = true;
+							else
+								userInfo.notification = false;
 						}
 					});
-					notifDialog.show();					
+					notifDialog.show();
 					break;
-					
 
 				}
 

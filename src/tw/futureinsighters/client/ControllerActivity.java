@@ -18,6 +18,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.text.style.RasterizerSpan;
 import android.util.Log;
+import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.TextView;
@@ -51,14 +53,20 @@ public class ControllerActivity extends Activity {
 	private Sensor aSensor;
 	private Sensor gSensor;
 
-
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_controller);
-
-		openTVController();
+		
+		/* OK Click */
+		TextView ok_mid = (TextView) findViewById(R.id.oK_mid);
+		ok_mid.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				openTVController();
+			}
+		});
 
 		mChatApplication = (CafeApplication) getApplication();
 
@@ -70,21 +78,21 @@ public class ControllerActivity extends Activity {
 		sensorManager.registerListener(aSensorListener, aSensor, SensorManager.SENSOR_DELAY_NORMAL);
 		sensorManager.registerListener(gSensorListener, gSensor, SensorManager.SENSOR_DELAY_NORMAL);
 
-		
 	}
-	
-	protected void onPause(){
+
+	protected void onPause() {
 		super.onPause();
 		sensorManager.unregisterListener(aSensorListener);
 		sensorManager.unregisterListener(gSensorListener);
 	}
 
-	protected void onResume(){
+	protected void onResume() {
 		super.onResume();
 		sensorManager.registerListener(aSensorListener, aSensor, SensorManager.SENSOR_DELAY_NORMAL);
 		sensorManager.registerListener(gSensorListener, gSensor, SensorManager.SENSOR_DELAY_NORMAL);
 
 	}
+
 	private SensorEventListener aSensorListener = new SensorEventListener() {
 		public void onSensorChanged(SensorEvent event) {
 			a_x = event.values[0];
@@ -127,7 +135,6 @@ public class ControllerActivity extends Activity {
 				}
 			} else {
 
-				
 				// $('down_bg').style.opacity = 0;
 				if (is_up) {
 					is_up = false;
@@ -156,7 +163,6 @@ public class ControllerActivity extends Activity {
 				}
 			} else {
 
-		
 				// $('up_bg').style.opacity = 0;
 				if (is_down) {
 					is_down = false;
@@ -219,7 +225,7 @@ public class ControllerActivity extends Activity {
 		}
 		switch (direction) {
 		case LEFT: {
-			left_movement();			
+			left_movement();
 			mChatApplication.newLocalUserMessage(CONTROLLER_CMD_UI_LEFT);
 			break;
 		}
@@ -260,6 +266,5 @@ public class ControllerActivity extends Activity {
 		right_arrow.setTextColor(Color.parseColor("#FFF"));
 		mid_ok.setTextColor(Color.parseColor("#FFF"));
 	}
-
 
 }

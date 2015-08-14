@@ -43,7 +43,8 @@
                 android:gravity="center"
                 android:textColor="#FFF"
                 android:textSize="80sp"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                android:clickable="true" />
         </LinearLayout>
 
         <LinearLayout

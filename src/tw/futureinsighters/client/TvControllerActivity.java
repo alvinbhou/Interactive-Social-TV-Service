@@ -1,18 +1,24 @@
 package tw.futureinsighters.client;
 
+import java.util.ArrayList;
+import java.util.Map;
+
 import org.allseenaliance.alljoyn.CafeApplication;
 
 import com.technalt.serverlessCafe.R;
 
+import android.R.integer;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.media.Image;
 import android.os.Bundle;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -28,6 +34,12 @@ import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.view.animation.AccelerateInterpolator;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
+import android.view.animation.Animation.AnimationListener;
+import android.view.animation.AnimationSet;
+import android.view.animation.DecelerateInterpolator;
 import android.view.inputmethod.EditorInfo;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -47,8 +59,8 @@ public class TvControllerActivity extends Activity {
 	private final String CONTROLLER_CMD_UI_LEFT = "ISTVSgoleft";
 	private final String CONTROLLER_CMD_UI_RIGHT = "ISTVSgoright";
 	private final String CONTROLLER_CMD_UI_OK = "ISTVSok";
-	private final String CONTROLLER_CMD_VL = "ISTVSvl-";
-	private final String CONTROLLER_CMD_CN = "ISTVScn-";
+	private final String CONTROLLER_CMD_VL = "ISTVSvl -";
+	private final String CONTROLLER_CMD_CN = "ISTVScn -";
 	private final String CONTROLLER_CMD_UI_BM_OP = "ISTVSsb";
 	private final String CONTROLLER_CMD_UI_BM_CL = "ISTVShb";
 	private final String CONTROLLER_CMD_UI_HT_OP = "ISTVSsh";
@@ -63,6 +75,7 @@ public class TvControllerActivity extends Activity {
 	private boolean is_up = false, is_up_long = false;
 	private boolean is_down = false, is_down_long = false;
 	private boolean is_controllable = true;
+	private boolean sensor_on = false;
 
 	private CafeApplication mChatApplication = null;
 
@@ -75,11 +88,17 @@ public class TvControllerActivity extends Activity {
 	private View leftDrawerView, rightDrawerView;
 	private ListView bookmarkDrawerList, historyDrawerList;
 	private TextView textSelection, channel_information;
-	private Button share_btn, snap_btn, gesture_btn;
+	private ImageView gesture_img;
+	private Button share_btn, snap_btn;
 	private ArrayAdapter<String> arrayAdapter1;
 	private ArrayAdapter<String> arrayAdapter2;
 	boolean left_open = false, right_open = false;
-
+	
+	/* Volume */
+	private int volume = 50;
+	private VerticalSeekBar volume_bar;
+	private TextView volume_value;
+	private boolean vl_gesture_controll = false;
 	/* Channel */
 	private SeekBar ChannelBar;
 	private int shift = 0, delta = 0;
@@ -93,14 +112,14 @@ public class TvControllerActivity extends Activity {
 
 	private class ChannelInfo {
 		public int number = 0;
-		public String name = "defaule_name";
+		public String name = "default_name";
 		public String intro = "Sorry! Something went wrong.";
-		public Boolean isAds = false; 
+		public Boolean isAds = false;
 	}
-	
-	/* String arrays */
-	private String[] bookmark_Channels = { "sad", "BBC", "CNN", "ESPN", "lor", "asd", "asdas" };
-	private String[] history_Channels = { "HBO", "STAR", "TVBS", "sad", "BBC", "CNN", "ESPN" };
+
+//	/* String arrays */
+//	private String[] bookmark_Channels = { "sad", "BBC", "CNN", "ESPN", "lor", "asd", "asdas" };
+//	private String[] history_Channels = { "HBO", "STAR", "TVBS", "sad", "BBC", "CNN", "ESPN" };
 
 	/* ---- */
 	@Override
@@ -108,6 +127,7 @@ public class TvControllerActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_tvcontroller);
 
+		sensor_on = false;
 		/* ------Start AllJoyn Service KEYWORD!!---- */
 		mChatApplication = (CafeApplication) getApplication();
 
@@ -116,9 +136,9 @@ public class TvControllerActivity extends Activity {
 		BroadcastReceiver channelInfoBroadcastReciever = new BroadcastReceiver() {
 			@Override
 			public void onReceive(Context context, Intent intent) {
-				// NOT FINISHED YET!!! ERROR NOT¡@HANDLED
+				// NOT FINISHED YET!!! ERROR NOT HANDLED
 				Toast.makeText(context, "MSG Got!", Toast.LENGTH_SHORT).show();
-				
+
 				String name = intent.getStringExtra("name");
 				int number = Integer.parseInt(intent.getStringExtra("number"));
 				String intro = intent.getStringExtra("intro");
@@ -136,7 +156,7 @@ public class TvControllerActivity extends Activity {
 		registerReceiver(channelInfoBroadcastReciever, channelInfoFilter);
 
 		// FOR TEST ONLY !!!!! 8
-//		requestCurChannelInfo();
+		// requestCurChannelInfo();
 
 		/******* UI *******/
 
@@ -158,8 +178,14 @@ public class TvControllerActivity extends Activity {
 		});
 
 		/* Gesture Btn */
-		gesture_btn = (Button) findViewById(R.id.gesture_btn);
-		gesture_btn.setOnClickListener(new OnClickListener() {
+		gesture_img = (ImageView) findViewById(R.id.gesture_btn);
+		int imagesToShow[] = { R.drawable.gesture2, R.drawable.gesture2 };
+		animate(gesture_img, imagesToShow, 0,true); 
+		
+		ImageView clickable_gesture = (ImageView) findViewById(R.id.gesture_btn2);
+		
+		
+		clickable_gesture.setOnClickListener(new OnClickListener() {
 
 			@Override
 			public void onClick(View v) {
@@ -169,11 +195,17 @@ public class TvControllerActivity extends Activity {
 				LinearLayout bottom_container = (LinearLayout) findViewById(R.id.bottom_container);
 				vl_layout.setVisibility(View.GONE);
 				cn_layout.setVisibility(View.GONE);
-
 				gt_layout.setVisibility(View.VISIBLE);
 
-				// bottom_container.getBackground().setColorFilter(Color.parseColor("#333333"),
-				// PorterDuff.Mode.MULTIPLY);
+				// initialize sensor
+				sensor_on = true;
+				sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+				aSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+				gSensor = sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
+
+				sensorManager.registerListener(aSensorListener, aSensor, SensorManager.SENSOR_DELAY_NORMAL);
+				sensorManager.registerListener(gSensorListener, gSensor, SensorManager.SENSOR_DELAY_NORMAL);
+
 			}
 		});
 
@@ -193,17 +225,14 @@ public class TvControllerActivity extends Activity {
 		});
 
 		/* Volume */
-		VerticalSeekBar volume_bar = (VerticalSeekBar) findViewById(R.id.volume_bar);
-		final TextView volume_value = (TextView) findViewById(R.id.volume_value);
+		volume_bar = (VerticalSeekBar) findViewById(R.id.volume_bar);
+		volume_value = (TextView) findViewById(R.id.volume_value);
 		volume_bar.setOnSeekBarChangeListener(new VerticalSeekBar.OnSeekBarChangeListener() {
 			@Override
 			public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-				String s, cmd;
-				s = String.valueOf(progress);
-				cmd = CONTROLLER_CMD_VL;
-				cmd = cmd.concat(s);
-				volume_value.setText(s);
-				volumeCMD(cmd);
+				volume = progress;				
+				vl_gesture_controll = false;
+				volumeCMD(volume);
 			}
 
 			@Override
@@ -259,20 +288,20 @@ public class TvControllerActivity extends Activity {
 				Log.d("Tracking", "msg");
 			}
 
-			@Override
+			@Override 
 			public void onStopTrackingTouch(SeekBar seekBar) {
 				if (shift > 0) {
-					channelCMD(++delta);
-				}
-				if (shift < 0) {
-					channelCMD(--delta);
+					channelCMD(++channelInfo.number);
+				}else if (shift < 0) {
+					channelCMD(--channelInfo.number);
 				}
 				ChannelBar.setProgress(50);
 				channelBarOnTouched = false;
 				TextView delta_value = (TextView) findViewById(R.id.channel_delta);
 				delta_value.setText(String.valueOf(delta));
 
-				Log.d("TEST", "IS THIS A CAKE");
+				addHistory(channelInfo.number);
+				arrayAdapter2.notifyDataSetChanged();
 			}
 		});
 
@@ -296,8 +325,13 @@ public class TvControllerActivity extends Activity {
 		});
 		textSelection = (TextView) findViewById(R.id.selection);
 		bookmarkDrawerList = (ListView) findViewById(R.id.bookmarklist);
-		arrayAdapter1 = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1,
-				bookmark_Channels) {
+		String[] bookmarkChannels;
+		ArrayList<Integer> result1 = getBookmark(); // get bookmarks
+		bookmarkChannels = new String[result1.size()]; // casting
+		for(int i = 0 ; i < result1.size(); i++){
+			bookmarkChannels[i] = Integer.toString(result1.get(i));
+		}
+		arrayAdapter1 = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, bookmarkChannels) {
 
 			@Override
 			public View getView(int position, View convertView, ViewGroup parent) {
@@ -320,6 +354,8 @@ public class TvControllerActivity extends Activity {
 			@Override
 			public void onClick(View v) {
 				bookmark_img.setImageResource(R.drawable.bookmark_added);
+				addBookmark(channelInfo.number);	
+				arrayAdapter1.notifyDataSetChanged();
 			}
 		});
 
@@ -334,8 +370,12 @@ public class TvControllerActivity extends Activity {
 		});
 		textSelection = (TextView) findViewById(R.id.selection);
 		historyDrawerList = (ListView) findViewById(R.id.historylist);
-		arrayAdapter2 = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1,
-				history_Channels) {
+		String[] historyChannels = new String[10];
+		int[] result2 = getHistory(); // get history
+		for(int i = 0 ; i < 10 ; i++){ // casting
+			historyChannels[i] = Integer.toString(result2[i]);
+		}
+		arrayAdapter2 = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, historyChannels) {
 
 			@Override
 			public View getView(int position, View convertView, ViewGroup parent) {
@@ -352,6 +392,14 @@ public class TvControllerActivity extends Activity {
 		};
 		historyDrawerList.setAdapter(arrayAdapter2);
 
+	}
+
+	protected void onPause() {
+		super.onPause();
+		if (sensor_on) {
+			sensorManager.unregisterListener(aSensorListener);
+			sensorManager.unregisterListener(gSensorListener);
+		}
 	}
 
 	/* Sensor Event */
@@ -391,7 +439,7 @@ public class TvControllerActivity extends Activity {
 					}, 1000);
 				}
 				if (is_up_long) {
-					// switchVolumn(false);
+					switchVolume(false);
 				}
 			} else {
 				// $('down_bg').style.opacity = 0;
@@ -417,7 +465,7 @@ public class TvControllerActivity extends Activity {
 					}, 1000);
 				}
 				if (is_down_long) {
-					// swichVolumn(....)
+					switchVolume(true);
 				}
 			} else {
 				// $('up_bg').style.opacity = 0;
@@ -492,24 +540,31 @@ public class TvControllerActivity extends Activity {
 		}
 	}
 
-	private void volumeCMD(String cmd) {
-		if (is_controllable) {
-			is_controllable = false;
-			new android.os.Handler().postDelayed(new Runnable() {
-				public void run() {
-					is_controllable = true;
-				}
-			}, 10);
-		} else {
-			return;
+	private void volumeCMD(int volume) {
+		if(!vl_gesture_controll){
+			if (is_controllable) {
+				is_controllable = false;
+				new android.os.Handler().postDelayed(new Runnable() {
+					public void run() {
+						is_controllable = true;
+					}
+				}, 10);
+			} else {
+				return;
+			}
 		}
-
+		String s, cmd;
+		s = String.valueOf(volume);
+		cmd = CONTROLLER_CMD_VL;
+		cmd = cmd.concat(s);
+		volume_value.setText(s);
 		mChatApplication.newLocalUserMessage(cmd);
 	}
 
-	private void channelCMD(int delta) {
+	/* Delta v.s. Channel number */
+	private void channelCMD(int number) {		
 		String cmd = CONTROLLER_CMD_CN;
-		cmd = cmd.concat(String.valueOf(delta));
+		cmd = cmd.concat(String.valueOf(number));
 		mChatApplication.newLocalUserMessage(cmd);
 	}
 
@@ -545,11 +600,11 @@ public class TvControllerActivity extends Activity {
 					mChatApplication.newLocalUserMessage(CONTROLLER_CMD_UI_BM_OP);
 				}
 			}
-			if (!right_open) {
+			if (!right_open) {				
 				if (drawerLayout.isDrawerOpen(GravityCompat.END)) {
 					right_open = true;
 					left_open = false;
-					mChatApplication.newLocalUserMessage(CONTROLLER_CMD_UI_HT_OP);
+					mChatApplication.newLocalUserMessage(CONTROLLER_CMD_UI_HT_OP);					
 				}
 			}
 		}
@@ -577,7 +632,7 @@ public class TvControllerActivity extends Activity {
 			return;
 		}
 		if (channelBarOnTouched) {
-			channelCMD(++delta);
+			channelCMD(++channelInfo.number);
 			TextView delta_value = (TextView) findViewById(R.id.channel_delta);
 			delta_value.setText(String.valueOf(delta));
 			new android.os.Handler().postDelayed(new Runnable() {
@@ -600,7 +655,7 @@ public class TvControllerActivity extends Activity {
 			return;
 		}
 		if (channelBarOnTouched) {
-			channelCMD(--delta);
+			channelCMD(--channelInfo.number);
 			TextView delta_value = (TextView) findViewById(R.id.channel_delta);
 			delta_value.setText(String.valueOf(delta));
 			new android.os.Handler().postDelayed(new Runnable() {
@@ -611,11 +666,163 @@ public class TvControllerActivity extends Activity {
 		}
 	}
 	
+	private void switchVolume(boolean toggle){
+		
+		if (is_controllable) {
+			is_controllable = false;
+			new android.os.Handler().postDelayed(new Runnable() {
+				public void run() {
+					is_controllable = true;
+				}
+			}, 20);
+		} else {
+			return;
+		}
+		
+		if(toggle)		
+			volume++;
+		else{
+			volume--;
+		}
+		vl_gesture_controll = true;
+		volumeCMD(volume);			
+	}
+
 	/* get channel info */
 	private void requestCurChannelInfo() {
 		ChannelInfo newChannelInfo = new ChannelInfo();
 		mChatApplication.newLocalUserMessage(CONTROLLER_CMD_GET_CUR_CHANNEL_INFO);
-		
+
 	}
+	
+	
+	/* Bookmarks and History management */
+
+	/*
+	 * return true if succeed return false if the channel already exists in
+	 * Bookmark
+	 */
+	private Boolean addBookmark(int channel) {
+		// check if the channel already exists
+		SharedPreferences bookmarkRecord = getSharedPreferences("bookmark", 0);
+		if (bookmarkRecord.contains(Integer.toString(channel))) {
+			return false;
+		}
+
+		SharedPreferences.Editor editor = bookmarkRecord.edit();
+		editor.putBoolean(Integer.toString(channel), true);
+		editor.commit();
+		return true;
+	}
+
+	/*
+	 * return true if succeed return false if not found in record
+	 */
+	private Boolean removeBookmark(int channel) {
+		SharedPreferences bookmarkRecord = getSharedPreferences("bookmark", 0);
+		if (bookmarkRecord.contains(Integer.toString(channel))) {
+			bookmarkRecord.edit().remove(Integer.toString(channel)).commit();
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	/*
+	 * return all bookmarks in the form of ArrayList of Integer
+	 */
+	private ArrayList<Integer> getBookmark() {
+		SharedPreferences bookmarkRecord = getSharedPreferences("bookmark", 0);
+		Map<String, ?> allBookmarks = bookmarkRecord.getAll();
+		ArrayList<Integer> bookmarks = new ArrayList<Integer>();
+		for (Map.Entry<String, ?> bookmark : allBookmarks.entrySet()) {
+			bookmarks.add(Integer.parseInt(bookmark.getKey()));
+		}
+		return bookmarks;
+	}
+	
+	/*
+	 * return true if succeed
+	 * return false if the new one is the same with the last one
+	 */
+	private Boolean addHistory(int channel) {
+		// check if the channel already exists
+		SharedPreferences historyRecord = getSharedPreferences("history", 0);
+		int head = historyRecord.getInt("head", 0);
+		if(channel == historyRecord.getInt(Integer.toString(head), -1)){
+			return false;
+		}
+		head = (head + 1) % 10;
+		
+		SharedPreferences.Editor editor = historyRecord.edit();
+		editor.putInt(Integer.toString(head), channel);
+		editor.putInt("head", head);
+		editor.commit();
+		return true;
+	}
+
+	/*
+	 * return all bookmarks in the form of ArrayList of Integer
+	 */
+	private int[] getHistory(){
+		SharedPreferences historyRecord = getSharedPreferences("history", 0);
+		int[] result = new int[10];
+		int index = historyRecord.getInt("head", 0);
+		for(int i = 0 ; i < 10 ; i++){
+			result[i] = historyRecord.getInt(Integer.toString(index), 0);
+			if(--index < 0) index += 10;
+		}
+		return result;
+	}
+	
+	/* Animation for gesture */
+	private void animate(final ImageView imageView, final int images[], final int imageIndex, final boolean forever) {
+
+		  //imageView <-- The View which displays the images
+		  //images[] <-- Holds R references to the images to display
+		  //imageIndex <-- index of the first image to show in images[] 
+		  //forever <-- If equals true then after the last image it starts all over again with the first image resulting in an infinite loop. You have been warned.
+
+		    int fadeInDuration = 800; // Configure time values here
+		    int timeBetween = 1000;
+		    int fadeOutDuration = 800;
+
+		    imageView.setVisibility(View.INVISIBLE);    //Visible or invisible by default - this will apply when the animation ends
+		    imageView.setImageResource(images[imageIndex]);
+
+		    Animation fadeIn = new AlphaAnimation(0, 1);
+		    fadeIn.setInterpolator(new DecelerateInterpolator()); // add this
+		    fadeIn.setDuration(fadeInDuration);
+
+		    Animation fadeOut = new AlphaAnimation(1, 0);
+		    fadeOut.setInterpolator(new AccelerateInterpolator()); // and this
+		    fadeOut.setStartOffset(fadeInDuration + timeBetween);
+		    fadeOut.setDuration(fadeOutDuration);
+
+		    AnimationSet animation = new AnimationSet(false); // change to false
+		    animation.addAnimation(fadeIn);
+		    animation.addAnimation(fadeOut);
+		    animation.setRepeatCount(1);
+		    imageView.setAnimation(animation);
+
+		    animation.setAnimationListener(new AnimationListener() {
+		        public void onAnimationEnd(Animation animation) {
+		            if (images.length - 1 > imageIndex) {
+		                animate(imageView, images, imageIndex + 1,forever); //Calls itself until it gets to the end of the array
+		            }
+		            else {
+		                if (forever == true){
+		                animate(imageView, images, 0,forever);  //Calls itself to start the animation all over again in a loop if forever = true
+		                }
+		            }
+		        }
+		        public void onAnimationRepeat(Animation animation) {
+		            // TODO Auto-generated method stub
+		        }
+		        public void onAnimationStart(Animation animation) {
+		            // TODO Auto-generated method stub
+		        }
+		    });
+		}
 
 }
