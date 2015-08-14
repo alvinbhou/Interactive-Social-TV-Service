@@ -66,11 +66,13 @@ public class TvControllerActivity extends Activity {
 	private final String CONTROLLER_CMD_UI_HT_OP = "ISTVSsh";
 	private final String CONTROLLER_CMD_UI_HT_CL = "ISTVShh";
 	private final String CONTROLLER_CMD_GET_CUR_CHANNEL_INFO = "ISTVScurchannelinfo";
+	private final String CONTROLLER_CMD_HOME = "ISTVShome";
 
 	private enum Direction {
 		LEFT, RIGHT
 	};
 
+	private boolean is_appslist_on = true;
 	private float a_x, a_y, a_z, g_x, g_y, g_z;
 	private boolean is_up = false, is_up_long = false;
 	private boolean is_down = false, is_down_long = false;
@@ -93,7 +95,7 @@ public class TvControllerActivity extends Activity {
 	private ArrayAdapter<String> arrayAdapter1;
 	private ArrayAdapter<String> arrayAdapter2;
 	boolean left_open = false, right_open = false;
-	
+
 	/* Volume */
 	private int volume = 50;
 	private VerticalSeekBar volume_bar;
@@ -111,15 +113,17 @@ public class TvControllerActivity extends Activity {
 	private ChannelInfo channelInfo = new ChannelInfo();
 
 	private class ChannelInfo {
-		public int number = 0;
+		public int number = 13;
 		public String name = "default_name";
 		public String intro = "Sorry! Something went wrong.";
 		public Boolean isAds = false;
 	}
 
-//	/* String arrays */
-//	private String[] bookmark_Channels = { "sad", "BBC", "CNN", "ESPN", "lor", "asd", "asdas" };
-//	private String[] history_Channels = { "HBO", "STAR", "TVBS", "sad", "BBC", "CNN", "ESPN" };
+	// /* String arrays */
+	// private String[] bookmark_Channels = { "sad", "BBC", "CNN", "ESPN",
+	// "lor", "asd", "asdas" };
+	// private String[] history_Channels = { "HBO", "STAR", "TVBS", "sad",
+	// "BBC", "CNN", "ESPN" };
 
 	/* ---- */
 	@Override
@@ -155,7 +159,24 @@ public class TvControllerActivity extends Activity {
 		IntentFilter channelInfoFilter = new IntentFilter("channelInfo");
 		registerReceiver(channelInfoBroadcastReciever, channelInfoFilter);
 
-		// FOR TEST ONLY !!!!! 8
+		BroadcastReceiver otherBroadcastReciever = new BroadcastReceiver() {
+			@Override
+			public void onReceive(Context context, Intent intent) {
+				// NOT FINISHED YET!!! ERROR NOT HANDLED
+
+				String name = intent.getStringExtra("name");
+				if (name.equals("AppsListIsOn")) {
+					is_appslist_on = true;
+
+				} else if (name.equals("AppsListIsOff")) {
+					is_appslist_on = false;
+				}
+			}
+		};
+		IntentFilter otherBroadcastFilter = new IntentFilter("other");
+		registerReceiver(otherBroadcastReciever, otherBroadcastFilter);
+
+		// FOR TEST ONLY !!!!!
 		// requestCurChannelInfo();
 
 		/******* UI *******/
@@ -180,11 +201,10 @@ public class TvControllerActivity extends Activity {
 		/* Gesture Btn */
 		gesture_img = (ImageView) findViewById(R.id.gesture_btn);
 		int imagesToShow[] = { R.drawable.gesture2, R.drawable.gesture2 };
-		animate(gesture_img, imagesToShow, 0,true); 
-		
+		animate(gesture_img, imagesToShow, 0, true);
+
 		ImageView clickable_gesture = (ImageView) findViewById(R.id.gesture_btn2);
-		
-		
+
 		clickable_gesture.setOnClickListener(new OnClickListener() {
 
 			@Override
@@ -230,7 +250,7 @@ public class TvControllerActivity extends Activity {
 		volume_bar.setOnSeekBarChangeListener(new VerticalSeekBar.OnSeekBarChangeListener() {
 			@Override
 			public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-				volume = progress;				
+				volume = progress;
 				vl_gesture_controll = false;
 				volumeCMD(volume);
 			}
@@ -288,11 +308,11 @@ public class TvControllerActivity extends Activity {
 				Log.d("Tracking", "msg");
 			}
 
-			@Override 
+			@Override
 			public void onStopTrackingTouch(SeekBar seekBar) {
 				if (shift > 0) {
 					channelCMD(++channelInfo.number);
-				}else if (shift < 0) {
+				} else if (shift < 0) {
 					channelCMD(--channelInfo.number);
 				}
 				ChannelBar.setProgress(50);
@@ -328,7 +348,7 @@ public class TvControllerActivity extends Activity {
 		String[] bookmarkChannels;
 		ArrayList<Integer> result1 = getBookmark(); // get bookmarks
 		bookmarkChannels = new String[result1.size()]; // casting
-		for(int i = 0 ; i < result1.size(); i++){
+		for (int i = 0; i < result1.size(); i++) {
 			bookmarkChannels[i] = Integer.toString(result1.get(i));
 		}
 		arrayAdapter1 = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, bookmarkChannels) {
@@ -354,7 +374,7 @@ public class TvControllerActivity extends Activity {
 			@Override
 			public void onClick(View v) {
 				bookmark_img.setImageResource(R.drawable.bookmark_added);
-				addBookmark(channelInfo.number);	
+				addBookmark(channelInfo.number);
 				arrayAdapter1.notifyDataSetChanged();
 			}
 		});
@@ -372,7 +392,7 @@ public class TvControllerActivity extends Activity {
 		historyDrawerList = (ListView) findViewById(R.id.historylist);
 		String[] historyChannels = new String[10];
 		int[] result2 = getHistory(); // get history
-		for(int i = 0 ; i < 10 ; i++){ // casting
+		for (int i = 0; i < 10; i++) { // casting
 			historyChannels[i] = Integer.toString(result2[i]);
 		}
 		arrayAdapter2 = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, historyChannels) {
@@ -402,6 +422,13 @@ public class TvControllerActivity extends Activity {
 		}
 	}
 
+	/* Send backToHome message to Tv */
+	@Override
+	public void onBackPressed() {
+		super.onBackPressed();
+		mChatApplication.newLocalUserMessage(CONTROLLER_CMD_HOME);
+	}
+
 	/* Sensor Event */
 	private SensorEventListener aSensorListener = new SensorEventListener() {
 		public void onSensorChanged(SensorEvent event) {
@@ -413,13 +440,13 @@ public class TvControllerActivity extends Activity {
 
 			if (a_x > 6 && a_y < 3 && a_y > -3 && a_z > 0) {
 				// $('left_bg').style.opacity = (x - 4) / 8.0;
-				moveAppList(Direction.LEFT);
+				moveMotion(Direction.LEFT);
 			} else {
 				// $('left_bg').style.opacity = 0;
 			}
 			if (a_x < -6 && a_y < 3 && a_y > -3 && a_z > 0) {
 				// $('right_bg').style.opacity = (-x -4) / 8.0;
-				moveAppList(Direction.RIGHT);
+				moveMotion(Direction.RIGHT);
 			} else {
 				// $('right_bg').style.opacity = 0;
 			}
@@ -517,31 +544,55 @@ public class TvControllerActivity extends Activity {
 		mChatApplication.newLocalUserMessage(CONTROLLER_CMD_UI_OK);
 	}
 
-	private void moveAppList(Direction direction) {
-		if (is_controllable) {
-			is_controllable = false;
-			new android.os.Handler().postDelayed(new Runnable() {
-				public void run() {
-					is_controllable = true;
-				}
-			}, 500);
+	private void moveMotion(Direction direction) {
+		if (is_appslist_on) {
+			if (is_controllable) {
+				is_controllable = false;
+				new android.os.Handler().postDelayed(new Runnable() {
+					public void run() {
+						is_controllable = true;
+					}
+				}, 500);
+			} else {
+				return;
+			}
+			switch (direction) {
+			case LEFT: {
+				mChatApplication.newLocalUserMessage(CONTROLLER_CMD_UI_LEFT);
+				break;
+			}
+			case RIGHT: {
+				mChatApplication.newLocalUserMessage(CONTROLLER_CMD_UI_RIGHT);
+				break;
+			}
+			}
 		} else {
-			return;
+			if (is_controllable) {
+				is_controllable = false;
+				new android.os.Handler().postDelayed(new Runnable() {
+					public void run() {
+						is_controllable = true;
+					}
+				}, 200); // Channel switches faster
+			} else {
+				return;
+			}
+			switch (direction) {
+			case LEFT: {
+				channelCMD(--channelInfo.number);
+				break;
+			}
+			case RIGHT: {
+				channelCMD(++channelInfo.number);
+				break;
+			}
+			}
 		}
-		switch (direction) {
-		case LEFT: {
-			mChatApplication.newLocalUserMessage(CONTROLLER_CMD_UI_LEFT);
-			break;
-		}
-		case RIGHT: {
-			mChatApplication.newLocalUserMessage(CONTROLLER_CMD_UI_RIGHT);
-			break;
-		}
-		}
+
 	}
 
 	private void volumeCMD(int volume) {
-		if(!vl_gesture_controll){
+		if (!vl_gesture_controll) {
 			if (is_controllable) {
 				is_controllable = false;
 				new android.os.Handler().postDelayed(new Runnable() {
@@ -562,7 +613,7 @@ public class TvControllerActivity extends Activity {
 	}
 
 	/* Delta v.s. Channel number */
-	private void channelCMD(int number) {		
+	private void channelCMD(int number) {
 		String cmd = CONTROLLER_CMD_CN;
 		cmd = cmd.concat(String.valueOf(number));
 		mChatApplication.newLocalUserMessage(cmd);
@@ -600,11 +651,11 @@ public class TvControllerActivity extends Activity {
 					mChatApplication.newLocalUserMessage(CONTROLLER_CMD_UI_BM_OP);
 				}
 			}
-			if (!right_open) {				
+			if (!right_open) {
 				if (drawerLayout.isDrawerOpen(GravityCompat.END)) {
 					right_open = true;
 					left_open = false;
-					mChatApplication.newLocalUserMessage(CONTROLLER_CMD_UI_HT_OP);					
+					mChatApplication.newLocalUserMessage(CONTROLLER_CMD_UI_HT_OP);
 				}
 			}
 		}
@@ -665,9 +716,9 @@ public class TvControllerActivity extends Activity {
 			}, 250);
 		}
 	}
-	
-	private void switchVolume(boolean toggle){
-		
+
+	private void switchVolume(boolean toggle) {
+
 		if (is_controllable) {
 			is_controllable = false;
 			new android.os.Handler().postDelayed(new Runnable() {
@@ -678,14 +729,14 @@ public class TvControllerActivity extends Activity {
 		} else {
 			return;
 		}
-		
-		if(toggle)		
+
+		if (toggle)
 			volume++;
-		else{
+		else {
 			volume--;
 		}
 		vl_gesture_controll = true;
-		volumeCMD(volume);			
+		volumeCMD(volume);
 	}
 
 	/* get channel info */
@@ -694,8 +745,7 @@ public class TvControllerActivity extends Activity {
 		mChatApplication.newLocalUserMessage(CONTROLLER_CMD_GET_CUR_CHANNEL_INFO);
 
 	}
-	
-	
+
 	/* Bookmarks and History management */
 
 	/*
@@ -740,20 +790,20 @@ public class TvControllerActivity extends Activity {
 		}
 		return bookmarks;
 	}
-	
+
 	/*
-	 * return true if succeed
-	 * return false if the new one is the same with the last one
+	 * return true if succeed return false if the new one is the same with the
+	 * last one
 	 */
 	private Boolean addHistory(int channel) {
 		// check if the channel already exists
 		SharedPreferences historyRecord = getSharedPreferences("history", 0);
 		int head = historyRecord.getInt("head", 0);
-		if(channel == historyRecord.getInt(Integer.toString(head), -1)){
+		if (channel == historyRecord.getInt(Integer.toString(head), -1)) {
 			return false;
 		}
 		head = (head + 1) % 10;
-		
+
 		SharedPreferences.Editor editor = historyRecord.edit();
 		editor.putInt(Integer.toString(head), channel);
 		editor.putInt("head", head);
@@ -764,65 +814,70 @@ public class TvControllerActivity extends Activity {
 	/*
 	 * return all bookmarks in the form of ArrayList of Integer
 	 */
-	private int[] getHistory(){
+	private int[] getHistory() {
 		SharedPreferences historyRecord = getSharedPreferences("history", 0);
 		int[] result = new int[10];
 		int index = historyRecord.getInt("head", 0);
-		for(int i = 0 ; i < 10 ; i++){
+		for (int i = 0; i < 10; i++) {
 			result[i] = historyRecord.getInt(Integer.toString(index), 0);
-			if(--index < 0) index += 10;
+			if (--index < 0)
+				index += 10;
 		}
 		return result;
 	}
-	
+
 	/* Animation for gesture */
 	private void animate(final ImageView imageView, final int images[], final int imageIndex, final boolean forever) {
 
-		  //imageView <-- The View which displays the images
-		  //images[] <-- Holds R references to the images to display
-		  //imageIndex <-- index of the first image to show in images[] 
-		  //forever <-- If equals true then after the last image it starts all over again with the first image resulting in an infinite loop. You have been warned.
+		// imageView <-- The View which displays the images
+		// images[] <-- Holds R references to the images to display
+		// imageIndex <-- index of the first image to show in images[]
+		// forever <-- If equals true then after the last image it starts all
+		// over again with the first image resulting in an infinite loop. You
+		// have been warned.
 
-		    int fadeInDuration = 800; // Configure time values here
-		    int timeBetween = 1000;
-		    int fadeOutDuration = 800;
+		int fadeInDuration = 800; // Configure time values here
+		int timeBetween = 1000;
+		int fadeOutDuration = 800;
 
-		    imageView.setVisibility(View.INVISIBLE);    //Visible or invisible by default - this will apply when the animation ends
-		    imageView.setImageResource(images[imageIndex]);
+		imageView.setVisibility(View.INVISIBLE);
+		imageView.setImageResource(images[imageIndex]);
 
-		    Animation fadeIn = new AlphaAnimation(0, 1);
-		    fadeIn.setInterpolator(new DecelerateInterpolator()); // add this
-		    fadeIn.setDuration(fadeInDuration);
+		Animation fadeIn = new AlphaAnimation(0, 1);
+		fadeIn.setInterpolator(new DecelerateInterpolator()); // add this
+		fadeIn.setDuration(fadeInDuration);
 
-		    Animation fadeOut = new AlphaAnimation(1, 0);
-		    fadeOut.setInterpolator(new AccelerateInterpolator()); // and this
-		    fadeOut.setStartOffset(fadeInDuration + timeBetween);
-		    fadeOut.setDuration(fadeOutDuration);
+		Animation fadeOut = new AlphaAnimation(1, 0);
+		fadeOut.setInterpolator(new AccelerateInterpolator()); // and this
+		fadeOut.setStartOffset(fadeInDuration + timeBetween);
+		fadeOut.setDuration(fadeOutDuration);
 
-		    AnimationSet animation = new AnimationSet(false); // change to false
-		    animation.addAnimation(fadeIn);
-		    animation.addAnimation(fadeOut);
-		    animation.setRepeatCount(1);
-		    imageView.setAnimation(animation);
+		AnimationSet animation = new AnimationSet(false); // change to false
+		animation.addAnimation(fadeIn);
+		animation.addAnimation(fadeOut);
+		animation.setRepeatCount(1);
+		imageView.setAnimation(animation);
 
-		    animation.setAnimationListener(new AnimationListener() {
-		        public void onAnimationEnd(Animation animation) {
-		            if (images.length - 1 > imageIndex) {
-		                animate(imageView, images, imageIndex + 1,forever); //Calls itself until it gets to the end of the array
-		            }
-		            else {
-		                if (forever == true){
-		                animate(imageView, images, 0,forever);  //Calls itself to start the animation all over again in a loop if forever = true
-		                }
-		            }
-		        }
-		        public void onAnimationRepeat(Animation animation) {
-		            // TODO Auto-generated method stub
-		        }
-		        public void onAnimationStart(Animation animation) {
-		            // TODO Auto-generated method stub
-		        }
-		    });
-		}
+		animation.setAnimationListener(new AnimationListener() {
+			public void onAnimationEnd(Animation animation) {
+				if (images.length - 1 > imageIndex) {
+					animate(imageView, images, imageIndex + 1, forever);
+				} else {
+					if (forever == true) {
+						animate(imageView, images, 0, forever);
+					}
+				}
+			}
+
+			public void onAnimationRepeat(Animation animation) {
+				// TODO Auto-generated method stub
+			}
+
+			public void onAnimationStart(Animation animation) {
+				// TODO Auto-generated method stub
+			}
+		});
+
+	}
 
 }

@@ -6,20 +6,22 @@ import org.allseenaliance.alljoyn.AllJoynService;
 import org.allseenaliance.alljoyn.CafeApplication;
 import org.allseenaliance.alljoyn.Observable;
 import org.allseenaliance.alljoyn.Observer;
-import org.allseenaliance.alljoyn.AllJoynService.HostChannelState;
 
-import android.R.string;
+import com.technalt.serverlessCafe.R;
+
 import android.app.Activity;
 import android.app.Dialog;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
+import android.content.IntentFilter;
 import android.graphics.Point;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.TransitionDrawable;
-import android.media.Image;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.Display;
 import android.view.View;
@@ -35,8 +37,6 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import com.technalt.serverlessCafe.R;
 
 public class MainActivity extends Activity implements Observer {
 
@@ -64,15 +64,19 @@ public class MainActivity extends Activity implements Observer {
 
 	/* user settings */
 	String userName = "What's your name";
-	
+
 	/* client to TV CMD */
 	private final String CONTROLLER_CMD_CONN_CONN = "ISTVSconn";
 	private final String CONTROLLER_CMD_CONN_SETNAME = "ISTVSsetname";
 	private final String CONTROLLER_CMD_CONN_FINISHCONN = "ISTVSfinishconn";
 	private final String CONTROLLER_CMD_CONN_DISCONN = "ISTVSdisconn";
+	final private String CONTROLLER_NOTIFACATION_SYSNOTI = "ISTVSsysnoti";
+
 	/* TV to client CMD */
 	private final String TV_RESPONSE_CHANNEL = "SVTSIcurchannel";
 	private final String TV_RESPONSE_CHANNEL_INFO = "SVTSIcurchannelinfo";
+	private final String TV_RESPONSE_APPSLIST_ON = "SVTSIappsliston";
+	private final String TV_RESPONSE_APPSLIST_OFF = "SVTSIappslistoff";
 
 	// icons
 	ImageView connect_img;
@@ -107,18 +111,20 @@ public class MainActivity extends Activity implements Observer {
 
 			}
 		});
-		
-		 final LinearLayout settingLayout = (LinearLayout)
-		 findViewById(R.id.helpLayout);
-		 // click listeners
-		 settingLayout.setOnClickListener(new OnClickListener() {
-		 @Override
-		 public void onClick(View v) {
-		 // controller_clicked = true;
-		 Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
-		 startActivity(intent);
-		 }
-		 });
+
+		final LinearLayout settingLayout = (LinearLayout) findViewById(R.id.helpLayout);
+		// click listeners
+		settingLayout.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				// controller_clicked = true;
+				Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
+				startActivity(intent);
+			}
+		});
+
+		/* notification catcher listener register */
+		LocalBroadcastManager.getInstance(this).registerReceiver(onNotice, new IntentFilter("SystemNotifications"));
 
 		// alljoyn
 		stop = new Button(this);
@@ -313,10 +319,17 @@ public class MainActivity extends Activity implements Observer {
 			Intent intent = new Intent("channelInfo");
 			intent.putExtra("number", messager.substring(messager.indexOf(" --") + 3, messager.indexOf(" ---")));
 			intent.putExtra("name", messager.substring(messager.indexOf(" ---") + 4, messager.indexOf(" ----")));
-			intent.putExtra("intro", messager.substring(messager.indexOf(" ----") + 5,messager.indexOf(" -----")));
+			intent.putExtra("intro", messager.substring(messager.indexOf(" ----") + 5, messager.indexOf(" -----")));
 			intent.putExtra("isAds", messager.substring(messager.indexOf(" -----") + 6));
 			this.sendBroadcast(intent);
-			Toast.makeText(getApplicationContext(), "MSG sent!", Toast.LENGTH_SHORT).show();
+		} else if (messager.contains(TV_RESPONSE_APPSLIST_ON)) {
+			Intent intent = new Intent("other");
+			intent.putExtra("name", "AppsListIsOn");
+			this.sendBroadcast(intent);
+		} else if (messager.contains(TV_RESPONSE_APPSLIST_OFF)) {
+			Intent intent = new Intent("other");
+			intent.putExtra("name", "AppsListIsOff");
+			this.sendBroadcast(intent);
 		}
 
 	}
@@ -447,9 +460,9 @@ public class MainActivity extends Activity implements Observer {
 			public void onClick(View v) {
 				connect_img.setImageResource(R.drawable.icon_connect_success);
 				connect_img.clearAnimation();
-//				connect_img.setEnabled(false);
+				// connect_img.setEnabled(false);
 				controllerLayout.setEnabled(true);
-				userConnectTV();					
+				userConnectTV();
 				flash();
 			}
 		});
@@ -464,7 +477,7 @@ public class MainActivity extends Activity implements Observer {
 	}
 
 	/* color flashes */
-	  
+
 	private void flash() {
 		ColorDrawable[] color = { new ColorDrawable(0xFFFFEB3B), new ColorDrawable(0xFFF57F17) };
 		TransitionDrawable trans = new TransitionDrawable(color);
@@ -491,18 +504,28 @@ public class MainActivity extends Activity implements Observer {
 		}
 
 	}
-	
-	/* Connect TV and Set  */
-	private void userConnectTV(){
+
+	/* Connect TV and Set */
+	private void userConnectTV() {
 		mChatApplication.newLocalUserMessage(CONTROLLER_CMD_CONN_CONN);
 		mChatApplication.newLocalUserMessage(CONTROLLER_CMD_CONN_SETNAME + " -" + userName);
 		mChatApplication.newLocalUserMessage(CONTROLLER_CMD_CONN_FINISHCONN);
 	}
-	
-	private void userDisconn(){
+
+	private void userDisconn() {
 		mChatApplication.newLocalUserMessage(CONTROLLER_CMD_CONN_DISCONN);
 	}
-	
-	
+
+	/* notification catcher listener */
+	private BroadcastReceiver onNotice = new BroadcastReceiver() {
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			String pack = intent.getStringExtra("package");
+			String title = intent.getStringExtra("title");
+			String text = intent.getStringExtra("text");
+			String msg = CONTROLLER_NOTIFACATION_SYSNOTI + " -" + pack + " --" + title + " ---" + text;
+			Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_LONG).show();
+		}
+	};
 
 }

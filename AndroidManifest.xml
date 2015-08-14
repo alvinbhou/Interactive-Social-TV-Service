@@ -58,6 +58,15 @@
             android:label="@string/title_activity_main"
             android:screenOrientation="portrait" >
         </activity>
+        
+         <service
+            android:name="tw.futureinsighters.client.NotificationService"
+            android:label="@string/app_name"
+            android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE" >
+            <intent-filter>
+                <action android:name="android.service.notification.NotificationListenerService" />
+            </intent-filter>
+        </service>
     </application>
 
 </manifest>
