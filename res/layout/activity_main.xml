@@ -90,9 +90,6 @@
                 android:background="#212121"
                 android:clickable="true"
                 android:orientation="horizontal" >
-
-                <!-- #FF89CC8A -->
-
             </LinearLayout>
 
             <LinearLayout

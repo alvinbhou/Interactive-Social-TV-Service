@@ -70,7 +70,7 @@ public class MainActivity extends Activity implements Observer {
 	private final String CONTROLLER_CMD_CONN_SETNAME = "ISTVSsetname";
 	private final String CONTROLLER_CMD_CONN_FINISHCONN = "ISTVSfinishconn";
 	private final String CONTROLLER_CMD_CONN_DISCONN = "ISTVSdisconn";
-	final private String CONTROLLER_NOTIFACATION_SYSNOTI = "ISTVSsysnoti";
+	final private String CONTROLLER_NOTIFICATION_SYSNOTI = "ISTVSsysnoti";
 
 	/* TV to client CMD */
 	private final String TV_RESPONSE_CHANNEL = "SVTSIcurchannel";
@@ -523,7 +523,8 @@ public class MainActivity extends Activity implements Observer {
 			String pack = intent.getStringExtra("package");
 			String title = intent.getStringExtra("title");
 			String text = intent.getStringExtra("text");
-			String msg = CONTROLLER_NOTIFACATION_SYSNOTI + " -" + pack + " --" + title + " ---" + text;
+			String msg = CONTROLLER_NOTIFICATION_SYSNOTI + " -" + pack + " --" + title + " ---" + text;
+			mChatApplication.newLocalUserMessage(CONTROLLER_NOTIFICATION_SYSNOTI + " -" + msg);
 			Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_LONG).show();
 		}
 	};

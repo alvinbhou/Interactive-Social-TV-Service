@@ -31,6 +31,7 @@ import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.View.OnLongClickListener;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 import android.view.WindowManager;
@@ -49,9 +50,9 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.SeekBar;
 import android.widget.TextView;
-import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.VerticalSeekBar;
+
 
 public class TvControllerActivity extends Activity {
 
@@ -90,17 +91,24 @@ public class TvControllerActivity extends Activity {
 	private View leftDrawerView, rightDrawerView;
 	private ListView bookmarkDrawerList, historyDrawerList;
 	private TextView textSelection, channel_information;
-	private ImageView gesture_img;
 	private Button share_btn, snap_btn;
 	private ArrayAdapter<String> arrayAdapter1;
 	private ArrayAdapter<String> arrayAdapter2;
-	boolean left_open = false, right_open = false;
+	private boolean left_open = false, right_open = false;
+	private LinearLayout vl_layout;
+	private LinearLayout cn_layout;
+	private LinearLayout gt_layout;
+
+	/* Gesture */
+	private ImageView gesture_img;
+	private Button gesture_return;
 
 	/* Volume */
 	private int volume = 50;
 	private VerticalSeekBar volume_bar;
-	private TextView volume_value;
+	private TextView volume_value = null;
 	private boolean vl_gesture_controll = false;
+	
 	/* Channel */
 	private SeekBar ChannelBar;
 	private int shift = 0, delta = 0;
@@ -133,7 +141,7 @@ public class TvControllerActivity extends Activity {
 
 		sensor_on = false;
 		/* ------Start AllJoyn Service KEYWORD!!---- */
-		mChatApplication = (CafeApplication) getApplication();
+		mChatApplication = (CafeApplication) getApplication();	
 
 		/* channel info reciever */
 
@@ -209,10 +217,11 @@ public class TvControllerActivity extends Activity {
 
 			@Override
 			public void onClick(View v) {
-				LinearLayout vl_layout = (LinearLayout) findViewById(R.id.vl_layout);
-				LinearLayout cn_layout = (LinearLayout) findViewById(R.id.cn_layout);
-				LinearLayout gt_layout = (LinearLayout) findViewById(R.id.gesture_layout);
-				LinearLayout bottom_container = (LinearLayout) findViewById(R.id.bottom_container);
+				vl_layout = (LinearLayout) findViewById(R.id.vl_layout);
+				cn_layout = (LinearLayout) findViewById(R.id.cn_layout);
+				gt_layout = (LinearLayout) findViewById(R.id.gesture_layout);
+				// LinearLayout bottom_container = (LinearLayout)
+				// findViewById(R.id.bottom_container);
 				vl_layout.setVisibility(View.GONE);
 				cn_layout.setVisibility(View.GONE);
 				gt_layout.setVisibility(View.VISIBLE);
@@ -226,6 +235,25 @@ public class TvControllerActivity extends Activity {
 				sensorManager.registerListener(aSensorListener, aSensor, SensorManager.SENSOR_DELAY_NORMAL);
 				sensorManager.registerListener(gSensorListener, gSensor, SensorManager.SENSOR_DELAY_NORMAL);
 
+			}
+		});
+
+		/* Gesture Return Btn */
+		gesture_return = (Button) findViewById(R.id.end_gesture);
+		gesture_return.setOnLongClickListener(new OnLongClickListener() {
+			@Override
+			public boolean onLongClick(View v) {
+				vl_layout = (LinearLayout) findViewById(R.id.vl_layout);
+				cn_layout = (LinearLayout) findViewById(R.id.cn_layout);
+				gt_layout = (LinearLayout) findViewById(R.id.gesture_layout);
+				// LinearLayout bottom_container = (LinearLayout)
+				// findViewById(R.id.bottom_container);
+				vl_layout.setVisibility(View.VISIBLE);
+				cn_layout.setVisibility(View.VISIBLE);
+				gt_layout.setVisibility(View.GONE);
+				sensorManager.unregisterListener(aSensorListener);
+				sensorManager.unregisterListener(gSensorListener);
+				return true;
 			}
 		});
 
@@ -246,10 +274,11 @@ public class TvControllerActivity extends Activity {
 
 		/* Volume */
 		volume_bar = (VerticalSeekBar) findViewById(R.id.volume_bar);
-		volume_value = (TextView) findViewById(R.id.volume_value);
+		volume_value = (TextView) findViewById(R.id.volume_value);		
 		volume_bar.setOnSeekBarChangeListener(new VerticalSeekBar.OnSeekBarChangeListener() {
+
 			@Override
-			public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+			public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {			
 				volume = progress;
 				vl_gesture_controll = false;
 				volumeCMD(volume);
@@ -877,7 +906,6 @@ public class TvControllerActivity extends Activity {
 				// TODO Auto-generated method stub
 			}
 		});
-
 	}
 
 }
