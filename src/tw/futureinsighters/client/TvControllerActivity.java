@@ -192,8 +192,7 @@ public class TvControllerActivity extends Activity {
 		/* Keyboard */
 		/* Avoid auto appear */
 		getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
-		channel_edit = (EditText) findViewById(R.id.editText_cn);
-		channel_submit = (Button) findViewById(R.id.submit_cn);
+		channel_edit = (EditText) findViewById(R.id.editText_cn);	
 		channel_edit.setOnEditorActionListener(new EditText.OnEditorActionListener() {
 			@Override
 			public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
@@ -205,7 +204,20 @@ public class TvControllerActivity extends Activity {
 
 			}
 		});
-
+		
+		
+		
+		channel_submit = (Button) findViewById(R.id.submit_cn);
+		channel_submit.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				String value = channel_edit.getText().toString();
+				channelInfo.number = Integer.parseInt(value);
+				channelCMD(channelInfo.number);				
+			}
+		});
+		
 		/* Gesture Btn */
 		gesture_img = (ImageView) findViewById(R.id.gesture_btn);
 		int imagesToShow[] = { R.drawable.gesture2, R.drawable.gesture2 };
@@ -240,9 +252,9 @@ public class TvControllerActivity extends Activity {
 
 		/* Gesture Return Btn */
 		gesture_return = (Button) findViewById(R.id.end_gesture);
-		gesture_return.setOnLongClickListener(new OnLongClickListener() {
+		gesture_return.setOnClickListener(new OnClickListener() {
 			@Override
-			public boolean onLongClick(View v) {
+			public void onClick(View v) {
 				vl_layout = (LinearLayout) findViewById(R.id.vl_layout);
 				cn_layout = (LinearLayout) findViewById(R.id.cn_layout);
 				gt_layout = (LinearLayout) findViewById(R.id.gesture_layout);
@@ -252,8 +264,7 @@ public class TvControllerActivity extends Activity {
 				cn_layout.setVisibility(View.VISIBLE);
 				gt_layout.setVisibility(View.GONE);
 				sensorManager.unregisterListener(aSensorListener);
-				sensorManager.unregisterListener(gSensorListener);
-				return true;
+				sensorManager.unregisterListener(gSensorListener);			
 			}
 		});
 

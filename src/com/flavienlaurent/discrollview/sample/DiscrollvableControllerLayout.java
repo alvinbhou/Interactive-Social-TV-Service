@@ -54,7 +54,7 @@ public class DiscrollvableControllerLayout extends FrameLayout implements Discro
             float rratio = (ratio - 0.65f) / 0.35f;
             rratio = Math.min(rratio, 1.0f);
             controller1.setTranslationY(-1 * (controller1.getHeight()/1.5f));
-            controller2.setAlpha(0.1f * rratio);
+            controller2.setAlpha(1.0f * rratio);
             controller2.setScaleX(1.0f * rratio);
             controller2.setScaleY(1.0f * rratio);
         }

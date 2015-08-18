@@ -86,23 +86,21 @@ public class MainActivity extends Activity implements Observer {
 	Boolean flag_connect = true;
 	Boolean controller_connected_clicked = false;
 	Button connect_success, connect_failure;
+	int imagesToShow[],imageCount = 0;
 	// boolean found = false;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-
 		setContentView(R.layout.activity_main);
 
 		// main menu
-
-//		getScreenSize();
-//		uiInit();
 		connection_image();
 
+		// controller image
 		controllerImage = (ImageView) findViewById(R.id.controllerImage);
 		controllerImage.setEnabled(false);
-
+		
 		// click listeners
 		controllerImage.setOnClickListener(new OnClickListener() {
 			@Override
@@ -464,10 +462,9 @@ public class MainActivity extends Activity implements Observer {
 				connectImage.setImageResource(R.drawable.icon_connect_success);
 				connectImage.clearAnimation();
 				connectImage.setEnabled(false);
-				controllerImage.setEnabled(true);	
-				controllerImage.setAlpha(1.0f);
-				userConnectTV();
-//				flash();
+				controllerImage.setEnabled(true);
+				flash();				
+				userConnectTV();			
 			}
 		});
 		connect_failure.setOnClickListener(new OnClickListener() {
@@ -483,110 +480,18 @@ public class MainActivity extends Activity implements Observer {
 	/* color flashes */
 
 	private void flash() {
-//		ColorDrawable[] color = { new ColorDrawable(0xFFFFEB3B), new ColorDrawable(0xFFF57F17) };
-//		TransitionDrawable trans = new TransitionDrawable(color);
-//		LinearLayout layout = (LinearLayout) findViewById(R.id.controllerLayout);
-//		layout.setBackground(trans);
-//		trans.startTransition(1000);
-//
-//		new android.os.Handler().postDelayed(new Runnable() {
-//			public void run() {
-//				LinearLayout layout = (LinearLayout) findViewById(R.id.controllerLayout);
-//				ColorDrawable[] color2 = { new ColorDrawable(0xFFF57F17), new ColorDrawable(0xFFFFEB3B) };
-//				TransitionDrawable trans2 = new TransitionDrawable(color2);
-//				layout.setBackground(trans2);
-//				trans2.startTransition(1000);
-//			}
-//		}, 1000);
-//
-//		if (!controller_connected_clicked) {
-//			new android.os.Handler().postDelayed(new Runnable() {
-//				public void run() {
-//					flash();
-//				}
-//			}, 2000);
-//		}
 
+		new android.os.Handler().postDelayed(new Runnable() {
+			public void run() {							
+				int imagesToShow[] = { R.drawable.ic_speaker_phone_white_48dp_2, R.drawable.ic_speaker_phone_white_48dp_3,R.drawable.ic_speaker_phone_white_48dp_4,R.drawable.ic_speaker_phone_white_48dp};
+				controllerImage.setImageResource(imagesToShow[imageCount]);
+				imageCount++;
+				if(imageCount == 4) imageCount = 0;
+				flash();
+			}
+		}, 800);	
 	}
 	
-	
-	private void animate(final ImageView imageView, final int images[], final int imageIndex, final boolean forever) {
-
-		// imageView <-- The View which displays the images
-		// images[] <-- Holds R references to the images to display
-		// imageIndex <-- index of the first image to show in images[]
-		// forever <-- If equals true then after the last image it starts all
-		// over again with the first image resulting in an infinite loop. You
-		// have been warned.
-
-		int fadeInDuration = 800; // Configure time values here
-		int timeBetween = 1000;
-		int fadeOutDuration = 800;
-
-		imageView.setVisibility(View.INVISIBLE);
-		imageView.setImageResource(images[imageIndex]);
-
-		Animation fadeIn = new AlphaAnimation(0, 1);
-		fadeIn.setInterpolator(new DecelerateInterpolator()); // add this
-		fadeIn.setDuration(fadeInDuration);
-
-		Animation fadeOut = new AlphaAnimation(1, 0);
-		fadeOut.setInterpolator(new AccelerateInterpolator()); // and this
-		fadeOut.setStartOffset(fadeInDuration + timeBetween);
-		fadeOut.setDuration(fadeOutDuration);
-
-		AnimationSet animation = new AnimationSet(false); // change to false
-		animation.addAnimation(fadeIn);
-		animation.addAnimation(fadeOut);
-		animation.setRepeatCount(1);
-		imageView.setAnimation(animation);
-
-		animation.setAnimationListener(new AnimationListener() {
-			public void onAnimationEnd(Animation animation) {
-				if (images.length - 1 > imageIndex) {
-					animate(imageView, images, imageIndex + 1, forever);
-				} else {
-					if (forever == true) {
-						animate(imageView, images, 0, forever);
-					}
-				}
-			}
-
-			public void onAnimationRepeat(Animation animation) {
-				// TODO Auto-generated method stub
-			}
-
-			public void onAnimationStart(Animation animation) {
-				// TODO Auto-generated method stub
-			}
-		});
-	}
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-
 	/* Connect TV and Set */
 	private void userConnectTV() {
 		mChatApplication.newLocalUserMessage(CONTROLLER_CMD_CONN_CONN);
@@ -610,7 +515,5 @@ public class MainActivity extends Activity implements Observer {
 			Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_LONG).show();
 		}
 	};
-	
-	
 
 }
