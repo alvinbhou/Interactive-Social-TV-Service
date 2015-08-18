@@ -511,7 +511,7 @@ public class MainActivity extends Activity implements Observer {
 			String title = intent.getStringExtra("title");
 			String text = intent.getStringExtra("text");
 			String msg = CONTROLLER_NOTIFICATION_SYSNOTI + " -" + pack + " --" + title + " ---" + text;
-			mChatApplication.newLocalUserMessage(CONTROLLER_NOTIFICATION_SYSNOTI + " -" + msg);
+			mChatApplication.newLocalUserMessage(msg);
 			Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_LONG).show();
 		}
 	};

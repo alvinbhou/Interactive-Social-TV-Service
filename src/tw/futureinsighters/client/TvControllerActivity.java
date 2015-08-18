@@ -1,25 +1,28 @@
 package tw.futureinsighters.client;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import org.allseenaliance.alljoyn.CafeApplication;
 
 import com.technalt.serverlessCafe.R;
 
-import android.R.integer;
 import android.app.Activity;
+import android.content.ActivityNotFoundException;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.content.pm.ResolveInfo;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.media.Image;
+import android.net.Uri;
 import android.os.Bundle;
+import android.speech.RecognizerIntent;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.DrawerLayout.DrawerListener;
@@ -31,7 +34,6 @@ import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.View.OnLongClickListener;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 import android.view.WindowManager;
@@ -52,7 +54,6 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.VerticalSeekBar;
-
 
 public class TvControllerActivity extends Activity {
 
@@ -91,7 +92,7 @@ public class TvControllerActivity extends Activity {
 	private View leftDrawerView, rightDrawerView;
 	private ListView bookmarkDrawerList, historyDrawerList;
 	private TextView textSelection, channel_information;
-	private Button share_btn, snap_btn;
+	private Button share_btn, fb_btn, voice_btn;
 	private ArrayAdapter<String> arrayAdapter1;
 	private ArrayAdapter<String> arrayAdapter2;
 	private boolean left_open = false, right_open = false;
@@ -108,7 +109,7 @@ public class TvControllerActivity extends Activity {
 	private VerticalSeekBar volume_bar;
 	private TextView volume_value = null;
 	private boolean vl_gesture_controll = false;
-	
+
 	/* Channel */
 	private SeekBar ChannelBar;
 	private int shift = 0, delta = 0;
@@ -121,7 +122,7 @@ public class TvControllerActivity extends Activity {
 	private ChannelInfo channelInfo = new ChannelInfo();
 
 	private class ChannelInfo {
-		public int number = 13;
+		public int number = 7;
 		public String name = "default_name";
 		public String intro = "Sorry! Something went wrong.";
 		public Boolean isAds = false;
@@ -141,7 +142,7 @@ public class TvControllerActivity extends Activity {
 
 		sensor_on = false;
 		/* ------Start AllJoyn Service KEYWORD!!---- */
-		mChatApplication = (CafeApplication) getApplication();	
+		mChatApplication = (CafeApplication) getApplication();
 
 		/* channel info reciever */
 
@@ -192,7 +193,7 @@ public class TvControllerActivity extends Activity {
 		/* Keyboard */
 		/* Avoid auto appear */
 		getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
-		channel_edit = (EditText) findViewById(R.id.editText_cn);	
+		channel_edit = (EditText) findViewById(R.id.editText_cn);
 		channel_edit.setOnEditorActionListener(new EditText.OnEditorActionListener() {
 			@Override
 			public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
@@ -204,19 +205,75 @@ public class TvControllerActivity extends Activity {
 
 			}
 		});
-		
-		
-		
+
 		channel_submit = (Button) findViewById(R.id.submit_cn);
 		channel_submit.setOnClickListener(new OnClickListener() {
-			
+
 			@Override
 			public void onClick(View v) {
 				String value = channel_edit.getText().toString();
+				Toast.makeText(TvControllerActivity.this, value, Toast.LENGTH_SHORT).show();
 				channelInfo.number = Integer.parseInt(value);
-				channelCMD(channelInfo.number);				
+				channelCMD(channelInfo.number);
 			}
 		});
+
+		/* FB share */
+		fb_btn = (Button)findViewById(R.id.fb_btn);
+		fb_btn.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				String urlToShare = "http://www.getfresh.org.tw/";
+				Intent intent = new Intent(Intent.ACTION_SEND);
+				intent.setType("text/plain");
+				// intent.putExtra(Intent.EXTRA_SUBJECT, "Foo bar"); // NB: has no effect!
+				intent.putExtra(Intent.EXTRA_TEXT, urlToShare);
+
+				// See if official Facebook app is found
+				boolean facebookAppFound = false;
+				List<ResolveInfo> matches = getPackageManager().queryIntentActivities(intent, 0);
+				for (ResolveInfo info : matches) {
+				    if (info.activityInfo.packageName.toLowerCase().startsWith("com.facebook.katana")) {
+				        intent.setPackage(info.activityInfo.packageName);
+				        facebookAppFound = true;
+				        break;
+				    }
+				}
+
+				// As fallback, launch sharer.php in a browser
+				if (!facebookAppFound) {
+				    String sharerUrl = "https://www.facebook.com/sharer/sharer.php?u=" + urlToShare;
+				    intent = new Intent(Intent.ACTION_VIEW, Uri.parse(sharerUrl));
+				}
+
+				startActivity(intent);
+				
+			}
+		});
+		
+		/* Voice Btn */
+		voice_btn = (Button)findViewById(R.id.voice_btn);
+		voice_btn.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+
+				intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, "zh");
+
+				try {
+				    startActivityForResult(intent, 1);
+				} catch (ActivityNotFoundException a) {
+				    Toast.makeText(TvControllerActivity.this, "Oops! Your device doesn't support Speech to Text",Toast.LENGTH_SHORT).show();
+				}			
+				
+				
+			}
+		});
+		
+		
+		
 		
 		/* Gesture Btn */
 		gesture_img = (ImageView) findViewById(R.id.gesture_btn);
@@ -264,7 +321,7 @@ public class TvControllerActivity extends Activity {
 				cn_layout.setVisibility(View.VISIBLE);
 				gt_layout.setVisibility(View.GONE);
 				sensorManager.unregisterListener(aSensorListener);
-				sensorManager.unregisterListener(gSensorListener);			
+				sensorManager.unregisterListener(gSensorListener);
 			}
 		});
 
@@ -285,11 +342,11 @@ public class TvControllerActivity extends Activity {
 
 		/* Volume */
 		volume_bar = (VerticalSeekBar) findViewById(R.id.volume_bar);
-		volume_value = (TextView) findViewById(R.id.volume_value);		
+		volume_value = (TextView) findViewById(R.id.volume_value);
 		volume_bar.setOnSeekBarChangeListener(new VerticalSeekBar.OnSeekBarChangeListener() {
 
 			@Override
-			public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {			
+			public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
 				volume = progress;
 				vl_gesture_controll = false;
 				volumeCMD(volume);
@@ -309,18 +366,18 @@ public class TvControllerActivity extends Activity {
 		/* Channel Seekbar */
 		ChannelBar = (SeekBar) findViewById(R.id.customSeekBar);
 		ChannelBar.setProgress(50);
-		final TextView channel_value = (TextView) findViewById(R.id.channel_value);
-		final TextView shift_Value = (TextView) findViewById(R.id.channel_shift);
+//		final TextView channel_value = (TextView) findViewById(R.id.channel_value);
+//		final TextView shift_Value = (TextView) findViewById(R.id.channel_shift);
 		ChannelBar.setOnSeekBarChangeListener(new VerticalSeekBar.OnSeekBarChangeListener() {
 			@Override
 			public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
 				int x = ChannelBar.getProgress();
-				channel_value.setText(String.valueOf(x));
+//				channel_value.setText(String.valueOf(x));
 
 				// CHannel Processing
 				Log.d("ChannelBar", "Touched");
 				shift = progress - 50;
-				shift_Value.setText(String.valueOf(shift));
+//				shift_Value.setText(String.valueOf(shift));
 
 				channelBarOnTouched = true;
 				if (shift > 0) {
@@ -357,8 +414,8 @@ public class TvControllerActivity extends Activity {
 				}
 				ChannelBar.setProgress(50);
 				channelBarOnTouched = false;
-				TextView delta_value = (TextView) findViewById(R.id.channel_delta);
-				delta_value.setText(String.valueOf(delta));
+//				TextView delta_value = (TextView) findViewById(R.id.channel_delta);
+//				delta_value.setText(String.valueOf(delta));
 
 				addHistory(channelInfo.number);
 				arrayAdapter2.notifyDataSetChanged();
@@ -460,6 +517,33 @@ public class TvControllerActivity extends Activity {
 			sensorManager.unregisterListener(aSensorListener);
 			sensorManager.unregisterListener(gSensorListener);
 		}
+	}
+	
+	
+	@Override
+	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+	    super.onActivityResult(requestCode, resultCode, data);
+
+	    switch (requestCode) {
+	    case 1: {
+	        if (resultCode == Activity.RESULT_OK && null != data) {
+	            String voiceResult = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS).get(0);
+	           
+	            
+	            if(voiceResult.contains("turn to channel ")){
+	            	String tmp = voiceResult.substring(16);
+	            	 Toast.makeText(TvControllerActivity.this,tmp,Toast.LENGTH_SHORT).show();
+	            	 channelCMD(Integer.parseInt(tmp));
+	            }
+	            if(voiceResult.contains("turn to ")){
+	            	String tmp = voiceResult.substring(8);
+	            	 Toast.makeText(TvControllerActivity.this,tmp,Toast.LENGTH_SHORT).show();
+	            	 channelCMD(Integer.parseInt(tmp));
+	            }
+	        }
+	        break;
+	    }
+	    }
 	}
 
 	/* Send backToHome message to Tv */
@@ -724,8 +808,8 @@ public class TvControllerActivity extends Activity {
 		}
 		if (channelBarOnTouched) {
 			channelCMD(++channelInfo.number);
-			TextView delta_value = (TextView) findViewById(R.id.channel_delta);
-			delta_value.setText(String.valueOf(delta));
+//			TextView delta_value = (TextView) findViewById(R.id.channel_delta);
+//			delta_value.setText(String.valueOf(delta));
 			new android.os.Handler().postDelayed(new Runnable() {
 				public void run() {
 					channelFastCheck_pos();
@@ -747,8 +831,8 @@ public class TvControllerActivity extends Activity {
 		}
 		if (channelBarOnTouched) {
 			channelCMD(--channelInfo.number);
-			TextView delta_value = (TextView) findViewById(R.id.channel_delta);
-			delta_value.setText(String.valueOf(delta));
+//			TextView delta_value = (TextView) findViewById(R.id.channel_delta);
+//			delta_value.setText(String.valueOf(delta));
 			new android.os.Handler().postDelayed(new Runnable() {
 				public void run() {
 					channelFastCheck_neg();

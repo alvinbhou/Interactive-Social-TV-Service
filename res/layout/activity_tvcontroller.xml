@@ -199,13 +199,6 @@
                     android:orientation="vertical"
                     android:paddingLeft="@dimen/activity_horizontal_margin" >
 
-                    <TextView
-                        android:id="@+id/channel_value"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:text="50"
-                        android:textSize="12sp" />
 
                     <android.channel.scroller.CustomSeekBar
                         android:id="@+id/customSeekBar"
@@ -215,21 +208,7 @@
                         android:progress="50"
                         android:progressDrawable="@android:color/transparent" />
 
-                    <TextView
-                        android:id="@+id/channel_shift"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:text="0"
-                        android:textSize="12sp" />
-
-                    <TextView
-                        android:id="@+id/channel_delta"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:text="0"
-                        android:textSize="12sp" />
+               
 
                     <LinearLayout
                         android:id="@+id/btn_block"
@@ -240,7 +219,7 @@
                         android:orientation="horizontal" >
 
                         <Button
-                            android:id="@+id/snap_btn"
+                            android:id="@+id/fb_btn"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_centerInParent="true"
@@ -256,6 +235,14 @@
                             android:textColor="#ffffff" />
                     </LinearLayout>
 
+                    	<Button
+                            android:id="@+id/voice_btn"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_centerInParent="true"
+                            android:text="Voice"
+                            android:textColor="#ffffff" />
+                    
                     <FrameLayout
                         android:id="@+id/gesture_plate"
                         android:layout_width="wrap_content"
