@@ -1,29 +1,21 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.flavienlaurent.discrollview.lib.DiscrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:discrollve="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    tools:context="${relativePackage}.${activityClass}" >
+    android:background="#FFC107" >
 
-    <LinearLayout
+    <com.flavienlaurent.discrollview.lib.DiscrollViewContent
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="#212121"
-        android:orientation="vertical"
-        android:paddingBottom="@dimen/activity_vertical_margin"
-        android:paddingLeft="@dimen/activity_horizontal_margin"
-        android:paddingRight="@dimen/activity_horizontal_margin"
-        android:paddingTop="@dimen/activity_vertical_margin"
-        tools:context=".SettingsActivity" >
+        android:layout_height="match_parent" >
 
         <LinearLayout
             android:id="@+id/logoLayout"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_marginBottom="10dp"
-            android:background="#1E88E5"
+            android:layout_height="50dp"
+            android:background="#2196F3"
             android:clickable="true"
-            android:orientation="horizontal" >
+            android:orientation="vertical" >
 
             <Button
                 android:id="@+id/connect_fail"
@@ -36,80 +28,140 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="List size!" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/connectLayout"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_marginBottom="10dp"
-            android:background="#01579B"
-            android:clickable="true"
-            android:orientation="vertical" >
-
-            <ImageView
-                android:id="@+id/connect_logo"
-                android:layout_width="1dp"
-                android:layout_height="1dp"
-                android:layout_gravity="center_horizontal|center_vertical"
-                android:layout_margin="10dp"
-                android:clickable="true"
-                android:src="@drawable/icon_connecting" />
 
             <Button
                 android:id="@+id/connect_success"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Connect Success!" />
+
+            <ImageView
+                android:layout_width="200dp"
+                android:layout_height="200dp"
+                android:layout_gravity="center_horizontal|center_vertical"
+                android:src="@drawable/ic_home_black_48dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="serif"
+                android:gravity="center"
+                android:padding="25dp"
+                android:text="SMART TV HOME"
+                android:textColor="@android:color/black"
+                android:textSize="60sp" />
         </LinearLayout>
 
-        <LinearLayout
-            android:id="@+id/bottomLayout"
+        <View
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="horizontal" >
+            android:layout_height="100dp"
+            android:background="#FFC107"
+            discrollve:discrollve_alpha="true"
+            discrollve:discrollve_threshold="0.3" />
 
-            <LinearLayout
-                android:id="@+id/controllerLayout"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="45"
-                android:background="#FFEB3B"
+        <ImageView
+            android:layout_width="200dp"
+            android:layout_height="120dp"
+            android:src="@drawable/ic_airplay_black_48dp"
+            discrollve:discrollve_alpha="true"
+            discrollve:discrollve_threshold="0.5"
+            discrollve:discrollve_translation="fromLeft|fromBottom" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="15dp"
+            discrollve:discrollve_fromBgColor="#2196F3"
+            discrollve:discrollve_toBgColor="#000000" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="serif"
+            android:gravity="center"
+            android:padding="22dp"
+            android:text="Connect your phone to our TV, click the following icon"
+            android:textSize="18sp"
+            discrollve:discrollve_alpha="true"
+            discrollve:discrollve_translation="fromBottom" />
+
+        <ImageView
+            android:id="@+id/connect_logo"
+            android:layout_width="250dp"
+            android:layout_height="250dp"
+            android:layout_gravity="center"
+            android:layout_marginBottom="50dp"
+            android:layout_marginTop="5dp"
+            android:clickable="true"
+            android:src="@drawable/icon_connecting"
+            discrollve:discrollve_scaleX="true"
+            discrollve:discrollve_scaleY="true" />
+
+        <com.flavienlaurent.discrollview.sample.DiscrollvableControllerLayout
+            android:layout_width="match_parent"
+            android:layout_height="300dp"
+            android:background="#3F51B5"
+            tools:visibility="gone" >
+
+            <TextView
+                android:id="@+id/controllerText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:fontFamily="serif"
+                android:gravity="center"
+                android:padding="20dp"
+                android:text="Get started!"
+                android:textColor="@android:color/white"
+                android:textSize="24sp" />
+
+            <ImageView
+                android:id="@+id/controllerImage"
+                android:layout_width="150dp"
+                android:layout_height="150dp"
+                android:layout_gravity="center"
                 android:clickable="true"
-                android:orientation="horizontal" >
+                android:alpha="0.0"
+                android:scaleX="0.1"
+                android:scaleY="0.1"
+                android:src="@drawable/ic_speaker_phone_white_48dp"
+                android:translationY="50dp" />
+        </com.flavienlaurent.discrollview.sample.DiscrollvableControllerLayout>
 
-                <!-- #FF89CC8A -->
+        <com.flavienlaurent.discrollview.sample.DiscrollvablePurpleLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#263238"
+            android:orientation="horizontal"
+            tools:visibility="gone" >
 
-            </LinearLayout>
+            <ImageView
+                android:id="@+id/settingsImage"
+                android:layout_width="180dp"
+                android:layout_height="120dp"
+                android:layout_marginBottom="10dp"
+                android:layout_marginTop="15dp"
+                android:alpha="0"
+                android:src="@drawable/ic_settings_applications_white_48dp"
+                android:translationX="-100dp" />
 
-            <LinearLayout
-                android:id="@+id/borderLayout"
+            <ImageView
+                android:id="@+id/helpImage"
+                android:layout_width="180dp"
+                android:layout_height="120dp"
+                android:layout_marginBottom="10dp"
+                android:layout_marginTop="15dp"
+                android:alpha="0"
+                android:src="@drawable/ic_help_outline_white_48dp"
+                android:translationX="100dp" />
+
+            <TextView
+                android:id="@+id/textpreview"
                 android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="3"
-                android:background="#212121"
-                android:clickable="true"
-                android:orientation="horizontal" >
-            </LinearLayout>
+                android:layout_height="0dp"
+                android:hint="message"
+                android:padding="10dp"
+                android:textAppearance="?android:attr/textAppearanceLarge" />
+        </com.flavienlaurent.discrollview.sample.DiscrollvablePurpleLayout>
+    </com.flavienlaurent.discrollview.lib.DiscrollViewContent>
 
-            <LinearLayout
-                android:id="@+id/helpLayout"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="52"
-                android:background="#4CAF50"
-                android:clickable="true"
-                android:orientation="horizontal" >
-
-                <TextView
-                    android:id="@+id/textpreview"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="message"
-                    android:padding="10dp"
-                    android:textAppearance="?android:attr/textAppearanceLarge" />
-            </LinearLayout>
-        </LinearLayout>
-    </LinearLayout>
-
-</LinearLayout>
+</com.flavienlaurent.discrollview.lib.DiscrollView>

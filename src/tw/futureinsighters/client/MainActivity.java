@@ -27,8 +27,13 @@ import android.view.Display;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup.LayoutParams;
+import android.view.animation.AccelerateInterpolator;
+import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
+import android.view.animation.AnimationSet;
 import android.view.animation.AnimationUtils;
+import android.view.animation.DecelerateInterpolator;
+import android.view.animation.Animation.AnimationListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -59,8 +64,6 @@ public class MainActivity extends Activity implements Observer {
 	private static final int HANDLE_ALLJOYN_ERROR_EVENT = 2;
 	private int retry_count = 0;
 
-	/* Layout */
-	private LinearLayout controllerLayout;
 
 	/* user settings */
 	String userName = "What's your name";
@@ -79,7 +82,7 @@ public class MainActivity extends Activity implements Observer {
 	private final String TV_RESPONSE_APPSLIST_OFF = "SVTSIappslistoff";
 
 	// icons
-	ImageView connect_img;
+	ImageView controllerImage, connectImage, settingsImage, helpImage;
 	Boolean flag_connect = true;
 	Boolean controller_connected_clicked = false;
 	Button connect_success, connect_failure;
@@ -93,15 +96,15 @@ public class MainActivity extends Activity implements Observer {
 
 		// main menu
 
-		getScreenSize();
-		uiInit();
+//		getScreenSize();
+//		uiInit();
 		connection_image();
 
-		controllerLayout = (LinearLayout) findViewById(R.id.controllerLayout);
-		controllerLayout.setEnabled(false);
+		controllerImage = (ImageView) findViewById(R.id.controllerImage);
+		controllerImage.setEnabled(false);
 
 		// click listeners
-		controllerLayout.setOnClickListener(new OnClickListener() {
+		controllerImage.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				controller_connected_clicked = true;
@@ -112,9 +115,9 @@ public class MainActivity extends Activity implements Observer {
 			}
 		});
 
-		final LinearLayout settingLayout = (LinearLayout) findViewById(R.id.helpLayout);
+		settingsImage = (ImageView) findViewById(R.id.settingsImage);
 		// click listeners
-		settingLayout.setOnClickListener(new OnClickListener() {
+		settingsImage.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				// controller_clicked = true;
@@ -403,46 +406,46 @@ public class MainActivity extends Activity implements Observer {
 	}
 
 	private void uiInit() {
-		final LinearLayout logoLayout = (LinearLayout) findViewById(R.id.logoLayout);
-		final LinearLayout connectLayout = (LinearLayout) findViewById(R.id.connectLayout);
-		final LinearLayout bottomLayout = (LinearLayout) findViewById(R.id.bottomLayout);
-		final LinearLayout controllerLayout = (LinearLayout) findViewById(R.id.controllerLayout);
-		final LinearLayout helpLayout = (LinearLayout) findViewById(R.id.helpLayout);
-		final ImageView connect_logo = (ImageView) findViewById(R.id.connect_logo);
-
-		LayoutParams params = logoLayout.getLayoutParams();
-		params.width = (int) (screenWidth);
-		params.height = (int) (screenHeight * 0.2);
-		logoLayout.setLayoutParams(params);
-		LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
-				LinearLayout.LayoutParams.MATCH_PARENT);
-
-		// set connect logo size
-		params = connect_logo.getLayoutParams();
-		params.width = (int) (screenWidth / 2);
-		params.height = (int) (screenWidth / 2);
-		connect_logo.setLayoutParams(params);
-
-		params = connectLayout.getLayoutParams();
-		params.width = (int) (screenWidth);
-		params.height = (int) (screenHeight * 0.45);
-		connectLayout.setLayoutParams(params);
-
-		params = bottomLayout.getLayoutParams();
-		params.width = (int) screenWidth;
-		params.height = (int) (screenWidth / 2);
+//		final LinearLayout logoLayout = (LinearLayout) findViewById(R.id.logoLayout);
+//		final LinearLayout connectLayout = (LinearLayout) findViewById(R.id.connectLayout);
+//		final LinearLayout bottomLayout = (LinearLayout) findViewById(R.id.bottomLayout);
+//		final LinearLayout controllerLayout = (LinearLayout) findViewById(R.id.controllerLayout);
+//		final LinearLayout helpLayout = (LinearLayout) findViewById(R.id.helpLayout);
+//		final ImageView connect_logo = (ImageView) findViewById(R.id.connect_logo);
+//
+//		LayoutParams params = logoLayout.getLayoutParams();
+//		params.width = (int) (screenWidth);
+//		params.height = (int) (screenHeight * 0.2);
+//		logoLayout.setLayoutParams(params);
+//		LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
+//				LinearLayout.LayoutParams.MATCH_PARENT);
+//
+//		// set connect logo size
+//		params = connect_logo.getLayoutParams();
+//		params.width = (int) (screenWidth / 2);
+//		params.height = (int) (screenWidth / 2);
+//		connect_logo.setLayoutParams(params);
+//
+//		params = connectLayout.getLayoutParams();
+//		params.width = (int) (screenWidth);
+//		params.height = (int) (screenHeight * 0.45);
+//		connectLayout.setLayoutParams(params);
+//
+//		params = bottomLayout.getLayoutParams();
+//		params.width = (int) screenWidth;
+//		params.height = (int) (screenWidth / 2);
 	}
 
 	// connection image (rotate and stuff)
 	private void connection_image() {
-		connect_img = (ImageView) findViewById(R.id.connect_logo);
+		connectImage = (ImageView) findViewById(R.id.connect_logo);
 		final Animation rotate = AnimationUtils.loadAnimation(this, R.anim.rotate_picture);
-		connect_img.setOnClickListener(new OnClickListener() {
+		connectImage.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
 
-				connect_img.setImageResource(R.drawable.icon_connecting);
-				connect_img.startAnimation(rotate);
+				connectImage.setImageResource(R.drawable.icon_connecting);
+				connectImage.startAnimation(rotate);
 
 				new android.os.Handler().postDelayed(new Runnable() {
 					public void run() {
@@ -458,20 +461,21 @@ public class MainActivity extends Activity implements Observer {
 
 			@Override
 			public void onClick(View v) {
-				connect_img.setImageResource(R.drawable.icon_connect_success);
-				connect_img.clearAnimation();
-				// connect_img.setEnabled(false);
-				controllerLayout.setEnabled(true);
+				connectImage.setImageResource(R.drawable.icon_connect_success);
+				connectImage.clearAnimation();
+				connectImage.setEnabled(false);
+				controllerImage.setEnabled(true);	
+				controllerImage.setAlpha(1.0f);
 				userConnectTV();
-				flash();
+//				flash();
 			}
 		});
 		connect_failure.setOnClickListener(new OnClickListener() {
 
 			@Override
 			public void onClick(View v) {
-				connect_img.setImageResource(R.drawable.icon_connect_fail);
-				connect_img.clearAnimation();
+				connectImage.setImageResource(R.drawable.icon_connect_fail);
+				connectImage.clearAnimation();
 			}
 		});
 	}
@@ -479,31 +483,109 @@ public class MainActivity extends Activity implements Observer {
 	/* color flashes */
 
 	private void flash() {
-		ColorDrawable[] color = { new ColorDrawable(0xFFFFEB3B), new ColorDrawable(0xFFF57F17) };
-		TransitionDrawable trans = new TransitionDrawable(color);
-		LinearLayout layout = (LinearLayout) findViewById(R.id.controllerLayout);
-		layout.setBackground(trans);
-		trans.startTransition(1000);
-
-		new android.os.Handler().postDelayed(new Runnable() {
-			public void run() {
-				LinearLayout layout = (LinearLayout) findViewById(R.id.controllerLayout);
-				ColorDrawable[] color2 = { new ColorDrawable(0xFFF57F17), new ColorDrawable(0xFFFFEB3B) };
-				TransitionDrawable trans2 = new TransitionDrawable(color2);
-				layout.setBackground(trans2);
-				trans2.startTransition(1000);
-			}
-		}, 1000);
-
-		if (!controller_connected_clicked) {
-			new android.os.Handler().postDelayed(new Runnable() {
-				public void run() {
-					flash();
-				}
-			}, 2000);
-		}
+//		ColorDrawable[] color = { new ColorDrawable(0xFFFFEB3B), new ColorDrawable(0xFFF57F17) };
+//		TransitionDrawable trans = new TransitionDrawable(color);
+//		LinearLayout layout = (LinearLayout) findViewById(R.id.controllerLayout);
+//		layout.setBackground(trans);
+//		trans.startTransition(1000);
+//
+//		new android.os.Handler().postDelayed(new Runnable() {
+//			public void run() {
+//				LinearLayout layout = (LinearLayout) findViewById(R.id.controllerLayout);
+//				ColorDrawable[] color2 = { new ColorDrawable(0xFFF57F17), new ColorDrawable(0xFFFFEB3B) };
+//				TransitionDrawable trans2 = new TransitionDrawable(color2);
+//				layout.setBackground(trans2);
+//				trans2.startTransition(1000);
+//			}
+//		}, 1000);
+//
+//		if (!controller_connected_clicked) {
+//			new android.os.Handler().postDelayed(new Runnable() {
+//				public void run() {
+//					flash();
+//				}
+//			}, 2000);
+//		}
 
 	}
+	
+	
+	private void animate(final ImageView imageView, final int images[], final int imageIndex, final boolean forever) {
+
+		// imageView <-- The View which displays the images
+		// images[] <-- Holds R references to the images to display
+		// imageIndex <-- index of the first image to show in images[]
+		// forever <-- If equals true then after the last image it starts all
+		// over again with the first image resulting in an infinite loop. You
+		// have been warned.
+
+		int fadeInDuration = 800; // Configure time values here
+		int timeBetween = 1000;
+		int fadeOutDuration = 800;
+
+		imageView.setVisibility(View.INVISIBLE);
+		imageView.setImageResource(images[imageIndex]);
+
+		Animation fadeIn = new AlphaAnimation(0, 1);
+		fadeIn.setInterpolator(new DecelerateInterpolator()); // add this
+		fadeIn.setDuration(fadeInDuration);
+
+		Animation fadeOut = new AlphaAnimation(1, 0);
+		fadeOut.setInterpolator(new AccelerateInterpolator()); // and this
+		fadeOut.setStartOffset(fadeInDuration + timeBetween);
+		fadeOut.setDuration(fadeOutDuration);
+
+		AnimationSet animation = new AnimationSet(false); // change to false
+		animation.addAnimation(fadeIn);
+		animation.addAnimation(fadeOut);
+		animation.setRepeatCount(1);
+		imageView.setAnimation(animation);
+
+		animation.setAnimationListener(new AnimationListener() {
+			public void onAnimationEnd(Animation animation) {
+				if (images.length - 1 > imageIndex) {
+					animate(imageView, images, imageIndex + 1, forever);
+				} else {
+					if (forever == true) {
+						animate(imageView, images, 0, forever);
+					}
+				}
+			}
+
+			public void onAnimationRepeat(Animation animation) {
+				// TODO Auto-generated method stub
+			}
+
+			public void onAnimationStart(Animation animation) {
+				// TODO Auto-generated method stub
+			}
+		});
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 
 	/* Connect TV and Set */
 	private void userConnectTV() {
@@ -528,5 +610,7 @@ public class MainActivity extends Activity implements Observer {
 			Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_LONG).show();
 		}
 	};
+	
+	
 
 }
