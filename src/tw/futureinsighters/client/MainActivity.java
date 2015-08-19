@@ -171,8 +171,6 @@ public class MainActivity extends Activity implements Observer {
 					name = channelList.getItemAtPosition(i).toString();
 					if (name.equals("FutureInsighters")) {
 						found = true;
-						connect_success.performClick();
-
 					}
 				}
 				if (!found) {
@@ -191,12 +189,19 @@ public class MainActivity extends Activity implements Observer {
 				}
 				mChatApplication.useSetChannelName(name);
 				mChatApplication.useJoinChannel();
+				
 
 				stop.setEnabled(false);
 				join.setEnabled(false);
 				sendjson.setEnabled(true);
 				leave.setEnabled(true);
-
+				
+				new android.os.Handler().postDelayed(new Runnable() {
+					public void run() {
+						connect_success.performClick();
+					}
+				}, 3000);
+			
 			}
 		});
 

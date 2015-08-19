@@ -30,6 +30,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v4.widget.DrawerLayout.DrawerListener;
 import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
+import android.text.StaticLayout;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.util.TypedValue;
@@ -73,6 +74,7 @@ public class TvControllerActivity extends Activity {
 	private final String CONTROLLER_CMD_UI_HT_CL = "ISTVShh";
 	private final String CONTROLLER_CMD_GET_CUR_CHANNEL_INFO = "ISTVScurchannelinfo";
 	private final String CONTROLLER_CMD_HOME = "ISTVShome";
+	private final String CONTROLLER_CMD_APPLIST_OFF = "ISTVShal";
 
 	private enum Direction {
 		LEFT, RIGHT
@@ -121,6 +123,7 @@ public class TvControllerActivity extends Activity {
 	private EditText channel_edit;
 	private Button channel_submit;
 	private ImageView bookmark_img;
+	private int channelTmp = 0;
 
 	/* Channel Info */
 	private ChannelInfo channelInfo = new ChannelInfo();
@@ -147,11 +150,13 @@ public class TvControllerActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_tvcontroller);
 
+		
+		
 		sensor_on = false;
 		/* ------Start AllJoyn Service KEYWORD!!---- */
 		mChatApplication = (CafeApplication) getApplication();
 		
-		
+		initializeChannel();
 
 		/* channel info reciever */
 		BroadcastReceiver channelInfoBroadcastReciever = new BroadcastReceiver() {
@@ -194,8 +199,8 @@ public class TvControllerActivity extends Activity {
 		registerReceiver(otherBroadcastReciever, otherBroadcastFilter);
 
 		// FOR TEST ONLY !!!!!
-		// requestCurChannelInfo();
-
+		
+		 
 		/******* UI *******/
 
 		/* Keyboard */
@@ -223,6 +228,7 @@ public class TvControllerActivity extends Activity {
 				Toast.makeText(TvControllerActivity.this, value, Toast.LENGTH_SHORT).show();
 				channelInfo.number = Integer.parseInt(value);
 				channelCMD(channelInfo.number);
+				
 			}
 		});
 
@@ -330,6 +336,9 @@ public class TvControllerActivity extends Activity {
 				gt_layout.setVisibility(View.GONE);
 				sensorManager.unregisterListener(aSensorListener);
 				sensorManager.unregisterListener(gSensorListener);
+				
+				mChatApplication.newLocalUserMessage(CONTROLLER_CMD_APPLIST_OFF);
+				
 			}
 		});
 
@@ -528,6 +537,7 @@ public class TvControllerActivity extends Activity {
 	}
 	
 	
+	
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 	    super.onActivityResult(requestCode, resultCode, data);
@@ -543,7 +553,7 @@ public class TvControllerActivity extends Activity {
 	            	 Toast.makeText(TvControllerActivity.this,tmp,Toast.LENGTH_SHORT).show();
 	            	 channelCMD(Integer.parseInt(tmp));
 	            }
-	            if(voiceResult.contains("turn to ")){
+	            else if(voiceResult.contains("turn to ")){
 	            	String tmp = voiceResult.substring(8);
 	            	 Toast.makeText(TvControllerActivity.this,tmp,Toast.LENGTH_SHORT).show();
 	            	 channelCMD(Integer.parseInt(tmp));
@@ -749,6 +759,7 @@ public class TvControllerActivity extends Activity {
 		String cmd = CONTROLLER_CMD_CN;
 		cmd = cmd.concat(String.valueOf(number));
 		mChatApplication.newLocalUserMessage(cmd);
+		checkStayChannel();
 	}
 
 	DrawerListener myDrawerListener = new DrawerListener() {
@@ -868,13 +879,17 @@ public class TvControllerActivity extends Activity {
 			volume--;
 		}
 		vl_gesture_controll = true;
+		if(volume<0) volume = 0;
+		if(volume>100) volume = 100; 
 		volumeCMD(volume);
 	}
-
+ 
+	
 	/* get channel info */
 	private void requestCurChannelInfo() {
-		ChannelInfo newChannelInfo = new ChannelInfo();
+//		ChannelInfo newChannelInfo = new ChannelInfo();
 		mChatApplication.newLocalUserMessage(CONTROLLER_CMD_GET_CUR_CHANNEL_INFO);
+		Toast.makeText(TvControllerActivity.this, "send info request", Toast.LENGTH_SHORT).show();
 
 	}
 
@@ -1019,7 +1034,22 @@ public class TvControllerActivity extends Activity {
 		channel_infor.setText(channelInfo.intro);
 		// there's no room for is_ads info
 	}
+	
+	private void initializeChannel () {
+		channelCMD(6);
+		requestCurChannelInfo();
+	}
 
-
+	private void checkStayChannel() {
+		channelTmp = channelInfo.number;
+		new android.os.Handler().postDelayed(new Runnable() {
+			public void run() {
+				if (channelTmp == channelInfo.number) {
+					requestCurChannelInfo();
+				}
+			}
+		}, 1000);
+		
+	}
 
 }
