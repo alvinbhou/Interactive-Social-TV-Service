@@ -23,6 +23,7 @@ import android.view.View.OnClickListener;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class ControllerActivity extends Activity {
 
@@ -58,7 +59,7 @@ public class ControllerActivity extends Activity {
 
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_controller);
-		
+
 		/* OK Click */
 		TextView ok_mid = (TextView) findViewById(R.id.oK_mid);
 		ok_mid.setOnClickListener(new OnClickListener() {
@@ -98,6 +99,8 @@ public class ControllerActivity extends Activity {
 			a_x = event.values[0];
 			a_y = event.values[1];
 			a_z = event.values[2];
+
+			
 
 			// motion handler
 
@@ -187,6 +190,7 @@ public class ControllerActivity extends Activity {
 			g_x = event.values[0];
 			g_y = event.values[1];
 			g_z = event.values[2];
+
 		}
 
 		public void onAccuracyChanged(Sensor sensor) {

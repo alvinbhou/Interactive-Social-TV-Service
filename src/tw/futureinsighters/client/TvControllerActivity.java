@@ -570,6 +570,8 @@ public class TvControllerActivity extends Activity {
 		super.onBackPressed();
 		mChatApplication.newLocalUserMessage(CONTROLLER_CMD_HOME);
 	}
+	
+	
 
 	/* Sensor Event */
 	private SensorEventListener aSensorListener = new SensorEventListener() {
@@ -759,7 +761,7 @@ public class TvControllerActivity extends Activity {
 		String cmd = CONTROLLER_CMD_CN;
 		cmd = cmd.concat(String.valueOf(number));
 		mChatApplication.newLocalUserMessage(cmd);
-		checkStayChannel();
+		 checkStayChannel();
 	}
 
 	DrawerListener myDrawerListener = new DrawerListener() {
@@ -787,6 +789,10 @@ public class TvControllerActivity extends Activity {
 
 		@Override
 		public void onDrawerOpened(View drawerView) {
+			   invalidateOptionsMenu();
+	            arrayAdapter1.notifyDataSetInvalidated();
+	            arrayAdapter2.notifyDataSetInvalidated();
+	            
 			if (!left_open) {
 				if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
 					left_open = true;
