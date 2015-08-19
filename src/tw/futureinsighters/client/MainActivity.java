@@ -65,8 +65,6 @@ public class MainActivity extends Activity implements Observer {
 	private int retry_count = 0;
 
 
-	/* user settings */
-	String userName = "What's your name";
 
 	/* client to TV CMD */
 	private final String CONTROLLER_CMD_CONN_CONN = "ISTVSconn";
@@ -93,6 +91,7 @@ public class MainActivity extends Activity implements Observer {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
+		
 
 		// main menu
 		connection_image();
@@ -485,8 +484,7 @@ public class MainActivity extends Activity implements Observer {
 			public void run() {							
 				int imagesToShow[] = { R.drawable.ic_speaker_phone_white_48dp_2, R.drawable.ic_speaker_phone_white_48dp_3,R.drawable.ic_speaker_phone_white_48dp_4,R.drawable.ic_speaker_phone_white_48dp};
 				controllerImage.setImageResource(imagesToShow[imageCount]);
-				imageCount++;
-				if(imageCount == 4) imageCount = 0;
+				imageCount = (imageCount + 1) % 4;
 				flash();
 			}
 		}, 800);	
@@ -494,9 +492,10 @@ public class MainActivity extends Activity implements Observer {
 	
 	/* Connect TV and Set */
 	private void userConnectTV() {
-		mChatApplication.newLocalUserMessage(CONTROLLER_CMD_CONN_CONN);
-		mChatApplication.newLocalUserMessage(CONTROLLER_CMD_CONN_SETNAME + " -" + userName);
-		mChatApplication.newLocalUserMessage(CONTROLLER_CMD_CONN_FINISHCONN);
+		//mChatApplication.newLocalUserMessage(CONTROLLER_CMD_CONN_CONN); /* temporary unused */
+		mChatApplication.newLocalUserMessage(new SettingsManager(getApplicationContext()).getCMD());
+		
+		//mChatApplication.newLocalUserMessage(CONTROLLER_CMD_CONN_FINISHCONN); /* temporary unused */
 	}
 
 	private void userDisconn() {

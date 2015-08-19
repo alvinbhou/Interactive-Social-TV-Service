@@ -7,6 +7,7 @@ import java.util.Map;
 import org.allseenaliance.alljoyn.CafeApplication;
 
 import com.technalt.serverlessCafe.R;
+import com.technalt.serverlessCafe.R.id;
 
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
@@ -22,10 +23,13 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.speech.RecognizerIntent;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v4.widget.DrawerLayout.DrawerListener;
+import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.util.TypedValue;
@@ -127,6 +131,9 @@ public class TvControllerActivity extends Activity {
 		public String intro = "Sorry! Something went wrong.";
 		public Boolean isAds = false;
 	}
+	
+	/* SwipeRefreshLayout */
+	SwipeRefreshLayout swipeContainerLeft;
 
 	// /* String arrays */
 	// private String[] bookmark_Channels = { "sad", "BBC", "CNN", "ESPN",
@@ -143,9 +150,10 @@ public class TvControllerActivity extends Activity {
 		sensor_on = false;
 		/* ------Start AllJoyn Service KEYWORD!!---- */
 		mChatApplication = (CafeApplication) getApplication();
+		
+		
 
 		/* channel info reciever */
-
 		BroadcastReceiver channelInfoBroadcastReciever = new BroadcastReceiver() {
 			@Override
 			public void onReceive(Context context, Intent intent) {
@@ -162,7 +170,7 @@ public class TvControllerActivity extends Activity {
 				channelInfo.number = number;
 				channelInfo.intro = intro;
 				channelInfo.isAds = isAds;
-				// updateChannelInfoUI();
+				updateChannelInfoUI();
 			}
 		};
 		IntentFilter channelInfoFilter = new IntentFilter("channelInfo");
@@ -1002,5 +1010,16 @@ public class TvControllerActivity extends Activity {
 			}
 		});
 	}
+	
+	/* update channel info UI after request channel info */
+	private void updateChannelInfoUI(){
+		final TextView channel_txt = (TextView) findViewById(R.id.channel_txt);
+		final TextView channel_infor = (TextView) findViewById(R.id.channel_infor);
+		channel_txt.setText(channelInfo.name);
+		channel_infor.setText(channelInfo.intro);
+		// there's no room for is_ads info
+	}
+
+
 
 }

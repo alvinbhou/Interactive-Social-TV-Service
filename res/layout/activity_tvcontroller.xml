@@ -3,6 +3,8 @@
     android:id="@+id/root_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
+    
+   
 
     <ImageView
         android:id="@+id/normal_image"
@@ -149,8 +151,8 @@
                         style="?android:attr/borderlessButtonStyle"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:textSize="20sp"
-                        android:text="RETURN" />
+                        android:text="RETURN"
+                        android:textSize="20sp" />
                 </LinearLayout>
 
                 <LinearLayout
@@ -199,7 +201,6 @@
                     android:orientation="vertical"
                     android:paddingLeft="@dimen/activity_horizontal_margin" >
 
-
                     <android.channel.scroller.CustomSeekBar
                         android:id="@+id/customSeekBar"
                         android:layout_width="match_parent"
@@ -207,8 +208,6 @@
                         android:max="100"
                         android:progress="50"
                         android:progressDrawable="@android:color/transparent" />
-
-               
 
                     <LinearLayout
                         android:id="@+id/btn_block"
@@ -235,14 +234,14 @@
                             android:textColor="#ffffff" />
                     </LinearLayout>
 
-                    	<Button
-                            android:id="@+id/voice_btn"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_centerInParent="true"
-                            android:text="Voice"
-                            android:textColor="#ffffff" />
-                    
+                    <Button
+                        android:id="@+id/voice_btn"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerInParent="true"
+                        android:text="Voice"
+                        android:textColor="#ffffff" />
+
                     <FrameLayout
                         android:id="@+id/gesture_plate"
                         android:layout_width="wrap_content"
@@ -300,6 +299,7 @@
             android:background="#00000000"
             android:orientation="vertical"
             android:padding="5dp" >
+
 
             <TextView
                 android:layout_width="match_parent"

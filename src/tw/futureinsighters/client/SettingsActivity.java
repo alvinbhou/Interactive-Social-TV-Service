@@ -7,63 +7,82 @@ import java.util.Map;
 
 import com.technalt.serverlessCafe.R;
 
-import android.R.string;
-import android.app.ActionBar.LayoutParams;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.graphics.Rect;
 import android.os.Bundle;
-import android.util.Log;
+import android.os.Handler;
+import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
-import android.widget.EditText;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.Toast;
 
 public class SettingsActivity extends Activity implements AbsListView.OnScrollListener {
+
+	/* AllJoyn Controll */
+	
+
+	/* Swipe container */
+	SwipeRefreshLayout swipeContainer;
+
+	/* List information */
 	public ListView listView;
 	public SimpleAdapter adapter;
 	private int[] image = { R.drawable.ic_account_circle_black_48dp, R.drawable.ic_wc_black_24dp,
 			R.drawable.ic_cake_black_24dp, R.drawable.ic_directions_run_black_48dp, R.drawable.ic_textsms_black_48dp,
-			R.drawable.ic_account_circle_black_48dp, R.drawable.ic_account_circle_black_48dp,
+			R.drawable.ic_school_black_48dp, R.drawable.ic_account_circle_black_48dp,
 			R.drawable.ic_account_circle_black_48dp, R.drawable.ic_account_circle_black_48dp,
 			R.drawable.ic_account_circle_black_48dp };
-	private String[] settingText = { "Username", "Gender", "Age", "Pace of Life", "Notification", "Parents", "Privacy",
+	private String[] settingText = { "Username", "Gender", "Age", "Pace of Life", "Notification", "Interest", "Privacy",
 			"Security", "Help", "About us" };
 	private String[] settingHint = { "Set your account name", "What's your gender?", "Set your age for channel filter",
 			"Customize controller mode based on your life pace!",
-			"You can recieve notifications while watching TV! Stay connected with your friends!", "Parent Mode",
+			"You can recieve notifications while watching TV! Stay connected with your friends!", "Select the field you are interset in",
 			"Privacy settings", "Securtiy??", "Getting confused? Click Here!", "Contact FutureInsighters" };
 
-	private static final int MAX_ROWS = 50;
 	private int lastTopValue = 0;
 	private ImageView backgroundImage;
-
-	private class UserInfo {
-		public String name;
-		public int gender = 0;
-		/* male 1, female 2, other 3 */
-		public int age = 0;
-		/* Below 12 , 12 - 18, 18+ */
-		public int pace = 0;
-		/* 1,2,3,4 */
-		public boolean notification = true;
-	}
-
-	private UserInfo userInfo = new UserInfo();
-
+	
+	private SettingsManager settingsManager;
+	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_settings);
+		
+		/* initialize SettingsManager */
+		settingsManager = new SettingsManager(this);
+
+		swipeContainer = (SwipeRefreshLayout) findViewById(R.id.swipe_container);
+		swipeContainer.setOnRefreshListener(new OnRefreshListener() {
+			@Override
+			public void onRefresh() {
+				new Handler().postDelayed(new Runnable() {
+					@Override
+					public void run() {
+						swipeContainer.setRefreshing(false);
+						Toast.makeText(SettingsActivity.this, "All your settings have been saved", Toast.LENGTH_SHORT)
+								.show();
+						settingsBroadcast();
+					}
+				}, 3000);
+			}
+
+		});
+		// Configure the refreshing colors
+		swipeContainer.setColorSchemeResources(android.R.color.holo_blue_bright, android.R.color.holo_green_light,
+				android.R.color.holo_orange_light, android.R.color.holo_red_light);
+
 		/* ListView */
 		listView = (ListView) findViewById(R.id.settingListView);
 		List<Map<String, Object>> items = new ArrayList<Map<String, Object>>();
@@ -91,8 +110,7 @@ public class SettingsActivity extends Activity implements AbsListView.OnScrollLi
 							.setMessage("Set your username:").setIcon(R.drawable.ic_face_black_24dp).setView(input)
 							.setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
 						public void onClick(DialogInterface dialog, int which) {
-							userInfo.name = input.getText().toString();
-							Toast.makeText(SettingsActivity.this, userInfo.name, Toast.LENGTH_SHORT).show();
+							settingsManager.setName( input.getText().toString() );
 						}
 					}).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
 						public void onClick(DialogInterface dialog, int which) {
@@ -100,6 +118,7 @@ public class SettingsActivity extends Activity implements AbsListView.OnScrollLi
 							dialog.cancel();
 						}
 					});
+					input.setHint(settingsManager.getName());
 					userDialog.show();
 					break;
 
@@ -108,15 +127,15 @@ public class SettingsActivity extends Activity implements AbsListView.OnScrollLi
 							.setIcon(R.drawable.ic_wc_black_24dp)
 							.setPositiveButton("MALE", new DialogInterface.OnClickListener() {
 						public void onClick(DialogInterface dialog, int which) {
-							userInfo.gender = 1;
+							settingsManager.setGender(1);
 						}
 					}).setNegativeButton("FEMALE", new DialogInterface.OnClickListener() {
 						public void onClick(DialogInterface dialog, int which) {
-							userInfo.gender = 2;
+							settingsManager.setGender(2);
 						}
 					}).setNeutralButton("OTHER", new DialogInterface.OnClickListener() {
 						public void onClick(DialogInterface dialog, int which) {
-							userInfo.gender = 3;
+							settingsManager.setGender(3);
 						}
 					});
 					genderDialog.show();
@@ -125,16 +144,16 @@ public class SettingsActivity extends Activity implements AbsListView.OnScrollLi
 				case 3:
 					String[] items = { "Below 12", "12~18", "Above 18" };
 					AlertDialog.Builder ageDialog = new AlertDialog.Builder(SettingsActivity.this).setTitle("AGE")
-							.setIcon(R.drawable.ic_cake_black_24dp).setSingleChoiceItems(items, 0, null)
+							.setIcon(R.drawable.ic_cake_black_24dp).setSingleChoiceItems(items, settingsManager.getAge(), null)
 							.setPositiveButton("CONFIRM", new DialogInterface.OnClickListener() {
 						public void onClick(DialogInterface dialog, int which) {
 							int position = ((AlertDialog) dialog).getListView().getCheckedItemPosition();
 							if (position == 1)
-								userInfo.age = 1;
+								settingsManager.setAge(1);
 							else if (position == 2) {
-								userInfo.age = 2;
+								settingsManager.setAge(2);
 							} else
-								userInfo.age = 3;
+								settingsManager.setAge(3);
 						}
 					});
 					ageDialog.show();
@@ -144,18 +163,18 @@ public class SettingsActivity extends Activity implements AbsListView.OnScrollLi
 					String[] pace = { "Slow", "Downshifting", "Average", "Fast" };
 					AlertDialog.Builder paceDialog = new AlertDialog.Builder(SettingsActivity.this)
 							.setTitle("LIFE OF PACE").setIcon(R.drawable.ic_directions_walk_black_24dp)
-							.setSingleChoiceItems(pace, 0, null)
+							.setSingleChoiceItems(pace, settingsManager.getPace(), null)
 							.setPositiveButton("CONFIRM", new DialogInterface.OnClickListener() {
 						public void onClick(DialogInterface dialog, int which) {
 							int position = ((AlertDialog) dialog).getListView().getCheckedItemPosition();
 							if (position == 1)
-								userInfo.pace = 1;
+								settingsManager.setPace(1);
 							else if (position == 2) {
-								userInfo.pace = 2;
+								settingsManager.setPace( 2);
 							} else if (position == 3)
-								userInfo.pace = 3;
+								settingsManager.setPace(3);
 							else {
-								userInfo.pace = 4;
+								settingsManager.setPace(4);
 							}
 						}
 					});
@@ -166,17 +185,31 @@ public class SettingsActivity extends Activity implements AbsListView.OnScrollLi
 					String[] notification = { "ON", "OFF" };
 					AlertDialog.Builder notifDialog = new AlertDialog.Builder(SettingsActivity.this)
 							.setTitle("NOTIFICATION").setIcon(R.drawable.ic_sms_failed_black_24dp)
-							.setSingleChoiceItems(notification, 0, null)
+							.setSingleChoiceItems(notification, (settingsManager.getNotification())?0:1, null)
 							.setPositiveButton("CONFIRM", new DialogInterface.OnClickListener() {
 						public void onClick(DialogInterface dialog, int which) {
 							int position = ((AlertDialog) dialog).getListView().getCheckedItemPosition();
-							if (position == 1)
-								userInfo.notification = true;
+							if (position == 0)
+								settingsManager.setNotification(true);
 							else
-								userInfo.notification = false;
+								settingsManager.setNotification(false);
 						}
 					});
 					notifDialog.show();
+					break;
+
+				case 6:
+					String[] preferField = { "Art", "Literature", "Science", "Technology", "Random" };
+					AlertDialog.Builder preferDialog = new AlertDialog.Builder(SettingsActivity.this)
+							.setTitle("NOTIFICATION").setIcon(R.drawable.ic_school_black_48dp)
+							.setSingleChoiceItems(preferField, settingsManager.getField(), null)
+							.setPositiveButton("CONFIRM", new DialogInterface.OnClickListener() {
+						public void onClick(DialogInterface dialog, int which) {
+							int position = ((AlertDialog) dialog).getListView().getCheckedItemPosition();
+							settingsManager.setField(position);
+						}
+					});
+					preferDialog.show();
 					break;
 
 				}
@@ -209,6 +242,18 @@ public class SettingsActivity extends Activity implements AbsListView.OnScrollLi
 			lastTopValue = rect.top;
 			backgroundImage.setY((float) (rect.top / 2.0));
 		}
+	}
+
+	public void settingsBroadcast() { /* deprecated */
+		String settingsCMD, gender, age, pace, notification, preferField;
+		gender = Integer.toString(settingsManager.getGender());
+		age = Integer.toString(settingsManager.getAge());
+		pace = Integer.toString(settingsManager.getPace());
+		notification = settingsManager.getNotification()?"1":"2";
+		preferField = Integer.toString(settingsManager.getField());
+//		settingsCMD = SETTINGS_CMD_INFO + " -" + settingsManager.getName() + " --" + gender + age + pace + notification + preferField;
+		Toast.makeText(SettingsActivity.this, settingsManager.getCMD(), Toast.LENGTH_SHORT).show();
+
 	}
 
 }
