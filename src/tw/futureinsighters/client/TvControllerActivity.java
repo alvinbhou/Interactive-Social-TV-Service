@@ -1,5 +1,7 @@
 package tw.futureinsighters.client;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -7,7 +9,6 @@ import java.util.Map;
 import org.allseenaliance.alljoyn.CafeApplication;
 
 import com.technalt.serverlessCafe.R;
-import com.technalt.serverlessCafe.R.id;
 
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
@@ -23,14 +24,11 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
 import android.speech.RecognizerIntent;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v4.widget.DrawerLayout.DrawerListener;
-import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
-import android.text.StaticLayout;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.util.TypedValue;
@@ -108,7 +106,7 @@ public class TvControllerActivity extends Activity {
 
 	/* Gesture */
 	private ImageView gesture_img;
-	private Button gesture_return;
+	private Button gesture_return,google_btn;
 
 	/* Volume */
 	private int volume = 50;
@@ -130,8 +128,9 @@ public class TvControllerActivity extends Activity {
 
 	private class ChannelInfo {
 		public int number = 7;
-		public String name = "default_name";
-		public String intro = "Sorry! Something went wrong.";
+		public String channelName = "No Channel Name.";
+		public String programName = "We don't what program it is now.";
+		public String programDescription = "Sorry! Something went wrong.";
 		public Boolean isAds = false;
 	}
 	
@@ -165,15 +164,16 @@ public class TvControllerActivity extends Activity {
 				// NOT FINISHED YET!!! ERROR NOT HANDLED
 				Toast.makeText(context, "MSG Got!", Toast.LENGTH_SHORT).show();
 
-				String name = intent.getStringExtra("name");
+				String channelName = intent.getStringExtra("channelName");
+				String programName = intent.getStringExtra("programName");
 				int number = Integer.parseInt(intent.getStringExtra("number"));
-				String intro = intent.getStringExtra("intro");
+				String programDescription = intent.getStringExtra("programDescription");
 				Boolean isAds = Boolean.valueOf(intent.getStringExtra("isAds"));
-				Toast.makeText(context, "name: " + name + "  number: " + Integer.toString(number) + "  intro" + intro,
+				Toast.makeText(context, "channel name: " + channelName + "program name: "+ programName +"  number: " + Integer.toString(number) + "  intro" + programDescription,
 						Toast.LENGTH_LONG).show();
-				channelInfo.name = name;
+				channelInfo.channelName = channelName;
 				channelInfo.number = number;
-				channelInfo.intro = intro;
+				channelInfo.programDescription = programDescription;
 				channelInfo.isAds = isAds;
 				updateChannelInfoUI();
 			}
@@ -224,7 +224,8 @@ public class TvControllerActivity extends Activity {
 
 			@Override
 			public void onClick(View v) {
-				String value = channel_edit.getText().toString();
+				String value = "6";
+				value = channel_edit.getText().toString();
 				Toast.makeText(TvControllerActivity.this, value, Toast.LENGTH_SHORT).show();
 				channelInfo.number = Integer.parseInt(value);
 				channelCMD(channelInfo.number);
@@ -232,6 +233,28 @@ public class TvControllerActivity extends Activity {
 			}
 		});
 
+		
+		/* Google search */
+		google_btn = (Button)findViewById(R.id.google_btn);
+		google_btn.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				String query = "Something went wrong!";
+				try {
+					query = URLEncoder.encode(channelInfo.programName, "utf-8");
+				} catch (UnsupportedEncodingException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				String url = "http://www.google.com/search?q=" + query;
+				Intent intent = new Intent(Intent.ACTION_VIEW);
+				intent.setData(Uri.parse(url));
+				startActivity(intent);				
+			}
+		});
+		
+	
 		/* FB share */
 		fb_btn = (Button)findViewById(R.id.fb_btn);
 		fb_btn.setOnClickListener(new OnClickListener() {
@@ -1036,8 +1059,11 @@ public class TvControllerActivity extends Activity {
 	private void updateChannelInfoUI(){
 		final TextView channel_txt = (TextView) findViewById(R.id.channel_txt);
 		final TextView channel_infor = (TextView) findViewById(R.id.channel_infor);
-		channel_txt.setText(channelInfo.name);
-		channel_infor.setText(channelInfo.intro);
+		channel_txt.setText(channelInfo.programName);
+		// NOT DONE
+		// search channel name for icon
+		
+		channel_infor.setText(channelInfo.programDescription);
 		// there's no room for is_ads info
 	}
 	

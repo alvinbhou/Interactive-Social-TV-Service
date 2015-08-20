@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.allseenaliance.alljoyn.CafeApplication;
+
 import com.technalt.serverlessCafe.R;
 
 import android.app.Activity;
@@ -30,7 +32,8 @@ import android.widget.Toast;
 public class SettingsActivity extends Activity implements AbsListView.OnScrollListener {
 
 	/* AllJoyn Controll */
-	
+	private CafeApplication mChatApplication = null;
+
 
 	/* Swipe container */
 	SwipeRefreshLayout swipeContainer;
@@ -62,7 +65,9 @@ public class SettingsActivity extends Activity implements AbsListView.OnScrollLi
 		
 		/* initialize SettingsManager */
 		settingsManager = new SettingsManager(this);
-
+		/* ------Start AllJoyn Service KEYWORD!!---- */
+		mChatApplication = (CafeApplication) getApplication();
+		
 		swipeContainer = (SwipeRefreshLayout) findViewById(R.id.swipe_container);
 		swipeContainer.setOnRefreshListener(new OnRefreshListener() {
 			@Override
@@ -74,6 +79,7 @@ public class SettingsActivity extends Activity implements AbsListView.OnScrollLi
 						Toast.makeText(SettingsActivity.this, "All your settings have been saved", Toast.LENGTH_SHORT)
 								.show();
 						settingsBroadcast();
+						mChatApplication.newLocalUserMessage(new SettingsManager(getApplicationContext()).getCMD());
 					}
 				}, 3000);
 			}
