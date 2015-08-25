@@ -347,13 +347,7 @@
                             android:text="Share"
                             android:textColor="#ffffff" />
                     </LinearLayout>
-                    	 <Button
-                            android:id="@+id/snapshot"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_centerInParent="true"
-                            android:text="Snap!"
-                            android:textColor="#ffffff" />
+                    	
                    
                 </LinearLayout>
             </LinearLayout>

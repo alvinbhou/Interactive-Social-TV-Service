@@ -2,31 +2,61 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
+    android:background="#4e4e4e"
     android:orientation="vertical" >
 
-    <ImageView
-        android:id="@+id/imgView"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight="1" >
-    </ImageView>
-    
-     <TextView
+    <LinearLayout
+        android:id="@+id/somelayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="100"
+        android:background="#000" >
+
+        <ImageView
+            android:id="@+id/imgView"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:adjustViewBounds="true"
+            android:background="#AAA"            
+            android:scaleType="fitCenter" >
+        </ImageView>
+    </LinearLayout>
+
+    <TextView
         android:id="@+id/text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="hi" 
-         android:textSize="20sp"/>
+        android:text="hi"
+        android:textSize="20sp" />
 
-    <Button
-        android:id="@+id/buttonLoadPicture"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:id="@+id/imageview_buttonLayout"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_weight="0"
-        android:text="Load Picture" >
-    </Button>
+        android:layout_weight="0" >
 
-   
+        <Button
+            android:id="@+id/buttonLoadPicture"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="Load Picture" />
+
+        <Button
+            android:id="@+id/rotate90"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_weight="0"
+            android:text="90°" />
+
+        <Button
+            android:id="@+id/rotate_90"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_weight="0"
+            android:text="-90°" />
+    </LinearLayout>
 
 </LinearLayout>

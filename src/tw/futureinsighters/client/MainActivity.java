@@ -72,8 +72,8 @@ public class MainActivity extends Activity implements Observer {
 	final private String CONTROLLER_NOTIFICATION_SYSNOTI = "ISTVSsysnoti";
 
 	/* TV to client CMD */
-	private final String TV_RESPONSE_CHANNEL = "SVTSIcurchannel";
-	private final String TV_RESPONSE_CHANNEL_INFO = "SVTSIcurchannelinfo";
+	private final String TV_RESPONSE_CUR_CHANNEL_INFO = "SVTSIcurchannelinfo";
+	private final String TV_RESPONSE_CHANNEL_INFO = "SVTSIchannelinfo";
 	private final String TV_RESPONSE_APPSLIST_ON = "SVTSIappsliston";
 	private final String TV_RESPONSE_APPSLIST_OFF = "SVTSIappslistoff";
 
@@ -328,7 +328,16 @@ public class MainActivity extends Activity implements Observer {
 
 		preview.setText(messager);
 
-		if (messager.contains(TV_RESPONSE_CHANNEL_INFO)) {
+		if (messager.contains(TV_RESPONSE_CUR_CHANNEL_INFO)) {
+			Intent intent = new Intent("curChannelInfo");
+			intent.putExtra("number", messager.substring(messager.indexOf(" *") + 2, messager.indexOf(" **")));
+			intent.putExtra("channelName", messager.substring(messager.indexOf(" **") + 3, messager.indexOf(" ***")));
+			intent.putExtra("programName", messager.substring(messager.indexOf(" ***") + 4, messager.indexOf(" ****")));
+			intent.putExtra("programDescription",
+					messager.substring(messager.indexOf(" ****") + 5, messager.indexOf(" *****")));
+			intent.putExtra("isAds", messager.substring(messager.indexOf(" *****") + 6, messager.indexOf(" ******")));
+			this.sendBroadcast(intent);
+		} else if (messager.contains(TV_RESPONSE_CHANNEL_INFO)) {
 			Intent intent = new Intent("channelInfo");
 			intent.putExtra("number", messager.substring(messager.indexOf(" *") + 2, messager.indexOf(" **")));
 			intent.putExtra("channelName", messager.substring(messager.indexOf(" **") + 3, messager.indexOf(" ***")));
