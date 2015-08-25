@@ -34,7 +34,6 @@ public class SettingsActivity extends Activity implements AbsListView.OnScrollLi
 	/* AllJoyn Controll */
 	private CafeApplication mChatApplication = null;
 
-
 	/* Swipe container */
 	SwipeRefreshLayout swipeContainer;
 
@@ -50,24 +49,25 @@ public class SettingsActivity extends Activity implements AbsListView.OnScrollLi
 			"Security", "Help", "About us" };
 	private String[] settingHint = { "Set your account name", "What's your gender?", "Set your age for channel filter",
 			"Customize controller mode based on your life pace!",
-			"You can recieve notifications while watching TV! Stay connected with your friends!", "Select the field you are interset in",
-			"Privacy settings", "Securtiy??", "Getting confused? Click Here!", "Contact FutureInsighters" };
+			"You can recieve notifications while watching TV! Stay connected with your friends!",
+			"Select the field you are interset in", "Privacy settings", "Securtiy??", "Getting confused? Click Here!",
+			"Contact FutureInsighters" };
 
 	private int lastTopValue = 0;
 	private ImageView backgroundImage;
-	
+
 	private SettingsManager settingsManager;
-	
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_settings);
-		
+
 		/* initialize SettingsManager */
 		settingsManager = new SettingsManager(this);
 		/* ------Start AllJoyn Service KEYWORD!!---- */
 		mChatApplication = (CafeApplication) getApplication();
-		
+
 		swipeContainer = (SwipeRefreshLayout) findViewById(R.id.swipe_container);
 		swipeContainer.setOnRefreshListener(new OnRefreshListener() {
 			@Override
@@ -116,7 +116,7 @@ public class SettingsActivity extends Activity implements AbsListView.OnScrollLi
 							.setMessage("Set your username:").setIcon(R.drawable.ic_face_black_24dp).setView(input)
 							.setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
 						public void onClick(DialogInterface dialog, int which) {
-							settingsManager.setName( input.getText().toString() );
+							settingsManager.setName(input.getText().toString());
 						}
 					}).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
 						public void onClick(DialogInterface dialog, int which) {
@@ -150,16 +150,13 @@ public class SettingsActivity extends Activity implements AbsListView.OnScrollLi
 				case 3:
 					String[] items = { "Below 12", "12~18", "Above 18" };
 					AlertDialog.Builder ageDialog = new AlertDialog.Builder(SettingsActivity.this).setTitle("AGE")
-							.setIcon(R.drawable.ic_cake_black_24dp).setSingleChoiceItems(items, settingsManager.getAge(), null)
+							.setIcon(R.drawable.ic_cake_black_24dp)
+							.setSingleChoiceItems(items, settingsManager.getAge(), null)
 							.setPositiveButton("CONFIRM", new DialogInterface.OnClickListener() {
 						public void onClick(DialogInterface dialog, int which) {
 							int position = ((AlertDialog) dialog).getListView().getCheckedItemPosition();
-							if (position == 1)
-								settingsManager.setAge(1);
-							else if (position == 2) {
-								settingsManager.setAge(2);
-							} else
-								settingsManager.setAge(3);
+							settingsManager.setAge(position);
+
 						}
 					});
 					ageDialog.show();
@@ -173,15 +170,7 @@ public class SettingsActivity extends Activity implements AbsListView.OnScrollLi
 							.setPositiveButton("CONFIRM", new DialogInterface.OnClickListener() {
 						public void onClick(DialogInterface dialog, int which) {
 							int position = ((AlertDialog) dialog).getListView().getCheckedItemPosition();
-							if (position == 1)
-								settingsManager.setPace(1);
-							else if (position == 2) {
-								settingsManager.setPace( 2);
-							} else if (position == 3)
-								settingsManager.setPace(3);
-							else {
-								settingsManager.setPace(4);
-							}
+							settingsManager.setPace(position);
 						}
 					});
 					paceDialog.show();
@@ -191,7 +180,7 @@ public class SettingsActivity extends Activity implements AbsListView.OnScrollLi
 					String[] notification = { "ON", "OFF" };
 					AlertDialog.Builder notifDialog = new AlertDialog.Builder(SettingsActivity.this)
 							.setTitle("NOTIFICATION").setIcon(R.drawable.ic_sms_failed_black_24dp)
-							.setSingleChoiceItems(notification, (settingsManager.getNotification())?0:1, null)
+							.setSingleChoiceItems(notification, (settingsManager.getNotification()) ? 0 : 1, null)
 							.setPositiveButton("CONFIRM", new DialogInterface.OnClickListener() {
 						public void onClick(DialogInterface dialog, int which) {
 							int position = ((AlertDialog) dialog).getListView().getCheckedItemPosition();
@@ -255,9 +244,10 @@ public class SettingsActivity extends Activity implements AbsListView.OnScrollLi
 		gender = Integer.toString(settingsManager.getGender());
 		age = Integer.toString(settingsManager.getAge());
 		pace = Integer.toString(settingsManager.getPace());
-		notification = settingsManager.getNotification()?"1":"2";
+		notification = settingsManager.getNotification() ? "1" : "2";
 		preferField = Integer.toString(settingsManager.getField());
-//		settingsCMD = SETTINGS_CMD_INFO + " -" + settingsManager.getName() + " --" + gender + age + pace + notification + preferField;
+		// settingsCMD = SETTINGS_CMD_INFO + " -" + settingsManager.getName() +
+		// " --" + gender + age + pace + notification + preferField;
 		Toast.makeText(SettingsActivity.this, settingsManager.getCMD(), Toast.LENGTH_SHORT).show();
 
 	}

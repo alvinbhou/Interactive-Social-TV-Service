@@ -68,7 +68,7 @@
                     android:scrollbars="vertical"
                     android:text="@string/bbc_infor"
                     android:textColor="#FFF"
-                    android:textSize="16sp" />
+                    android:textSize="14sp" />
 
                 <TextView
                     android:id="@+id/prompt"
@@ -124,7 +124,7 @@
                     android:background="#90333333"
                     android:orientation="vertical"
                     android:visibility="gone" >
-
+                    
                     <TextView
                         android:id="@+id/gesture_txt"
                         android:layout_width="match_parent"
@@ -347,6 +347,14 @@
                             android:text="Share"
                             android:textColor="#ffffff" />
                     </LinearLayout>
+                    	 <Button
+                            android:id="@+id/snapshot"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_centerInParent="true"
+                            android:text="Snap!"
+                            android:textColor="#ffffff" />
+                   
                 </LinearLayout>
             </LinearLayout>
         </LinearLayout>

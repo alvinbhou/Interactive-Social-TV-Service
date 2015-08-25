@@ -22,10 +22,12 @@
     </uses-permission>
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" >
     </uses-permission>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
     <application
         android:name="org.allseenaliance.alljoyn.CafeApplication"
-        android:allowBackup="true"        
+        android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/NoActionBar" >
@@ -58,8 +60,14 @@
             android:label="@string/title_activity_main"
             android:screenOrientation="portrait" >
         </activity>
-        
-         <service
+    
+        <activity
+            android:name="tw.futureinsighters.client.ImageviewActivity"
+            android:label="@string/title_activity_main"
+            android:screenOrientation="portrait" >
+        </activity>
+
+        <service
             android:name="tw.futureinsighters.client.NotificationService"
             android:label="@string/app_name"
             android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE" >

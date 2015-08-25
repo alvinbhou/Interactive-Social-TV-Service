@@ -64,8 +64,6 @@ public class MainActivity extends Activity implements Observer {
 	private static final int HANDLE_ALLJOYN_ERROR_EVENT = 2;
 	private int retry_count = 0;
 
-
-
 	/* client to TV CMD */
 	private final String CONTROLLER_CMD_CONN_CONN = "ISTVSconn";
 	private final String CONTROLLER_CMD_CONN_SETNAME = "ISTVSsetname";
@@ -84,14 +82,13 @@ public class MainActivity extends Activity implements Observer {
 	Boolean flag_connect = true;
 	Boolean controller_connected_clicked = false;
 	Button connect_success, connect_failure;
-	int imagesToShow[],imageCount = 0;
+	int imagesToShow[], imageCount = 0;
 	// boolean found = false;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-		
 
 		// main menu
 		connection_image();
@@ -99,7 +96,7 @@ public class MainActivity extends Activity implements Observer {
 		// controller image
 		controllerImage = (ImageView) findViewById(R.id.controllerImage);
 		controllerImage.setEnabled(false);
-		
+
 		// click listeners
 		controllerImage.setOnClickListener(new OnClickListener() {
 			@Override
@@ -108,6 +105,18 @@ public class MainActivity extends Activity implements Observer {
 				Intent intent = new Intent(MainActivity.this, ControllerActivity.class);
 				startActivity(intent);
 				overridePendingTransition(R.anim.fadein, R.anim.fadeout);
+
+			}
+		});
+
+		// click listeners
+		helpImage = (ImageView)findViewById(R.id.helpImage);		
+		helpImage.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {				
+				Intent intent = new Intent(MainActivity.this, ImageviewActivity.class);
+				startActivity(intent);
+//				overridePendingTransition(R.anim.fadein, R.anim.fadeout);
 
 			}
 		});
@@ -189,19 +198,18 @@ public class MainActivity extends Activity implements Observer {
 				}
 				mChatApplication.useSetChannelName(name);
 				mChatApplication.useJoinChannel();
-				
 
 				stop.setEnabled(false);
 				join.setEnabled(false);
 				sendjson.setEnabled(true);
 				leave.setEnabled(true);
-				
+
 				new android.os.Handler().postDelayed(new Runnable() {
 					public void run() {
 						connect_success.performClick();
 					}
-				}, 3000);
-			
+				}, 1000);
+
 			}
 		});
 
@@ -325,7 +333,8 @@ public class MainActivity extends Activity implements Observer {
 			intent.putExtra("number", messager.substring(messager.indexOf(" *") + 2, messager.indexOf(" **")));
 			intent.putExtra("channelName", messager.substring(messager.indexOf(" **") + 3, messager.indexOf(" ***")));
 			intent.putExtra("programName", messager.substring(messager.indexOf(" ***") + 4, messager.indexOf(" ****")));
-			intent.putExtra("programDescription", messager.substring(messager.indexOf(" ****") + 5, messager.indexOf(" *****")));
+			intent.putExtra("programDescription",
+					messager.substring(messager.indexOf(" ****") + 5, messager.indexOf(" *****")));
 			intent.putExtra("isAds", messager.substring(messager.indexOf(" *****") + 6, messager.indexOf(" ******")));
 			this.sendBroadcast(intent);
 		} else if (messager.contains(TV_RESPONSE_APPSLIST_ON)) {
@@ -409,34 +418,41 @@ public class MainActivity extends Activity implements Observer {
 	}
 
 	private void uiInit() {
-//		final LinearLayout logoLayout = (LinearLayout) findViewById(R.id.logoLayout);
-//		final LinearLayout connectLayout = (LinearLayout) findViewById(R.id.connectLayout);
-//		final LinearLayout bottomLayout = (LinearLayout) findViewById(R.id.bottomLayout);
-//		final LinearLayout controllerLayout = (LinearLayout) findViewById(R.id.controllerLayout);
-//		final LinearLayout helpLayout = (LinearLayout) findViewById(R.id.helpLayout);
-//		final ImageView connect_logo = (ImageView) findViewById(R.id.connect_logo);
-//
-//		LayoutParams params = logoLayout.getLayoutParams();
-//		params.width = (int) (screenWidth);
-//		params.height = (int) (screenHeight * 0.2);
-//		logoLayout.setLayoutParams(params);
-//		LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
-//				LinearLayout.LayoutParams.MATCH_PARENT);
-//
-//		// set connect logo size
-//		params = connect_logo.getLayoutParams();
-//		params.width = (int) (screenWidth / 2);
-//		params.height = (int) (screenWidth / 2);
-//		connect_logo.setLayoutParams(params);
-//
-//		params = connectLayout.getLayoutParams();
-//		params.width = (int) (screenWidth);
-//		params.height = (int) (screenHeight * 0.45);
-//		connectLayout.setLayoutParams(params);
-//
-//		params = bottomLayout.getLayoutParams();
-//		params.width = (int) screenWidth;
-//		params.height = (int) (screenWidth / 2);
+		// final LinearLayout logoLayout = (LinearLayout)
+		// findViewById(R.id.logoLayout);
+		// final LinearLayout connectLayout = (LinearLayout)
+		// findViewById(R.id.connectLayout);
+		// final LinearLayout bottomLayout = (LinearLayout)
+		// findViewById(R.id.bottomLayout);
+		// final LinearLayout controllerLayout = (LinearLayout)
+		// findViewById(R.id.controllerLayout);
+		// final LinearLayout helpLayout = (LinearLayout)
+		// findViewById(R.id.helpLayout);
+		// final ImageView connect_logo = (ImageView)
+		// findViewById(R.id.connect_logo);
+		//
+		// LayoutParams params = logoLayout.getLayoutParams();
+		// params.width = (int) (screenWidth);
+		// params.height = (int) (screenHeight * 0.2);
+		// logoLayout.setLayoutParams(params);
+		// LinearLayout.LayoutParams layoutParams = new
+		// LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
+		// LinearLayout.LayoutParams.MATCH_PARENT);
+		//
+		// // set connect logo size
+		// params = connect_logo.getLayoutParams();
+		// params.width = (int) (screenWidth / 2);
+		// params.height = (int) (screenWidth / 2);
+		// connect_logo.setLayoutParams(params);
+		//
+		// params = connectLayout.getLayoutParams();
+		// params.width = (int) (screenWidth);
+		// params.height = (int) (screenHeight * 0.45);
+		// connectLayout.setLayoutParams(params);
+		//
+		// params = bottomLayout.getLayoutParams();
+		// params.width = (int) screenWidth;
+		// params.height = (int) (screenWidth / 2);
 	}
 
 	// connection image (rotate and stuff)
@@ -468,8 +484,8 @@ public class MainActivity extends Activity implements Observer {
 				connectImage.clearAnimation();
 				connectImage.setEnabled(false);
 				controllerImage.setEnabled(true);
-				flash();				
-				userConnectTV();			
+				flash();
+				userConnectTV();
 			}
 		});
 		connect_failure.setOnClickListener(new OnClickListener() {
@@ -487,21 +503,25 @@ public class MainActivity extends Activity implements Observer {
 	private void flash() {
 
 		new android.os.Handler().postDelayed(new Runnable() {
-			public void run() {							
-				int imagesToShow[] = { R.drawable.ic_speaker_phone_white_48dp_2, R.drawable.ic_speaker_phone_white_48dp_3,R.drawable.ic_speaker_phone_white_48dp_4,R.drawable.ic_speaker_phone_white_48dp};
+			public void run() {
+				int imagesToShow[] = { R.drawable.ic_speaker_phone_white_48dp_2,
+						R.drawable.ic_speaker_phone_white_48dp_3, R.drawable.ic_speaker_phone_white_48dp_4,
+						R.drawable.ic_speaker_phone_white_48dp };
 				controllerImage.setImageResource(imagesToShow[imageCount]);
 				imageCount = (imageCount + 1) % 4;
 				flash();
 			}
-		}, 800);	
+		}, 800);
 	}
-	
+
 	/* Connect TV and Set */
 	private void userConnectTV() {
-		//mChatApplication.newLocalUserMessage(CONTROLLER_CMD_CONN_CONN); /* temporary unused */
+		// mChatApplication.newLocalUserMessage(CONTROLLER_CMD_CONN_CONN); /*
+		// temporary unused */
 		mChatApplication.newLocalUserMessage(new SettingsManager(getApplicationContext()).getCMD());
-		
-		//mChatApplication.newLocalUserMessage(CONTROLLER_CMD_CONN_FINISHCONN); /* temporary unused */
+
+		// mChatApplication.newLocalUserMessage(CONTROLLER_CMD_CONN_FINISHCONN);
+		// /* temporary unused */
 	}
 
 	private void userDisconn() {

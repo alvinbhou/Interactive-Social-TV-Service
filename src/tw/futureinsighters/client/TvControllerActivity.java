@@ -1,8 +1,11 @@
 package tw.futureinsighters.client;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -10,21 +13,24 @@ import org.allseenaliance.alljoyn.CafeApplication;
 
 import com.technalt.serverlessCafe.R;
 
-import android.R.integer;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.ResolveInfo;
+import android.graphics.Bitmap;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.speech.RecognizerIntent;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -35,6 +41,7 @@ import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -120,8 +127,8 @@ public class TvControllerActivity extends Activity {
 
 	/* Channel */
 	private SeekBar ChannelBar;
-	private int shift = 0, delta = 0;
-	private boolean channelBarOnTouched = false;
+	private int shift = 0;
+	private boolean channelBarOnTouched = false, channelSwitched = false;
 	private EditText channel_edit;
 	private Button channel_submit;
 	private ImageView bookmark_img;
@@ -134,19 +141,13 @@ public class TvControllerActivity extends Activity {
 	private class ChannelInfo {
 		public int number = 7;
 		public String channelName = "No Channel Name.";
-		public String programName = "We don't what program it is now.";
+		public String programName = "A Program.";
 		public String programDescription = "Sorry! Something went wrong.";
 		public Boolean isAds = false;
 	}
 
-	/* SwipeRefreshLayout */
-	SwipeRefreshLayout swipeContainerLeft;
-
-	// /* String arrays */
-	// private String[] bookmark_Channels = { "sad", "BBC", "CNN", "ESPN",
-	// "lor", "asd", "asdas" };
-	// private String[] history_Channels = { "HBO", "STAR", "TVBS", "sad",
-	// "BBC", "CNN", "ESPN" };
+	/* Dialog elements */
+	private TextView programName_dialog, programDescription_dialog, isAds_dialog;
 
 	/* ---- */
 	@Override
@@ -176,12 +177,16 @@ public class TvControllerActivity extends Activity {
 				// "program name: " + programName + " number: "
 				// + Integer.toString(number) + " intro" + programDescription,
 				// Toast.LENGTH_LONG).show();
+
 				channelInfo.channelName = channelName;
 				channelInfo.programName = programName;
 				channelInfo.number = number;
 				channelInfo.programDescription = programDescription;
 				channelInfo.isAds = isAds;
-				updateChannelInfoUI();
+				if (channelSwitched) {
+					updateChannelInfoUI();
+					channelSwitched = false;
+				}
 			}
 		};
 		IntentFilter channelInfoFilter = new IntentFilter("channelInfo");
@@ -230,7 +235,7 @@ public class TvControllerActivity extends Activity {
 			@Override
 			public void onClick(View v) {
 				String value = channel_edit.getText().toString();
-				if (!value.isEmpty() && Integer.parseInt(value)<500) {
+				if (!value.isEmpty() && Integer.parseInt(value) < 500) {
 					Toast.makeText(TvControllerActivity.this, value, Toast.LENGTH_SHORT).show();
 					channelInfo.number = Integer.parseInt(value);
 					channelCMD(channelInfo.number);
@@ -238,6 +243,42 @@ public class TvControllerActivity extends Activity {
 			}
 		});
 
+		/* snap button */
+		Button snap = (Button) findViewById(R.id.snapshot);
+		snap.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				Date now = new Date();
+				android.text.format.DateFormat.format("yyyy-MM-dd_hh:mm:ss", now);
+
+				try {
+					// image naming and path to include sd card appending name
+					// you choose for file
+					String mPath = Environment.getExternalStorageDirectory().toString() + "/" + now + ".jpg";
+
+					// create bitmap screen capture
+					View v1 = getWindow().getDecorView().getRootView();
+					v1.setDrawingCacheEnabled(true);
+					Bitmap bitmap = Bitmap.createBitmap(v1.getDrawingCache());
+					v1.setDrawingCacheEnabled(false);
+
+					File imageFile = new File(mPath);
+
+					FileOutputStream outputStream = new FileOutputStream(imageFile);
+					int quality = 100;
+					bitmap.compress(Bitmap.CompressFormat.JPEG, quality, outputStream);
+					outputStream.flush();
+					outputStream.close();
+
+					openScreenshot(imageFile);
+				} catch (Throwable e) {
+					// Several error may come out with file handling or OOM
+					e.printStackTrace();
+				}
+
+			}
+		});
 		/* Google search */
 		google_btn = (Button) findViewById(R.id.google_btn);
 		google_btn.setOnClickListener(new OnClickListener() {
@@ -488,7 +529,7 @@ public class TvControllerActivity extends Activity {
 		bookmarkDrawerList = (ListView) findViewById(R.id.bookmarklist);
 		ArrayList<Integer> result1 = getBookmark(); // get bookmarks
 		bookmarkChannels = new ArrayList<String>();
-//		bookmarkChannels = new String[result1.size()]; // casting
+		// bookmarkChannels = new String[result1.size()]; // casting
 		for (int i = 0; i < result1.size(); i++) {
 			bookmarkChannels.add(Integer.toString(result1.get(i)));
 		}
@@ -500,7 +541,7 @@ public class TvControllerActivity extends Activity {
 
 				TextView textView = (TextView) view.findViewById(android.R.id.text1);
 
-				/* YOUR CHOICE OF COLOR */
+				  
 				textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
 				textView.setGravity(Gravity.CENTER);
 
@@ -517,19 +558,14 @@ public class TvControllerActivity extends Activity {
 				channelCMD(Integer.parseInt(select));
 			}
 		});
-		/*  long click */
+		/* long click */
 		bookmarkDrawerList.setOnItemLongClickListener(new OnItemLongClickListener() {
-			 @Override
-			    public boolean onItemLongClick(AdapterView<?> arg0, View arg1,
-			                    int arg2, long arg3) {
-				 String select = (String) arg0.getItemAtPosition(arg2);		
-				 removeBookmark(Integer.parseInt(select));
-				 drawerUpdate();
-				
-				 return true;
-			 }
+			@Override
+			public boolean onItemLongClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
+				channelAlert(arg0, arg2);
+				return true;
+			}
 		});
-		
 
 		bookmark_img = (ImageView) findViewById(R.id.bookmark_img);
 		bookmark_img.setOnClickListener(new OnClickListener() {
@@ -567,7 +603,7 @@ public class TvControllerActivity extends Activity {
 
 				TextView textView = (TextView) view.findViewById(android.R.id.text1);
 
-				/* YOUR CHOICE OF COLOR */
+				  
 				textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
 				textView.setGravity(Gravity.CENTER);
 
@@ -575,8 +611,19 @@ public class TvControllerActivity extends Activity {
 			}
 		};
 		historyDrawerList.setAdapter(arrayAdapter2);
+		
+		/* short click */
+		historyDrawerList.setOnItemClickListener(new OnItemClickListener() {
+
+			@Override
+			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+				String select = (String) parent.getItemAtPosition(position);
+				channelCMD(Integer.parseInt(select));
+			}
+		});
 
 	}
+	
 
 	protected void onPause() {
 		super.onPause();
@@ -808,12 +855,15 @@ public class TvControllerActivity extends Activity {
 
 	/* Delta v.s. Channel number */
 	private void channelCMD(int number) {
+		channelSwitched = true;
+		addHistory(number); // optional
 		String cmd = CONTROLLER_CMD_CN;
 		cmd = cmd.concat(String.valueOf(number));
 		mChatApplication.newLocalUserMessage(cmd);
 		checkStayChannel();
 		channelValue = (TextView) findViewById(R.id.channelValue);
 		channelValue.setText(String.valueOf(number));
+
 	}
 
 	DrawerListener myDrawerListener = new DrawerListener() {
@@ -950,7 +1000,7 @@ public class TvControllerActivity extends Activity {
 	/* get channel info */
 	private void requestCurChannelInfo() {
 		// ChannelInfo newChannelInfo = new ChannelInfo();
-		addHistory(channelInfo.number);
+
 		mChatApplication.newLocalUserMessage(CONTROLLER_CMD_GET_CUR_CHANNEL_INFO);
 		Toast.makeText(TvControllerActivity.this, "send info request", Toast.LENGTH_SHORT).show();
 
@@ -1108,6 +1158,7 @@ public class TvControllerActivity extends Activity {
 
 	private void checkStayChannel() {
 		channelTmp = channelInfo.number;
+
 		new android.os.Handler().postDelayed(new Runnable() {
 			public void run() {
 				if (channelTmp == channelInfo.number) {
@@ -1134,7 +1185,7 @@ public class TvControllerActivity extends Activity {
 
 				TextView textView = (TextView) view.findViewById(android.R.id.text1);
 
-				/* YOUR CHOICE OF COLOR */
+				  
 				textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
 				textView.setGravity(Gravity.CENTER);
 
@@ -1157,7 +1208,6 @@ public class TvControllerActivity extends Activity {
 
 				TextView textView = (TextView) view.findViewById(android.R.id.text1);
 
-				/* YOUR CHOICE OF COLOR */
 				textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
 				textView.setGravity(Gravity.CENTER);
 
@@ -1167,4 +1217,61 @@ public class TvControllerActivity extends Activity {
 		historyDrawerList.setAdapter(arrayAdapter2);
 	}
 
+	private void channelAlert(AdapterView<?> arg0, int pos) {		
+		
+		requestCurChannelInfo();		
+
+ 		LayoutInflater inflater = getLayoutInflater();
+		View view = inflater.inflate(R.layout.dialog_customize, null);
+		
+		programName_dialog = (TextView)view.findViewById(R.id.programName_dialog);
+		programDescription_dialog = (TextView)view.findViewById(R.id.programDescription_dialog);
+		isAds_dialog = (TextView)view.findViewById(R.id.isAds_dialog);
+		
+		programDescription_dialog.setMovementMethod(new ScrollingMovementMethod());
+		programName_dialog.setText(channelInfo.programName);
+		programName_dialog.setBackgroundColor((channelInfo.isAds)?0xFFFF6D00:0xFF4CAF50);
+		
+		programDescription_dialog.setText(channelInfo.programDescription);
+		isAds_dialog.setText((channelInfo.isAds)?"Ads":"Currently No Ads");
+		
+		AlertDialog.Builder channelDialog = new AlertDialog.Builder(TvControllerActivity.this)				
+				.setPositiveButton("DELETE", new bookmarkOnClickListener(arg0, pos))
+				.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int which) {						
+						dialog.cancel();
+					}
+				});
+		channelDialog.setCustomTitle(view);
+		AlertDialog alert = channelDialog.create();
+		alert.show();			
+	}
+
+	private class bookmarkOnClickListener implements DialogInterface.OnClickListener {
+
+		private int position;
+		AdapterView<?> parent;
+
+		public bookmarkOnClickListener(AdapterView<?> parent, int position) {
+			this.position = position;
+			this.parent = parent;
+		}
+
+		@Override
+		public void onClick(DialogInterface dialog, int which) {
+			String select = (String) parent.getItemAtPosition(position);
+			removeBookmark(Integer.parseInt(select));
+			drawerUpdate();
+
+		}
+
+	};
+
+	private void openScreenshot(File imageFile) {
+		Intent intent = new Intent();
+		intent.setAction(Intent.ACTION_VIEW);
+		Uri uri = Uri.fromFile(imageFile);
+		intent.setDataAndType(uri, "image/*");
+		startActivity(intent);
+	}
 }
