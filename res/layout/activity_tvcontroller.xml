@@ -48,6 +48,8 @@
                     android:layout_alignParentTop="true"
                     android:layout_marginLeft="15dp"
                     android:layout_toRightOf="@id/channel_img"
+                    android:maxLines="1"
+                    android:scrollbars="horizontal"
                     android:shadowColor="#FFF176"
                     android:shadowDx="0"
                     android:shadowDy="0"
@@ -68,25 +70,7 @@
                     android:scrollbars="vertical"
                     android:text="@string/bbc_infor"
                     android:textColor="#FFF"
-                    android:textSize="14sp" />
-
-                <TextView
-                    android:id="@+id/prompt"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="right" />
-
-                <TextView
-                    android:id="@+id/prompt2"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="right" />
-
-                <TextView
-                    android:id="@+id/selection"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="right" />
+                    android:textSize="14sp" />                
             </RelativeLayout>
 
             <RelativeLayout
@@ -124,7 +108,7 @@
                     android:background="#90333333"
                     android:orientation="vertical"
                     android:visibility="gone" >
-                    
+
                     <TextView
                         android:id="@+id/gesture_txt"
                         android:layout_width="match_parent"
@@ -318,9 +302,9 @@
                             android:layout_height="wrap_content"
                             android:layout_centerInParent="true"
                             android:background="@drawable/voice_btn_default_holo_light"
+                            android:gravity="center"
                             android:text="Voice"
-                            android:textColor="#ffffff" 
-                            android:gravity="center"/>
+                            android:textColor="#ffffff" />
                     </LinearLayout>
 
                     <LinearLayout
@@ -347,8 +331,6 @@
                             android:text="Share"
                             android:textColor="#ffffff" />
                     </LinearLayout>
-                    	
-                   
                 </LinearLayout>
             </LinearLayout>
         </LinearLayout>

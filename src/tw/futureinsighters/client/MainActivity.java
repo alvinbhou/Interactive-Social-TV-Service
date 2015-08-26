@@ -114,7 +114,7 @@ public class MainActivity extends Activity implements Observer {
 		helpImage.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {				
-				Intent intent = new Intent(MainActivity.this, ImageviewActivity.class);
+				Intent intent = new Intent(MainActivity.this, VideoviewActivity.class);
 				startActivity(intent);
 //				overridePendingTransition(R.anim.fadein, R.anim.fadeout);
 

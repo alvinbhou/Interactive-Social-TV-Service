@@ -107,7 +107,7 @@ public class TvControllerActivity extends Activity {
 	private DrawerLayout drawerLayout;
 	private View leftDrawerView, rightDrawerView;
 	private ListView bookmarkDrawerList, historyDrawerList;
-	private TextView channelValue, channel_information;
+	private TextView channelValue, channel_information, program_name;
 	private Button share_btn, fb_btn, voice_btn;
 	private ArrayAdapter<String> arrayAdapter1;
 	private ArrayAdapter<String> arrayAdapter2;
@@ -139,18 +139,20 @@ public class TvControllerActivity extends Activity {
 	/* Channel Info */
 	private ChannelInfo curChannelInfo = new ChannelInfo();
 	private ChannelInfo channelInfo = new ChannelInfo();
+	private Boolean requesting_infor = true;
 	/* 1 for current, 2 for search */
 
 	private class ChannelInfo {
 		public int number = 7;
 		public String channelName = "No Channel Name.";
-		public String programName = "A Program.";
-		public String programDescription = "Sorry! Something went wrong.";
+		public String programName = "No Program.";
+		public String programDescription = "Requesting data ...	";
 		public Boolean isAds = false;
 	}
 
 	/* Dialog elements */
 	private TextView programName_dialog, programDescription_dialog, isAds_dialog;
+	private AlertDialog.Builder channelDialog;
 
 	/* ---- */
 	@Override
@@ -214,6 +216,8 @@ public class TvControllerActivity extends Activity {
 				channelInfo.number = number;
 				channelInfo.programDescription = programDescription;
 				channelInfo.isAds = isAds;
+				
+				dialogRefresh();
 
 			}
 		};
@@ -501,6 +505,8 @@ public class TvControllerActivity extends Activity {
 		/* For TextView Scroll */
 		channel_information = (TextView) findViewById(R.id.channel_infor);
 		channel_information.setMovementMethod(new ScrollingMovementMethod());
+		program_name = (TextView) findViewById(R.id.channel_txt);
+		program_name.setMovementMethod(new ScrollingMovementMethod());
 		drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
 		leftDrawerView = (View) findViewById(R.id.leftdrawer);
 		rightDrawerView = (View) findViewById(R.id.rightdrawer);
@@ -1219,19 +1225,17 @@ public class TvControllerActivity extends Activity {
 
 		LayoutInflater inflater = getLayoutInflater();
 		View view = inflater.inflate(R.layout.dialog_customize, null);
-		
-		
+
 		programName_dialog = (TextView) view.findViewById(R.id.programName_dialog);
 		programDescription_dialog = (TextView) view.findViewById(R.id.programDescription_dialog);
-
 		isAds_dialog = (TextView) view.findViewById(R.id.isAds_dialog);
-		programName_dialog.setText(channelInfo.programName);
+		programName_dialog.setText(" Program not found yet");
 		programName_dialog.setBackgroundColor((channelInfo.isAds) ? 0xFFFF6D00 : 0xFF4CAF50);
-		programDescription_dialog.setText(channelInfo.programDescription);
+		programDescription_dialog.setText("Requesting data ...");
 		programDescription_dialog.setMovementMethod(new ScrollingMovementMethod());
 		isAds_dialog.setText((channelInfo.isAds) ? "Ads" : "Currently No Ads");
 
-		AlertDialog.Builder channelDialog = new AlertDialog.Builder(TvControllerActivity.this)
+		channelDialog = new AlertDialog.Builder(TvControllerActivity.this)
 				.setPositiveButton("DELETE", new bookmarkOnClickListener(arg0, pos))
 				.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
 					public void onClick(DialogInterface dialog, int which) {
@@ -1241,6 +1245,18 @@ public class TvControllerActivity extends Activity {
 		channelDialog.setCustomTitle(view);
 		AlertDialog alert = channelDialog.create();
 		alert.show();
+	}
+
+	private void dialogRefresh() {
+		LayoutInflater inflater = getLayoutInflater();
+		View view = inflater.inflate(R.layout.dialog_customize, null);
+		programName_dialog.setText(channelInfo.programName);
+		programName_dialog.setBackgroundColor((channelInfo.isAds) ? 0xFFFF6D00 : 0xFF4CAF50);
+		programDescription_dialog.setText(channelInfo.programDescription);
+		programDescription_dialog.setMovementMethod(new ScrollingMovementMethod());
+		isAds_dialog.setText((channelInfo.isAds) ? "Ads" : "Currently No Ads");		
+		channelDialog.setCustomTitle(view);
+		
 	}
 
 	private class bookmarkOnClickListener implements DialogInterface.OnClickListener {

@@ -27,6 +27,8 @@ import android.widget.Toast;
 
 public class ImageviewActivity extends Activity {
 
+	private final String CONTROLLER_IMAGEVIEWER_CLOSE ="ISTVSIMGbye"; 
+	
 	private static int RESULT_LOAD_IMAGE = 1;
 	private CafeApplication mChatApplication = null;
 	private String encode;
@@ -126,6 +128,13 @@ public class ImageviewActivity extends Activity {
 
 		}
 
+	}
+	
+	@Override
+	public void onBackPressed() {
+		mChatApplication.newLocalUserMessage(CONTROLLER_IMAGEVIEWER_CLOSE);
+		super.onBackPressed();
+		
 	}
 
 	public static String encodeTobase64(Bitmap image, int size) {
