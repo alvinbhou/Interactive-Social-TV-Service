@@ -1,31 +1,59 @@
 package tw.futureinsighters.client;
 
+import java.io.File;
+import java.util.List;
+
 import org.allseenaliance.alljoyn.CafeApplication;
 
 import com.technalt.serverlessCafe.R;
 
 import android.app.Activity;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.pm.ResolveInfo;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.CompoundButton;
+import android.widget.ImageView;
+import android.widget.SeekBar;
+import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.VerticalSeekBar;
+import android.widget.ToggleButton;
 
 public class VideoviewActivity extends Activity {
 
 	/* Alljoyn */
 	private CafeApplication mChatApplication = null;
-	private final String CONTROLLER_CMD_VL = "ISTVSvl -";
+	private final String CONTROLLER_VIDEOVIEWER_PLAY = "ISTVSVIDplay";
+	private final String CONTROLLER_VIDEOVIEWER_PAUSE = "ISTVSVIDpause";
+	private final String CONTROLLER_VIDEOVIEWER_RESTART = "ISTVSVIDrestart";
+	private final String CONTROLLER_VIDEOVIEWER_NEXT = "ISTVSVIDnext";
+	private final String CONTROLLER_VIDEOVIEWER_PRE = "ISTVSVIDpre";
+	private final String CONTROLLER_VIDEOVIEWER_SHOW_MEDIACONTROLLER = "ISTVSVIDsm";
+	private final String CONTROLLER_VIDEOVIEWER_REPEAT_ON = "ISTVSVIDrepon";
+	private final String CONTROLLER_VIDEOVIEWER_REPEAT_OFF = "ISTVSVIDrepoff";
+	private final String CONTROLLER_VIDEOVIEWER_SHUFFLE_ON = "ISTVSVIDshuon";
+	private final String CONTROLLER_VIDEOVIEWER_SHUFFLE_OFF = "ISTVSVIDshuoff";
+	private final String CONTROLLER_VIDEOVIEWER_VOLUME = "ISTVSVIDvl";
+	private final String CONTROLLER_VIDEOVIEWER_SCREENSHOT = "ISTVSVIDss";
 
 	/* Buttons */
-	private Button playBtn, previousBtn, nextBtn, shuffleBtn, replayBtn, gestureBtn;
-	private Boolean pause_clicked = false, shuffle_clicked = true;
+	private Button playBtn, previousBtn, nextBtn, shuffleBtn, replayBtn, snapBtn, repeatBtn, fbBtn;
+	private ToggleButton gestureToggle;
+	private Boolean pause_clicked = false, shuffle_clicked = false, repeat_clicked = false;
+	
 
 	/* Sensor */
 	private boolean is_appslist_on = false;
@@ -40,7 +68,7 @@ public class VideoviewActivity extends Activity {
 
 	/* Volume */
 	private int volume = 50;
-	private VerticalSeekBar volume_bar;
+	private SeekBar volume_bar;
 	private TextView volume_value = null;
 	private boolean vl_gesture_controll = false;
 
@@ -48,25 +76,56 @@ public class VideoviewActivity extends Activity {
 		LEFT, RIGHT
 	};
 
+	/* SnapShot */
+	private ImageView screenshotPreview;
+	private String currentPath;
+	private File screenshotImg;
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_videoview);
 
+		/* recieve screenshot info from MainActivity */
+		BroadcastReceiver channelInfoBroadcastReciever = new BroadcastReceiver() {
+			@Override
+			public void onReceive(Context context, Intent intent) {
+				// NOT FINISHED YET!!! ERROR NOT HANDLED
+				Toast.makeText(context, "MSG Got!", Toast.LENGTH_SHORT).show();
+				currentPath = intent.getStringExtra("screenshotPath");
+				updateImagePreview();
+			}
+		};
+		IntentFilter channelInfoFilter = new IntentFilter("screenshotPath");
+		registerReceiver(channelInfoBroadcastReciever, channelInfoFilter);
+
 		/* ------Start AllJoyn Service KEYWORD!!---- */
 		mChatApplication = (CafeApplication) getApplication();
+
+		sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+		aSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+		gSensor = sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
 
 		playBtn = (Button) findViewById(R.id.playBtn);
 		previousBtn = (Button) findViewById(R.id.previousBtn);
 		nextBtn = (Button) findViewById(R.id.nextBtn);
 		replayBtn = (Button) findViewById(R.id.replayBtn);
 		shuffleBtn = (Button) findViewById(R.id.shuffleBtn);
-		gestureBtn = (Button) findViewById(R.id.mediaGesture);
+		snapBtn = (Button) findViewById(R.id.snapBtn);
+		repeatBtn = (Button) findViewById(R.id.repeatBtn);
+		fbBtn = (Button) findViewById(R.id.fbBtn);
+
 		playBtn.setBackgroundResource(R.drawable.ic_play_arrow_black_48dp);
 		previousBtn.setBackgroundResource(R.drawable.ic_skip_previous_black_48dp);
 		nextBtn.setBackgroundResource(R.drawable.ic_skip_next_black_48dp);
 		replayBtn.setBackgroundResource(R.drawable.ic_replay_black_48dp);
 		shuffleBtn.setBackgroundResource(R.drawable.ic_shuffle_white_48dp);
+		repeatBtn.setBackgroundResource(R.drawable.ic_repeat_white_48dp);
+
+		volume_value = (TextView) findViewById(R.id.volumeValue);
+		gestureToggle = (ToggleButton) findViewById(R.id.mediaGesture);
+		screenshotPreview = (ImageView) findViewById(R.id.screenshotPreview);
+		gestureToggle.setChecked(false);
+		/* Buttons */
 
 		playBtn.setOnClickListener(new OnClickListener() {
 
@@ -75,10 +134,39 @@ public class VideoviewActivity extends Activity {
 				if (!pause_clicked) {
 					playBtn.setBackgroundResource(R.drawable.ic_pause_black_48dp);
 					pause_clicked = true;
+					mChatApplication.newLocalUserMessage(CONTROLLER_VIDEOVIEWER_PAUSE);
 				} else {
 					playBtn.setBackgroundResource(R.drawable.ic_play_arrow_black_48dp);
 					pause_clicked = false;
+					mChatApplication.newLocalUserMessage(CONTROLLER_VIDEOVIEWER_PLAY);
 				}
+
+			}
+		});
+
+		previousBtn.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				mChatApplication.newLocalUserMessage(CONTROLLER_VIDEOVIEWER_PRE);
+
+			}
+		});
+
+		nextBtn.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				mChatApplication.newLocalUserMessage(CONTROLLER_VIDEOVIEWER_NEXT);
+
+			}
+		});
+
+		replayBtn.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				mChatApplication.newLocalUserMessage(CONTROLLER_VIDEOVIEWER_RESTART);
 
 			}
 		});
@@ -90,32 +178,119 @@ public class VideoviewActivity extends Activity {
 				if (!shuffle_clicked) {
 					shuffleBtn.setBackgroundResource(R.drawable.ic_shuffle_black_48dp);
 					shuffle_clicked = true;
+					mChatApplication.newLocalUserMessage(CONTROLLER_VIDEOVIEWER_SHUFFLE_ON);
 				} else {
 					shuffleBtn.setBackgroundResource(R.drawable.ic_shuffle_white_48dp);
 					shuffle_clicked = false;
+					mChatApplication.newLocalUserMessage(CONTROLLER_VIDEOVIEWER_SHUFFLE_OFF);
 				}
 
 			}
 		});
 
-		gestureBtn.setOnClickListener(new OnClickListener() {
+		repeatBtn.setOnClickListener(new OnClickListener() {
 
 			@Override
 			public void onClick(View v) {
-				if (!sensor_on) {
-					sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
-					aSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-					gSensor = sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
-
-					sensorManager.registerListener(aSensorListener, aSensor, SensorManager.SENSOR_DELAY_NORMAL);
-					sensorManager.registerListener(gSensorListener, gSensor, SensorManager.SENSOR_DELAY_NORMAL);
-					Toast.makeText(VideoviewActivity.this, "Sensor ON", Toast.LENGTH_SHORT).show();
+				if (!repeat_clicked) {
+					repeatBtn.setBackgroundResource(R.drawable.ic_repeat_black_48dp);
+					repeat_clicked = true;
+					mChatApplication.newLocalUserMessage(CONTROLLER_VIDEOVIEWER_REPEAT_ON);
+				} else {
+					repeatBtn.setBackgroundResource(R.drawable.ic_repeat_white_48dp);
+					repeat_clicked = false;
+					mChatApplication.newLocalUserMessage(CONTROLLER_VIDEOVIEWER_REPEAT_OFF);
 				}
-				sensor_on = true;
 
 			}
 		});
 
+		replayBtn.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				mChatApplication.newLocalUserMessage(CONTROLLER_VIDEOVIEWER_NEXT);
+
+			}
+		});
+
+		gestureToggle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+				if (isChecked) {
+					sensor_on = true;
+					sensorManager.registerListener(aSensorListener, aSensor, SensorManager.SENSOR_DELAY_NORMAL);
+					sensorManager.registerListener(gSensorListener, gSensor, SensorManager.SENSOR_DELAY_NORMAL);
+					Toast.makeText(VideoviewActivity.this, "Sensor ON", Toast.LENGTH_SHORT).show();
+				} else {
+					if (sensor_on) {
+						sensorManager.unregisterListener(aSensorListener);
+						sensorManager.unregisterListener(gSensorListener);
+						Toast.makeText(VideoviewActivity.this, "Sensor OFF", Toast.LENGTH_SHORT).show();
+					}
+					sensor_on = false;
+				}
+			}
+		});
+
+		snapBtn.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				mChatApplication.newLocalUserMessage(CONTROLLER_VIDEOVIEWER_SCREENSHOT);
+
+			}
+		});
+
+		fbBtn.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+			    Toast.makeText(VideoviewActivity.this, "OPEN! ", Toast.LENGTH_SHORT).show();
+			    Intent intent = new Intent();
+			    intent.setAction(Intent.ACTION_VIEW);
+			    Uri uri = Uri.fromFile(screenshotImg);
+			    intent.setDataAndType(uri, "image/*");
+			    startActivity(intent);
+			
+
+			}
+		});
+
+		/* Volume seekbar */
+
+		volume_bar = (SeekBar) findViewById(R.id.seekbar);
+		volume_bar.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
+
+			@Override
+			public void onStopTrackingTouch(SeekBar seekBar) {
+				// TODO Auto-generated method stub
+
+			}
+
+			@Override
+			public void onStartTrackingTouch(SeekBar seekBar) {
+				// TODO Auto-generated method stub
+
+			}
+
+			@Override
+			public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+				volume = progress;
+				vl_gesture_controll = false;
+				volumeCMD(volume);
+			}
+		});
+
+	}
+
+	@Override
+	public void onBackPressed() {
+
+		if (sensor_on) {
+			sensorManager.unregisterListener(aSensorListener);
+			sensorManager.unregisterListener(gSensorListener);
+		}
+		super.onBackPressed();
 	}
 
 	/* Sensor Event */
@@ -166,7 +341,7 @@ public class VideoviewActivity extends Activity {
 					is_up_long = false;
 				}
 			}
-			if (a_x < 3 && a_x > -3 && a_y < -5 && a_z > 0) {
+			if (a_x < 3 && a_x > -3 && a_y < -3 && a_z > 0) {
 				// $('up_bg').style.opacity = (-y - 3) / 8.0;
 				if (!is_down) {
 					is_down = true;
@@ -247,11 +422,11 @@ public class VideoviewActivity extends Activity {
 			}
 			switch (direction) {
 			case LEFT: {
-				// mChatApplication.newLocalUserMessage(CONTROLLER_CMD_UI_LEFT);
+				// mChatApplication.newLocalUserMessage(CONTROLLER_VIDEOVIEWER_NEXT);
 				break;
 			}
 			case RIGHT: {
-				// mChatApplication.newLocalUserMessage(CONTROLLER_CMD_UI_RIGHT);
+				// mChatApplication.newLocalUserMessage(CONTROLLER_VIDEOVIEWER_PRE);
 				break;
 			}
 			}
@@ -268,11 +443,11 @@ public class VideoviewActivity extends Activity {
 			}
 			switch (direction) {
 			case LEFT: {
-				// NEED
+				mChatApplication.newLocalUserMessage(CONTROLLER_VIDEOVIEWER_PRE);
 				break;
 			}
 			case RIGHT: {
-				// NEED
+				mChatApplication.newLocalUserMessage(CONTROLLER_VIDEOVIEWER_NEXT);
 				break;
 			}
 			}
@@ -318,13 +493,24 @@ public class VideoviewActivity extends Activity {
 			} else {
 				return;
 			}
-		}	
+		}
 		String s, cmd;
 		s = String.valueOf(volume);
-		cmd = CONTROLLER_CMD_VL;
+		cmd = CONTROLLER_VIDEOVIEWER_VOLUME;
 		cmd = cmd.concat(s);
-		
+		volume_value.setText(Integer.toString(volume));
+		volume_bar.setProgress(volume);
 		mChatApplication.newLocalUserMessage(cmd);
 	}
+
+	private void updateImagePreview() {
+
+		screenshotImg = new File(currentPath);
+		if (screenshotImg.exists()) {
+			Bitmap myBitmap = BitmapFactory.decodeFile(screenshotImg.getAbsolutePath());
+			screenshotPreview.setImageBitmap(myBitmap);
+		}
+	}
+	
 
 }

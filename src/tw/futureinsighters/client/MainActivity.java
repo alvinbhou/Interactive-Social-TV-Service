@@ -1,5 +1,9 @@
 package tw.futureinsighters.client;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.Date;
 import java.util.List;
 
 import org.allseenaliance.alljoyn.AllJoynService;
@@ -15,30 +19,26 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Point;
-import android.graphics.drawable.ColorDrawable;
-import android.graphics.drawable.TransitionDrawable;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v4.content.LocalBroadcastManager;
+import android.util.Base64;
 import android.util.Log;
 import android.view.Display;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.ViewGroup.LayoutParams;
-import android.view.animation.AccelerateInterpolator;
-import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
-import android.view.animation.AnimationSet;
 import android.view.animation.AnimationUtils;
-import android.view.animation.DecelerateInterpolator;
-import android.view.animation.Animation.AnimationListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -76,13 +76,20 @@ public class MainActivity extends Activity implements Observer {
 	private final String TV_RESPONSE_CHANNEL_INFO = "SVTSIchannelinfo";
 	private final String TV_RESPONSE_APPSLIST_ON = "SVTSIappsliston";
 	private final String TV_RESPONSE_APPSLIST_OFF = "SVTSIappslistoff";
+	private final String TV_RESPONSE_IMAGE_TRANSFER_START = "SVTSIVIDimgs";
+	private final String TV_RESPONSE_IMAGE_TRANSFER = "SVTSIVIDimg";
 
+	// 
+	private int imageTransitCount = 0;
+	String encodedImage = null;
+	
 	// icons
 	ImageView controllerImage, connectImage, settingsImage, helpImage;
 	Boolean flag_connect = true;
 	Boolean controller_connected_clicked = false;
 	Button connect_success, connect_failure;
 	int imagesToShow[], imageCount = 0;
+	
 	// boolean found = false;
 
 	@Override
@@ -110,13 +117,13 @@ public class MainActivity extends Activity implements Observer {
 		});
 
 		// click listeners
-		helpImage = (ImageView)findViewById(R.id.helpImage);		
+		helpImage = (ImageView) findViewById(R.id.helpImage);
 		helpImage.setOnClickListener(new OnClickListener() {
 			@Override
-			public void onClick(View v) {				
+			public void onClick(View v) {
 				Intent intent = new Intent(MainActivity.this, VideoviewActivity.class);
 				startActivity(intent);
-//				overridePendingTransition(R.anim.fadein, R.anim.fadeout);
+				// overridePendingTransition(R.anim.fadein, R.anim.fadeout);
 
 			}
 		});
@@ -325,6 +332,8 @@ public class MainActivity extends Activity implements Observer {
 	private void updateHistory() {
 
 		String messager = mChatApplication.getHistoryMessage();
+		
+		
 
 		preview.setText(messager);
 
@@ -354,6 +363,39 @@ public class MainActivity extends Activity implements Observer {
 			Intent intent = new Intent("other");
 			intent.putExtra("name", "AppsListIsOff");
 			this.sendBroadcast(intent);
+		} else if (messager.contains(TV_RESPONSE_IMAGE_TRANSFER_START)) {
+			// begin the transport of image
+
+			encodedImage = "";
+			imageTransitCount = Integer
+					.parseInt(messager.substring(messager.indexOf(TV_RESPONSE_IMAGE_TRANSFER_START) + 12));
+			 Toast.makeText(getApplicationContext(),
+			 Integer.toString(imageTransitCount), Toast.LENGTH_SHORT)
+			 .show();
+		} else if (messager.length() > 100 && messager.substring(0, 90).contains(TV_RESPONSE_IMAGE_TRANSFER)) {
+			// get image encoded packaages
+
+			encodedImage = encodedImage + (messager.substring(messager.indexOf(TV_RESPONSE_IMAGE_TRANSFER) +1+TV_RESPONSE_IMAGE_TRANSFER.length()));
+			 Toast.makeText(getApplicationContext(),
+			 "encoded image 累積長度: "+encodedImage.length()+"倒數第 " +
+			 Integer.toString(imageTransitCount) + "個 抵達", Toast.LENGTH_SHORT)
+			 .show();
+			if (--imageTransitCount != 0)
+				return;
+
+			// transport finished. start load image.
+
+			try {
+				Log.d("Hi", "Gonna decode");
+				byte[] decodedByte = Base64.decode(encodedImage, 0);
+				encodedImage = ""; // clean memory
+				Bitmap decodedImage = BitmapFactory.decodeByteArray(decodedByte, 0, decodedByte.length);
+				decodedByte = null; // clean memory
+				
+				saveBitmap(decodedImage);
+			} catch (Exception e) {
+				Toast.makeText(MainActivity.this, "Cannot get picture", Toast.LENGTH_SHORT).show();
+			}
 		}
 
 	}
@@ -426,44 +468,7 @@ public class MainActivity extends Activity implements Observer {
 		;
 	}
 
-	private void uiInit() {
-		// final LinearLayout logoLayout = (LinearLayout)
-		// findViewById(R.id.logoLayout);
-		// final LinearLayout connectLayout = (LinearLayout)
-		// findViewById(R.id.connectLayout);
-		// final LinearLayout bottomLayout = (LinearLayout)
-		// findViewById(R.id.bottomLayout);
-		// final LinearLayout controllerLayout = (LinearLayout)
-		// findViewById(R.id.controllerLayout);
-		// final LinearLayout helpLayout = (LinearLayout)
-		// findViewById(R.id.helpLayout);
-		// final ImageView connect_logo = (ImageView)
-		// findViewById(R.id.connect_logo);
-		//
-		// LayoutParams params = logoLayout.getLayoutParams();
-		// params.width = (int) (screenWidth);
-		// params.height = (int) (screenHeight * 0.2);
-		// logoLayout.setLayoutParams(params);
-		// LinearLayout.LayoutParams layoutParams = new
-		// LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
-		// LinearLayout.LayoutParams.MATCH_PARENT);
-		//
-		// // set connect logo size
-		// params = connect_logo.getLayoutParams();
-		// params.width = (int) (screenWidth / 2);
-		// params.height = (int) (screenWidth / 2);
-		// connect_logo.setLayoutParams(params);
-		//
-		// params = connectLayout.getLayoutParams();
-		// params.width = (int) (screenWidth);
-		// params.height = (int) (screenHeight * 0.45);
-		// connectLayout.setLayoutParams(params);
-		//
-		// params = bottomLayout.getLayoutParams();
-		// params.width = (int) screenWidth;
-		// params.height = (int) (screenWidth / 2);
-	}
-
+	
 	// connection image (rotate and stuff)
 	private void connection_image() {
 		connectImage = (ImageView) findViewById(R.id.connect_logo);
@@ -549,5 +554,40 @@ public class MainActivity extends Activity implements Observer {
 			Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_LONG).show();
 		}
 	};
+	
+	private void saveBitmap(Bitmap bmp){
+		
+		Date now = new Date();
+	    android.text.format.DateFormat.format("yyyy-MM-dd_hh:mm:ss", now);
+	    String mPath = Environment.getExternalStorageDirectory().toString() + "/image/" + now + ".jpg";
+	   Log.d("Pathhhhhh" , mPath);
+		FileOutputStream out = null;
+		try {
+		    out = new FileOutputStream(mPath);
+		    bmp.compress(Bitmap.CompressFormat.JPEG, 100, out); // bmp is your Bitmap instance
+		    Toast.makeText(MainActivity.this, "compress success ", Toast.LENGTH_SHORT).show();
+		   
+		    
+		} catch (Exception e) {
+		    e.printStackTrace();
+		} finally {
+		    try {
+		        if (out != null) {
+		            out.close();
+		        }
+		    } catch (IOException e) {
+		        e.printStackTrace();
+		    }
+		}
+		// notify VideoviewActivity
+		Intent intent = new Intent("screenshotPath");
+		intent.putExtra("screenshotPath", mPath);
+		this.sendBroadcast(intent);
+		
+		
+	}
+	
+	
+	
 
 }
