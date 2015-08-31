@@ -625,6 +625,8 @@ public class TvControllerActivity extends Activity {
 	protected void onResume() {
 		super.onResume();		
 		initializeChannel();
+		if(sensor_on)
+			gesture_return.performClick();
 	}
 
 	/* Send backToHome message to Tv */
@@ -643,6 +645,7 @@ public class TvControllerActivity extends Activity {
 	@Override
 	public void onDestroy() {
 		recordShareReference();
+		sensor_on = false;
 		mChatApplication.newLocalUserMessage(TVCONTROLLER_CMD.HOME);
 		super.onDestroy();
 	}
