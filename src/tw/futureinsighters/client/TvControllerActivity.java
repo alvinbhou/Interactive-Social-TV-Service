@@ -617,7 +617,7 @@ public class TvControllerActivity extends Activity {
 	@Override
 	protected void onPause() {
 		super.onPause();
-		initializeChannel();
+		recordShareReference();
 		if (sensor_on) {
 			sensorManager.unregisterListener(aSensorListener);
 			sensorManager.unregisterListener(gSensorListener);
