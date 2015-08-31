@@ -585,14 +585,7 @@ public class TvControllerActivity extends Activity {
 
 	}
 
-	@Override
-	protected void onPause() {
-		super.onPause();
-		if (sensor_on) {
-			sensorManager.unregisterListener(aSensorListener);
-			sensorManager.unregisterListener(gSensorListener);
-		}
-	}
+
 
 	/* voice to text search */
 	@Override
@@ -620,11 +613,20 @@ public class TvControllerActivity extends Activity {
 		}
 		}
 	}
+	
+	@Override
+	protected void onPause() {
+		super.onPause();
+		initializeChannel();
+		if (sensor_on) {
+			sensorManager.unregisterListener(aSensorListener);
+			sensorManager.unregisterListener(gSensorListener);
+		}
+	}
 
 	@Override
 	protected void onResume() {
-		super.onResume();		
-		initializeChannel();
+		super.onResume();	
 		if(sensor_on)
 			gesture_return.performClick();
 	}
@@ -649,6 +651,7 @@ public class TvControllerActivity extends Activity {
 		mChatApplication.newLocalUserMessage(TVCONTROLLER_CMD.HOME);
 		super.onDestroy();
 	}
+
 
 	/* Sensor Event */
 	private SensorEventListener aSensorListener = new SensorEventListener() {

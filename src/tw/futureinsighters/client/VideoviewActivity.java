@@ -85,14 +85,13 @@ public class VideoviewActivity extends Activity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_videoview);
+		
+		initUIComponent();
 
 		/* recieve screenshot info from MainActivity */
 		BroadcastReceiver channelInfoBroadcastReciever = new BroadcastReceiver() {
 			@Override
 			public void onReceive(Context context, Intent intent) {
-				// NOT FINISHED YET!!! ERROR NOT HANDLED
-				// Toast.makeText(context, "MSG Got!",
-				// Toast.LENGTH_SHORT).show();
 				currentPath = intent.getStringExtra("screenshotPath");
 				updateImagePreview();
 			}
@@ -107,26 +106,6 @@ public class VideoviewActivity extends Activity {
 		aSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 		gSensor = sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
 
-		playBtn = (Button) findViewById(R.id.playBtn);
-		previousBtn = (Button) findViewById(R.id.previousBtn);
-		nextBtn = (Button) findViewById(R.id.nextBtn);
-		replayBtn = (Button) findViewById(R.id.replayBtn);
-		shuffleBtn = (Button) findViewById(R.id.shuffleBtn);
-		snapBtn = (Button) findViewById(R.id.snapBtn);
-		repeatBtn = (Button) findViewById(R.id.repeatBtn);
-		shareBtn = (Button) findViewById(R.id.shareBtn);
-
-		playBtn.setBackgroundResource(R.drawable.ic_play_arrow_black_48dp);
-		previousBtn.setBackgroundResource(R.drawable.ic_skip_previous_black_48dp);
-		nextBtn.setBackgroundResource(R.drawable.ic_skip_next_black_48dp);
-		replayBtn.setBackgroundResource(R.drawable.ic_replay_black_48dp);
-		shuffleBtn.setBackgroundResource(R.drawable.ic_shuffle_white_48dp);
-		repeatBtn.setBackgroundResource(R.drawable.ic_repeat_white_48dp);
-
-		volume_value = (TextView) findViewById(R.id.volumeValue);
-		gestureToggle = (ToggleButton) findViewById(R.id.mediaGesture);
-		screenshotPreview = (ImageView) findViewById(R.id.screenshotPreview);
-		gestureToggle.setChecked(false);
 		/* Buttons */
 
 		playBtn.setOnClickListener(new OnClickListener() {
@@ -496,5 +475,26 @@ public class VideoviewActivity extends Activity {
 	}
 	
 	
+	private void initUIComponent(){
+		playBtn = (Button) findViewById(R.id.playBtn);
+		previousBtn = (Button) findViewById(R.id.previousBtn);
+		nextBtn = (Button) findViewById(R.id.nextBtn);
+		replayBtn = (Button) findViewById(R.id.replayBtn);
+		shuffleBtn = (Button) findViewById(R.id.shuffleBtn);
+		snapBtn = (Button) findViewById(R.id.snapBtn);
+		repeatBtn = (Button) findViewById(R.id.repeatBtn);
+		shareBtn = (Button) findViewById(R.id.shareBtn);
 
+		playBtn.setBackgroundResource(R.drawable.ic_play_arrow_black_48dp);
+		previousBtn.setBackgroundResource(R.drawable.ic_skip_previous_black_48dp);
+		nextBtn.setBackgroundResource(R.drawable.ic_skip_next_black_48dp);
+		replayBtn.setBackgroundResource(R.drawable.ic_replay_black_48dp);
+		shuffleBtn.setBackgroundResource(R.drawable.ic_shuffle_white_48dp);
+		repeatBtn.setBackgroundResource(R.drawable.ic_repeat_white_48dp);
+
+		volume_value = (TextView) findViewById(R.id.volumeValue);
+		gestureToggle = (ToggleButton) findViewById(R.id.mediaGesture);
+		screenshotPreview = (ImageView) findViewById(R.id.screenshotPreview);
+		gestureToggle.setChecked(false);
+	}
 }
