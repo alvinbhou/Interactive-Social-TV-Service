@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.security.acl.LastOwnerException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -15,6 +16,7 @@ import com.technalt.serverlessCafe.R;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.backup.SharedPreferencesBackupHelper;
 import android.content.ActivityNotFoundException;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -28,6 +30,7 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.media.MediaRouter.UserRouteInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -129,7 +132,7 @@ public class TvControllerActivity extends Activity {
 	/* 1 for current, 2 for search */
 
 	private class ChannelInfo {
-		public int number = 7;
+		public int number = 66;
 		public String channelName = "No Channel Name.";
 		public String programName = "No Program.";
 		public String programDescription = "Requesting data ...	";
@@ -148,7 +151,7 @@ public class TvControllerActivity extends Activity {
 
 		/* close the sensor */
 		sensor_on = false;
-		
+
 		/* ------Start AllJoyn Service KEYWORD!!---- */
 		mChatApplication = (CafeApplication) getApplication();
 		initializeChannel();
@@ -158,13 +161,14 @@ public class TvControllerActivity extends Activity {
 			@Override
 			public void onReceive(Context context, Intent intent) {
 				// NOT FINISHED YET!!! ERROR NOT HANDLED
-				//Toast.makeText(context, "MSG Got!", Toast.LENGTH_SHORT).show();
+				// Toast.makeText(context, "MSG Got!",
+				// Toast.LENGTH_SHORT).show();
 
 				String channelName = intent.getStringExtra("channelName");
 				String programName = intent.getStringExtra("programName");
 				int number = Integer.parseInt(intent.getStringExtra("number"));
 				String programDescription = intent.getStringExtra("programDescription");
-				Boolean isAds = Boolean.valueOf(intent.getStringExtra("isAds"));				
+				Boolean isAds = Boolean.valueOf(intent.getStringExtra("isAds"));
 
 				curChannelInfo.channelName = channelName;
 				curChannelInfo.programName = programName;
@@ -189,13 +193,13 @@ public class TvControllerActivity extends Activity {
 				int number = Integer.parseInt(intent.getStringExtra("number"));
 				String programDescription = intent.getStringExtra("programDescription");
 				Boolean isAds = Boolean.valueOf(intent.getStringExtra("isAds"));
-				
+
 				channelInfo.channelName = channelName;
 				channelInfo.programName = programName;
 				channelInfo.number = number;
 				channelInfo.programDescription = programDescription;
 				channelInfo.isAds = isAds;
-				
+
 				dialogRefresh();
 			}
 		};
@@ -218,8 +222,6 @@ public class TvControllerActivity extends Activity {
 		};
 		IntentFilter otherBroadcastFilter = new IntentFilter("other");
 		registerReceiver(otherBroadcastReciever, otherBroadcastFilter);
-
-		
 
 		/******* UI *******/
 
@@ -342,7 +344,7 @@ public class TvControllerActivity extends Activity {
 				vl_layout = (LinearLayout) findViewById(R.id.vl_layout);
 				cn_layout = (LinearLayout) findViewById(R.id.cn_layout);
 				gt_layout = (LinearLayout) findViewById(R.id.gesture_layout);
-			
+
 				vl_layout.setVisibility(View.GONE);
 				cn_layout.setVisibility(View.GONE);
 				gt_layout.setVisibility(View.VISIBLE);
@@ -367,7 +369,7 @@ public class TvControllerActivity extends Activity {
 				vl_layout = (LinearLayout) findViewById(R.id.vl_layout);
 				cn_layout = (LinearLayout) findViewById(R.id.cn_layout);
 				gt_layout = (LinearLayout) findViewById(R.id.gesture_layout);
-				
+
 				vl_layout.setVisibility(View.VISIBLE);
 				cn_layout.setVisibility(View.VISIBLE);
 				gt_layout.setVisibility(View.GONE);
@@ -413,20 +415,20 @@ public class TvControllerActivity extends Activity {
 
 			@Override
 			public void onStopTrackingTouch(SeekBar seekBar) {
-				
+
 			}
 		});
 
 		/* Channel Seekbar */
 		ChannelBar = (SeekBar) findViewById(R.id.customSeekBar);
-		ChannelBar.setProgress(50);		
+		ChannelBar.setProgress(50);
 		ChannelBar.setOnSeekBarChangeListener(new VerticalSeekBar.OnSeekBarChangeListener() {
 			@Override
 			public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-				
+
 				Log.d("ChannelBar", "Touched");
 				shift = progress - 50;
-				
+
 				channelBarOnTouched = true;
 				if (shift > 0) {
 					new android.os.Handler().postDelayed(new Runnable() {
@@ -583,6 +585,7 @@ public class TvControllerActivity extends Activity {
 
 	}
 
+	@Override
 	protected void onPause() {
 		super.onPause();
 		if (sensor_on) {
@@ -604,12 +607,12 @@ public class TvControllerActivity extends Activity {
 				if (voiceResult.contains("turn to channel ")) {
 					String tmp = voiceResult.substring(16);
 					Toast.makeText(TvControllerActivity.this, tmp, Toast.LENGTH_SHORT).show();
-					if(tmp.matches("^-?\\d+$"))
+					if (tmp.matches("^-?\\d+$"))
 						channelCMD(Integer.parseInt(tmp));
 				} else if (voiceResult.contains("turn to ")) {
 					String tmp = voiceResult.substring(8);
 					Toast.makeText(TvControllerActivity.this, tmp, Toast.LENGTH_SHORT).show();
-					if(tmp.matches("^-?\\d+$"))
+					if (tmp.matches("^-?\\d+$"))
 						channelCMD(Integer.parseInt(tmp));
 				}
 			}
@@ -618,16 +621,30 @@ public class TvControllerActivity extends Activity {
 		}
 	}
 
+	@Override
+	protected void onResume() {
+		super.onResume();		
+		initializeChannel();
+	}
+
 	/* Send backToHome message to Tv */
 	@Override
 	public void onBackPressed() {
-
 		if (sensor_on)
 			gesture_return.performClick();
 		else {
+			recordShareReference();
+			
 			mChatApplication.newLocalUserMessage(TVCONTROLLER_CMD.HOME);
 			super.onBackPressed();
 		}
+	}
+
+	@Override
+	public void onDestroy() {
+		recordShareReference();
+		mChatApplication.newLocalUserMessage(TVCONTROLLER_CMD.HOME);
+		super.onDestroy();
 	}
 
 	/* Sensor Event */
@@ -1041,7 +1058,7 @@ public class TvControllerActivity extends Activity {
 		// imageView <-- The View which displays the images
 		// images[] <-- Holds R references to the images to display
 		// imageIndex <-- index of the first image to show in images[]
-	
+
 		int fadeInDuration = 800; // Configure time values here
 		int timeBetween = 1000;
 		int fadeOutDuration = 800;
@@ -1098,11 +1115,17 @@ public class TvControllerActivity extends Activity {
 	}
 
 	private void initializeChannel() {
-		channelCMD(13);
-		requestCurChannelInfo();
+		new android.os.Handler().postDelayed(new Runnable() {
+			public void run() {
+				SharedPreferences channelRecord = getSharedPreferences("lastChannel", 0);
+				channelCMD(channelRecord.getInt("lastChannel", 13));
+				// requestCurChannelInfo();
+			}
+		}, 7000);
+
+		// channelCMD(74);
+		// requestCurChannelInfo();
 	}
-
-
 
 	private void drawerUpdate() {
 		bookmarkDrawerList = (ListView) findViewById(R.id.bookmarklist);
@@ -1187,9 +1210,9 @@ public class TvControllerActivity extends Activity {
 		programName_dialog.setBackgroundColor((channelInfo.isAds) ? 0xFFFF6D00 : 0xFF4CAF50);
 		programDescription_dialog.setText(channelInfo.programDescription);
 		programDescription_dialog.setMovementMethod(new ScrollingMovementMethod());
-		isAds_dialog.setText((channelInfo.isAds) ? "Ads" : "Currently No Ads");		
+		isAds_dialog.setText((channelInfo.isAds) ? "Ads" : "Currently No Ads");
 		channelDialog.setCustomTitle(view);
-		
+
 	}
 
 	private class bookmarkOnClickListener implements DialogInterface.OnClickListener {
@@ -1209,5 +1232,12 @@ public class TvControllerActivity extends Activity {
 			drawerUpdate();
 		}
 	};
-
+	
+	private void recordShareReference(){
+	
+		SharedPreferences lastWatchedChannel = getSharedPreferences("lastChannel", 13);
+		SharedPreferences.Editor editor = lastWatchedChannel.edit();
+		editor.putInt("lastChannel", curChannelInfo.number);
+		editor.commit();
+	}
 }

@@ -65,21 +65,6 @@ public class MainActivity extends Activity implements Observer {
 	private static final int HANDLE_ALLJOYN_ERROR_EVENT = 2;
 	private int retry_count = 0;
 
-	/* client to TV CMD */
-	private final String CONTROLLER_CMD_CONN_CONN = "ISTVSconn";
-	private final String CONTROLLER_CMD_CONN_SETNAME = "ISTVSsetname";
-	private final String CONTROLLER_CMD_CONN_FINISHCONN = "ISTVSfinishconn";
-	private final String CONTROLLER_CMD_CONN_DISCONN = "ISTVSdisconn";
-	final private String CONTROLLER_NOTIFICATION_SYSNOTI = "ISTVSsysnoti";
-
-//	/* TV to client CMD */
-//	private final String TVResponse.CUR_CHANNEL_INFO = "SVTSIcurchannelinfo";
-//	private final String TVResponse.CHANNEL_INFO = "SVTSIchannelinfo";
-//	private final String TVResponse.APPSLIST_ON = "SVTSIappsliston";
-//	private final String TVResponse.APPSLIST_OFF = "SVTSIappslistoff";
-//	private final String TVResponse.IMAGE_TRANSFER_START = "SVTSIVIDimgs";
-//	private final String TVResponse.IMAGE_TRANSFER = "SVTSIVIDimg";
-
 	// Transfer image
 	private int imageTransitCount = 0;
 	String encodedImage = null;
@@ -350,12 +335,13 @@ public class MainActivity extends Activity implements Observer {
 			}
 		}else if(messager.contains(TVResponse.TV_OPENED)) {
 			controller_connected_clicked = true;
-			Intent intent = new Intent(MainActivity.this, ControllerActivity.class);
+			Intent intent = new Intent(MainActivity.this, TvControllerActivity.class);
 			startActivity(intent);
 			overridePendingTransition(R.anim.fadein, R.anim.fadeout);
 			
 		}
 		else if (messager.contains(TVResponse. VIDEOVIEWER_OPENED)){
+			Toast.makeText(getApplicationContext(), "VIdeo open", Toast.LENGTH_SHORT).show();
 			Intent intent = new Intent(MainActivity.this,VideoviewActivity.class);
 			startActivity(intent);
 			overridePendingTransition(R.anim.fadein, R.anim.fadeout);
@@ -373,7 +359,7 @@ public class MainActivity extends Activity implements Observer {
 	private Handler mHandler = new Handler() {
 		public void handleMessage(Message msg) {
 			switch (msg.what) {
-
+			
 			case HANDLE_HISTORY_CHANGED_EVENT: {
 				Log.i("", "mHandler.handleMessage(): HANDLE_HISTORY_CHANGED_EVENT");
 				updateHistory();
