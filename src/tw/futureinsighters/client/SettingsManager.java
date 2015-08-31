@@ -106,7 +106,7 @@ public class SettingsManager {
 	/* command generator */
 	public String getCMD() {
 		return SETTINGS_CMD_INFO + " -" + this.getName() + " --" + Integer.toString(this.getAge())
-				+ Integer.toString(this.getGender()) + Integer.toString(this.getPace()) + (this.getNotification()? "1":"2") 
-				 + Integer.toString(this.getField());
+				+ Integer.toString(this.getGender()) + Integer.toString(this.getPace())
+				+ (this.getNotification() ? "1" : "2") + Integer.toString(this.getField());
 	}
 }

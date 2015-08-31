@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/videoLayoutMain"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:background="#81D4FA"
@@ -15,14 +16,13 @@
         android:layout_height="0dp"
         android:layout_weight="1"
         android:orientation="vertical" >
-        
-          <ImageView
+
+        <ImageView
             android:id="@+id/screenshotPreview"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:scaleType="fitCenter"
             android:src="@drawable/videodefault" />
-       
     </LinearLayout>
 
     <LinearLayout
@@ -58,8 +58,8 @@
             android:layout_height="50dp"
             android:layout_gravity="center"
             android:layout_weight="0" />
-        
-         <Button
+
+        <Button
             android:id="@+id/repeatBtn"
             android:layout_width="50dp"
             android:layout_height="50dp"
@@ -107,42 +107,42 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal" >
-        
+
         <TextView
             android:id="@+id/gestrueLabel"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
+            android:gravity="center"
             android:text="Gesture"
-            android:textSize="12sp"
-            android:gravity="center" />
-        
+            android:textSize="12sp" />
+
         <ToggleButton
             android:id="@+id/mediaGesture"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_weight="0"
-            android:textOn="On" 
             android:textOff="Off"
-            android:textSize="14sp"/>
-       
+            android:textOn="On"
+            android:textSize="14sp" />
+
         <Button
             android:id="@+id/snapBtn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_weight="0"
-            android:text="Snap" 
-            android:textSize="14sp"/>
-        
+            android:text="Snap"
+            android:textSize="14sp" />
+
         <Button
-            android:id="@+id/fbBtn"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_margin="5dp"
-            android:layout_gravity="center"
-            android:layout_weight="0"
-            android:background="@drawable/fb_icon"/>
+            android:id="@+id/shareBtn"
+            style="?android:attr/borderlessButtonStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="SHARE!"
+            android:textColor="#F44336"
+             />
     </LinearLayout>
 
 </LinearLayout>

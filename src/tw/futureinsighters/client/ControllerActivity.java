@@ -1,8 +1,5 @@
 package tw.futureinsighters.client;
 
-import java.util.Timer;
-import java.util.TimerTask;
-
 import org.allseenaliance.alljoyn.CafeApplication;
 
 import com.technalt.serverlessCafe.R;
@@ -15,32 +12,18 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
-import android.os.Handler;
-import android.text.style.RasterizerSpan;
-import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.TextView;
-import android.widget.Toast;
+import tw.futureinsighters.defines.TVCONTROLLER_CMD;
 
 public class ControllerActivity extends Activity {
-
-	private final String CONTROLLER_CMD_UI_LEFT = "ISTVSgoleft";
-	private final String CONTROLLER_CMD_UI_RIGHT = "ISTVSgoright";
-	private final String CONTROLLER_CMD_UI_OK = "ISTVSok";
 
 	private enum Direction {
 		LEFT, RIGHT
 	};
 
-	private float a_x;
-	private float a_y;
-	private float a_z;
-	private float g_x;
-	private float g_y;
-	private float g_z;
+	private float a_x, a_y, a_z, g_x, g_y, g_z;
 
 	private boolean is_up = false;
 	private boolean is_up_long = false;
@@ -53,6 +36,10 @@ public class ControllerActivity extends Activity {
 	private SensorManager sensorManager;
 	private Sensor aSensor;
 	private Sensor gSensor;
+
+	private float mAccel; // acceleration apart from gravity
+	private float mAccelCurrent; // current acceleration including gravity
+	private float mAccelLast; // last acceleration including gravity
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -79,6 +66,10 @@ public class ControllerActivity extends Activity {
 		sensorManager.registerListener(aSensorListener, aSensor, SensorManager.SENSOR_DELAY_NORMAL);
 		sensorManager.registerListener(gSensorListener, gSensor, SensorManager.SENSOR_DELAY_NORMAL);
 
+		mAccel = 0.00f;
+		mAccelCurrent = SensorManager.GRAVITY_EARTH;
+		mAccelLast = SensorManager.GRAVITY_EARTH;
+
 	}
 
 	protected void onPause() {
@@ -100,7 +91,25 @@ public class ControllerActivity extends Activity {
 			a_y = event.values[1];
 			a_z = event.values[2];
 
-			
+			mAccelLast = mAccelCurrent;
+			mAccelCurrent = (float) Math.sqrt((double) (a_x * a_x + a_y * a_y + a_z * a_z));
+			float delta = mAccelCurrent - mAccelLast;
+			mAccel = mAccel * 0.9f + delta;
+
+			if (mAccel > 12) {
+				if (is_controllable) {
+					is_controllable = false;
+					new android.os.Handler().postDelayed(new Runnable() {
+						public void run() {
+							is_controllable = true;
+						}
+					}, 500);
+				} else {
+					return;
+				}
+				mChatApplication.newLocalUserMessage(TVCONTROLLER_CMD.CHANGE_QUOTE);
+
+			}
 
 			// motion handler
 
@@ -213,7 +222,8 @@ public class ControllerActivity extends Activity {
 		} else {
 			return;
 		}
-		mChatApplication.newLocalUserMessage(CONTROLLER_CMD_UI_OK);
+		mChatApplication.newLocalUserMessage(TVCONTROLLER_CMD.UI_OK);
+		ok_movement();
 	}
 
 	private void moveAppList(Direction direction) {
@@ -230,12 +240,12 @@ public class ControllerActivity extends Activity {
 		switch (direction) {
 		case LEFT: {
 			left_movement();
-			mChatApplication.newLocalUserMessage(CONTROLLER_CMD_UI_LEFT);
+			mChatApplication.newLocalUserMessage(TVCONTROLLER_CMD.UI_LEFT);
 			break;
 		}
 		case RIGHT: {
 			right_movement();
-			mChatApplication.newLocalUserMessage(CONTROLLER_CMD_UI_RIGHT);
+			mChatApplication.newLocalUserMessage(TVCONTROLLER_CMD.UI_RIGHT);
 			break;
 		}
 		}
@@ -250,25 +260,40 @@ public class ControllerActivity extends Activity {
 	private void left_movement() {
 		TextView left_arrow = (TextView) findViewById(R.id.left_arrow);
 		left_arrow.setTextColor(Color.parseColor("#F44336"));
+
+		new android.os.Handler().postDelayed(new Runnable() {
+			public void run() {
+				TextView left_arrow = (TextView) findViewById(R.id.left_arrow);
+				left_arrow.setTextColor(Color.parseColor("#FFFFFF"));
+			}
+
+		}, 500);
+
 	}
 
 	private void right_movement() {
 		TextView right_arrow = (TextView) findViewById(R.id.right_arrow);
 		right_arrow.setTextColor(Color.parseColor("#F44336"));
+		new android.os.Handler().postDelayed(new Runnable() {
+			public void run() {
+				TextView right_arrow = (TextView) findViewById(R.id.right_arrow);
+				right_arrow.setTextColor(Color.parseColor("#FFFFFF"));
+			}
+
+		}, 500);
+
 	}
 
 	private void ok_movement() {
 		TextView mid_ok = (TextView) findViewById(R.id.oK_mid);
 		mid_ok.setTextColor(Color.parseColor("#F44336"));
-	}
+		new android.os.Handler().postDelayed(new Runnable() {
+			public void run() {
+				TextView mid_ok = (TextView) findViewById(R.id.oK_mid);
+				mid_ok.setTextColor(Color.parseColor("#FFFFFF"));
+			}
 
-	private void reset_color() {
-		TextView left_arrow = (TextView) findViewById(R.id.left_arrow);
-		TextView right_arrow = (TextView) findViewById(R.id.right_arrow);
-		TextView mid_ok = (TextView) findViewById(R.id.oK_mid);
-		left_arrow.setTextColor(Color.parseColor("#FFF"));
-		right_arrow.setTextColor(Color.parseColor("#FFF"));
-		mid_ok.setTextColor(Color.parseColor("#FFF"));
+		}, 500);
 	}
 
 }

@@ -1,4 +1,4 @@
-package tw.futureinsighters.client;
+ package tw.futureinsighters.client;
 
 import java.io.ByteArrayOutputStream;
 
@@ -11,19 +11,18 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Matrix;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.support.v7.graphics.Palette;
 import android.util.Base64;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.ViewGroup;
-import android.view.ViewGroup.LayoutParams;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
 
 public class ImageviewActivity extends Activity {
 
@@ -98,6 +97,8 @@ public class ImageviewActivity extends Activity {
 			options.inPreferredConfig = Bitmap.Config.ARGB_8888;
 
 			bitmap = BitmapFactory.decodeFile(picturePath, options);
+			
+			
 			// imageView.setImageBitmap(bitmap);
 
 			encode = encodeTobase64(bitmap, 0);

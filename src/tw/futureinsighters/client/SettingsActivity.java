@@ -78,7 +78,6 @@ public class SettingsActivity extends Activity implements AbsListView.OnScrollLi
 						swipeContainer.setRefreshing(false);
 						Toast.makeText(SettingsActivity.this, "All your settings have been saved", Toast.LENGTH_SHORT)
 								.show();
-						settingsBroadcast();
 						mChatApplication.newLocalUserMessage(new SettingsManager(getApplicationContext()).getCMD());
 					}
 				}, 3000);
@@ -237,19 +236,6 @@ public class SettingsActivity extends Activity implements AbsListView.OnScrollLi
 			lastTopValue = rect.top;
 			backgroundImage.setY((float) (rect.top / 2.0));
 		}
-	}
-
-	public void settingsBroadcast() { /* deprecated */
-		String settingsCMD, gender, age, pace, notification, preferField;
-		gender = Integer.toString(settingsManager.getGender());
-		age = Integer.toString(settingsManager.getAge());
-		pace = Integer.toString(settingsManager.getPace());
-		notification = settingsManager.getNotification() ? "1" : "2";
-		preferField = Integer.toString(settingsManager.getField());
-		// settingsCMD = SETTINGS_CMD_INFO + " -" + settingsManager.getName() +
-		// " --" + gender + age + pace + notification + preferField;
-		Toast.makeText(SettingsActivity.this, settingsManager.getCMD(), Toast.LENGTH_SHORT).show();
-
 	}
 
 }

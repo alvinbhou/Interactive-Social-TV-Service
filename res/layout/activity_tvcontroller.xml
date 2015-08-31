@@ -70,23 +70,35 @@
                     android:scrollbars="vertical"
                     android:text="@string/bbc_infor"
                     android:textColor="#FFF"
-                    android:textSize="14sp" />                
+                    android:textSize="14sp" />
             </RelativeLayout>
 
-            <RelativeLayout
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="#01579B"
-                android:orientation="vertical" >
+                android:orientation="horizontal" >
 
                 <Button
                     android:id="@+id/google_btn"
                     style="?android:attr/borderlessButtonStyle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_gravity="start"
                     android:text="Search On Google >"
                     android:textColor="#FFF" />
-            </RelativeLayout>
+
+                <Button
+                    android:id="@+id/share_btn"
+                    style="?android:attr/borderlessButtonStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_gravity="end"
+                    android:layout_toRightOf="@id/google_btn"
+                    android:text="Share"
+                    android:textColor="#ffffff" />
+            </LinearLayout>
 
             <LinearLayout
                 android:id="@+id/bottom_container"
@@ -163,7 +175,6 @@
                         android:id="@+id/volume_bar"
                         android:layout_width="wrap_content"
                         android:layout_height="310dp"
-                        android:layout_below="@id/channel_txt"
                         android:layout_gravity="center"
                         android:max="100"
                         android:progress="50" />
@@ -287,51 +298,33 @@
                     <LinearLayout
                         android:id="@+id/voice_layout"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal" >
+                        android:layout_height="0dp"
+                        android:layout_weight="1"                        
+                        android:orientation="horizontal"
+                        android:gravity="center|bottom" >
 
                         <ImageView
                             android:id="@+id/voice_img"
-                            android:layout_width="30dp"
-                            android:layout_height="30dp"
+                            android:layout_width="25dp"
+                            android:layout_height="25dp"
                             android:src="@drawable/ic_mic_black_24dp" />
 
                         <Button
                             android:id="@+id/voice_btn"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_centerInParent="true"
-                            android:background="@drawable/voice_btn_default_holo_light"
                             android:gravity="center"
                             android:text="Voice"
                             android:textColor="#ffffff" />
-                    </LinearLayout>
-
-                    <LinearLayout
-                        android:id="@+id/btn_block"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_margin="5dp"
-                        android:background="#9918FFFF"
-                        android:orientation="horizontal" >
 
                         <Button
                             android:id="@+id/fb_btn"
                             android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_centerInParent="true"
-                            android:text="Screenshot"
-                            android:textColor="#ffffff" />
-
-                        <Button
-                            android:id="@+id/share_btn"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_centerInParent="true"
-                            android:text="Share"
+                            android:layout_height="wrap_content"                          
+                            android:text="FB"
                             android:textColor="#ffffff" />
                     </LinearLayout>
-                </LinearLayout>
+                </LinearLayout>               
             </LinearLayout>
         </LinearLayout>
 

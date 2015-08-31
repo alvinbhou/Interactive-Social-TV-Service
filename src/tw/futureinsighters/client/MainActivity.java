@@ -42,6 +42,8 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+import tw.futureinsighters.defines.TVCONTROLLER_CMD;
+import tw.futureinsighters.defines.TVResponse;
 
 public class MainActivity extends Activity implements Observer {
 
@@ -53,12 +55,11 @@ public class MainActivity extends Activity implements Observer {
 	private Button join;
 	private Button stop;
 	private Button leave;
-	private Button sendjson;
+	
 
 	private CafeApplication mChatApplication = null;
 	private TextView preview;
-	private EditText edit;
-
+	
 	private static final int HANDLE_APPLICATION_QUIT_EVENT = 0;
 	private static final int HANDLE_CHANNEL_STATE_CHANGED_EVENT = 1;
 	private static final int HANDLE_ALLJOYN_ERROR_EVENT = 2;
@@ -71,15 +72,15 @@ public class MainActivity extends Activity implements Observer {
 	private final String CONTROLLER_CMD_CONN_DISCONN = "ISTVSdisconn";
 	final private String CONTROLLER_NOTIFICATION_SYSNOTI = "ISTVSsysnoti";
 
-	/* TV to client CMD */
-	private final String TV_RESPONSE_CUR_CHANNEL_INFO = "SVTSIcurchannelinfo";
-	private final String TV_RESPONSE_CHANNEL_INFO = "SVTSIchannelinfo";
-	private final String TV_RESPONSE_APPSLIST_ON = "SVTSIappsliston";
-	private final String TV_RESPONSE_APPSLIST_OFF = "SVTSIappslistoff";
-	private final String TV_RESPONSE_IMAGE_TRANSFER_START = "SVTSIVIDimgs";
-	private final String TV_RESPONSE_IMAGE_TRANSFER = "SVTSIVIDimg";
+//	/* TV to client CMD */
+//	private final String TVResponse.CUR_CHANNEL_INFO = "SVTSIcurchannelinfo";
+//	private final String TVResponse.CHANNEL_INFO = "SVTSIchannelinfo";
+//	private final String TVResponse.APPSLIST_ON = "SVTSIappsliston";
+//	private final String TVResponse.APPSLIST_OFF = "SVTSIappslistoff";
+//	private final String TVResponse.IMAGE_TRANSFER_START = "SVTSIVIDimgs";
+//	private final String TVResponse.IMAGE_TRANSFER = "SVTSIVIDimg";
 
-	// 
+	// Transfer image
 	private int imageTransitCount = 0;
 	String encodedImage = null;
 	
@@ -90,7 +91,7 @@ public class MainActivity extends Activity implements Observer {
 	Button connect_success, connect_failure;
 	int imagesToShow[], imageCount = 0;
 	
-	// boolean found = false;
+
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -121,21 +122,21 @@ public class MainActivity extends Activity implements Observer {
 		helpImage.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				Intent intent = new Intent(MainActivity.this, VideoviewActivity.class);
+				Intent intent = new Intent(MainActivity.this, ImageviewActivity.class);
 				startActivity(intent);
-				// overridePendingTransition(R.anim.fadein, R.anim.fadeout);
+				overridePendingTransition(R.anim.fadein, R.anim.fadeout);
 
 			}
 		});
 
-		settingsImage = (ImageView) findViewById(R.id.settingsImage);
 		// click listeners
+		settingsImage = (ImageView) findViewById(R.id.settingsImage);		
 		settingsImage.setOnClickListener(new OnClickListener() {
 			@Override
-			public void onClick(View v) {
-				// controller_clicked = true;
+			public void onClick(View v) {				
 				Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
 				startActivity(intent);
+				overridePendingTransition(R.anim.fadein, R.anim.fadeout);
 			}
 		});
 
@@ -146,11 +147,7 @@ public class MainActivity extends Activity implements Observer {
 		stop = new Button(this);
 		join = new Button(this);
 		preview = (TextView) findViewById(R.id.textpreview);
-		edit = new EditText(this);
-		sendjson = new Button(this);
 		leave = new Button(this);
-		stop.setEnabled(false);
-		leave.setEnabled(false);
 
 		join.setOnClickListener(new OnClickListener() {
 
@@ -158,13 +155,11 @@ public class MainActivity extends Activity implements Observer {
 			public void onClick(View v) {
 				final Dialog dialog = new Dialog(MainActivity.this);
 				dialog.requestWindowFeature(dialog.getWindow().FEATURE_NO_TITLE);
-				// dialog.setContentView(R.layout.usejoindialog);
 
 				ArrayAdapter<String> channelListAdapter = new ArrayAdapter<String>(MainActivity.this,
 						android.R.layout.test_list_item);
 				final ListView channelList = new ListView(getApplicationContext());
 				channelList.setAdapter(channelListAdapter);
-
 				List<String> channels = mChatApplication.getFoundChannels();
 
 				for (String channel : channels) {
@@ -206,11 +201,6 @@ public class MainActivity extends Activity implements Observer {
 				mChatApplication.useSetChannelName(name);
 				mChatApplication.useJoinChannel();
 
-				stop.setEnabled(false);
-				join.setEnabled(false);
-				sendjson.setEnabled(true);
-				leave.setEnabled(true);
-
 				new android.os.Handler().postDelayed(new Runnable() {
 					public void run() {
 						connect_success.performClick();
@@ -225,10 +215,6 @@ public class MainActivity extends Activity implements Observer {
 			@Override
 			public void onClick(View v) {
 				mChatApplication.hostStopChannel();
-				stop.setEnabled(false);
-				leave.setEnabled(false);
-				sendjson.setEnabled(false);
-
 			}
 		});
 
@@ -236,46 +222,25 @@ public class MainActivity extends Activity implements Observer {
 
 			@Override
 			public void onClick(View v) {
-
 				mChatApplication.useLeaveChannel();
 				mChatApplication.useSetChannelName("Not set");
-				leave.setEnabled(false);
-				sendjson.setEnabled(false);
-
-				// start.setEnabled(true);
-				stop.setEnabled(true);
-				join.setEnabled(true);
-
 			}
 		});
 
 		mChatApplication = (CafeApplication) getApplication();
 		mChatApplication.checkin();
-
-		// updateChannelState();
-
 		mChatApplication.addObserver(this);
 
-		// mChatApplication.hostSetChannelName("ServerlessCafe");
-		// mChatApplication.hostInitChannel();
-		// mChatApplication.hostStartChannel();
-		//
-		// start.setEnabled(false);
-		//
-		// stop.setEnabled(true);
-
 		updateChannelState();
-
-		// connect image
-
 	}
 
 	public void onDestroy() {
 		userDisconn();
 		mChatApplication = (CafeApplication) getApplication();
 		mChatApplication.deleteObserver(this);
+		mChatApplication.hostStopChannel();
+		mChatApplication.useLeaveChannel();
 		mChatApplication.quit();
-
 		super.onDestroy();
 	}
 
@@ -332,12 +297,9 @@ public class MainActivity extends Activity implements Observer {
 	private void updateHistory() {
 
 		String messager = mChatApplication.getHistoryMessage();
-		
-		
-
 		preview.setText(messager);
 
-		if (messager.contains(TV_RESPONSE_CUR_CHANNEL_INFO)) {
+		if (messager.contains(TVResponse.CUR_CHANNEL_INFO)) {
 			Intent intent = new Intent("curChannelInfo");
 			intent.putExtra("number", messager.substring(messager.indexOf(" *") + 2, messager.indexOf(" **")));
 			intent.putExtra("channelName", messager.substring(messager.indexOf(" **") + 3, messager.indexOf(" ***")));
@@ -346,7 +308,7 @@ public class MainActivity extends Activity implements Observer {
 					messager.substring(messager.indexOf(" ****") + 5, messager.indexOf(" *****")));
 			intent.putExtra("isAds", messager.substring(messager.indexOf(" *****") + 6, messager.indexOf(" ******")));
 			this.sendBroadcast(intent);
-		} else if (messager.contains(TV_RESPONSE_CHANNEL_INFO)) {
+		} else if (messager.contains(TVResponse.CHANNEL_INFO)) {
 			Intent intent = new Intent("channelInfo");
 			intent.putExtra("number", messager.substring(messager.indexOf(" *") + 2, messager.indexOf(" **")));
 			intent.putExtra("channelName", messager.substring(messager.indexOf(" **") + 3, messager.indexOf(" ***")));
@@ -355,47 +317,53 @@ public class MainActivity extends Activity implements Observer {
 					messager.substring(messager.indexOf(" ****") + 5, messager.indexOf(" *****")));
 			intent.putExtra("isAds", messager.substring(messager.indexOf(" *****") + 6, messager.indexOf(" ******")));
 			this.sendBroadcast(intent);
-		} else if (messager.contains(TV_RESPONSE_APPSLIST_ON)) {
+		} else if (messager.contains(TVResponse.APPSLIST_ON)) {
 			Intent intent = new Intent("other");
 			intent.putExtra("name", "AppsListIsOn");
 			this.sendBroadcast(intent);
-		} else if (messager.contains(TV_RESPONSE_APPSLIST_OFF)) {
+		} else if (messager.contains(TVResponse.APPSLIST_OFF)) {
 			Intent intent = new Intent("other");
 			intent.putExtra("name", "AppsListIsOff");
 			this.sendBroadcast(intent);
-		} else if (messager.contains(TV_RESPONSE_IMAGE_TRANSFER_START)) {
+		} else if (messager.contains(TVResponse.IMAGE_TRANSFER_START)) {
 			// begin the transport of image
 
 			encodedImage = "";
 			imageTransitCount = Integer
-					.parseInt(messager.substring(messager.indexOf(TV_RESPONSE_IMAGE_TRANSFER_START) + 12));
-			 Toast.makeText(getApplicationContext(),
-			 Integer.toString(imageTransitCount), Toast.LENGTH_SHORT)
-			 .show();
-		} else if (messager.length() > 100 && messager.substring(0, 90).contains(TV_RESPONSE_IMAGE_TRANSFER)) {
+					.parseInt(messager.substring(messager.indexOf(TVResponse.IMAGE_TRANSFER_START) + 12));
+		} else if (messager.length() > 100 && messager.substring(0, 90).contains(TVResponse.IMAGE_TRANSFER)) {
 			// get image encoded packaages
 
-			encodedImage = encodedImage + (messager.substring(messager.indexOf(TV_RESPONSE_IMAGE_TRANSFER) +1+TV_RESPONSE_IMAGE_TRANSFER.length()));
-			 Toast.makeText(getApplicationContext(),
-			 "encoded image 累積長度: "+encodedImage.length()+"倒數第 " +
-			 Integer.toString(imageTransitCount) + "個 抵達", Toast.LENGTH_SHORT)
-			 .show();
+			encodedImage = encodedImage + (messager.substring(messager.indexOf(TVResponse.IMAGE_TRANSFER) +1+TVResponse.IMAGE_TRANSFER.length()));
 			if (--imageTransitCount != 0)
 				return;
-
 			// transport finished. start load image.
-
 			try {
 				Log.d("Hi", "Gonna decode");
 				byte[] decodedByte = Base64.decode(encodedImage, 0);
 				encodedImage = ""; // clean memory
 				Bitmap decodedImage = BitmapFactory.decodeByteArray(decodedByte, 0, decodedByte.length);
-				decodedByte = null; // clean memory
-				
+				decodedByte = null; // clean memory				
 				saveBitmap(decodedImage);
 			} catch (Exception e) {
 				Toast.makeText(MainActivity.this, "Cannot get picture", Toast.LENGTH_SHORT).show();
 			}
+		}else if(messager.contains(TVResponse.TV_OPENED)) {
+			controller_connected_clicked = true;
+			Intent intent = new Intent(MainActivity.this, ControllerActivity.class);
+			startActivity(intent);
+			overridePendingTransition(R.anim.fadein, R.anim.fadeout);
+			
+		}
+		else if (messager.contains(TVResponse. VIDEOVIEWER_OPENED)){
+			Intent intent = new Intent(MainActivity.this,VideoviewActivity.class);
+			startActivity(intent);
+			overridePendingTransition(R.anim.fadein, R.anim.fadeout);
+		}
+		else if (messager.contains(TVResponse. IMAGEVIEWER_OPENED)){
+			Intent intent = new Intent(MainActivity.this, ImageviewActivity.class);
+			startActivity(intent);
+			overridePendingTransition(R.anim.fadein, R.anim.fadeout);
 		}
 
 	}
@@ -458,7 +426,6 @@ public class MainActivity extends Activity implements Observer {
 	}
 
 	// main menu
-
 	private void getScreenSize() {
 		Display display = getWindowManager().getDefaultDisplay();
 		Point size = new Point();
@@ -467,7 +434,6 @@ public class MainActivity extends Activity implements Observer {
 		screenHeight = size.y;
 		;
 	}
-
 	
 	// connection image (rotate and stuff)
 	private void connection_image() {
@@ -529,17 +495,12 @@ public class MainActivity extends Activity implements Observer {
 	}
 
 	/* Connect TV and Set */
-	private void userConnectTV() {
-		// mChatApplication.newLocalUserMessage(CONTROLLER_CMD_CONN_CONN); /*
-		// temporary unused */
+	private void userConnectTV() {		
 		mChatApplication.newLocalUserMessage(new SettingsManager(getApplicationContext()).getCMD());
-
-		// mChatApplication.newLocalUserMessage(CONTROLLER_CMD_CONN_FINISHCONN);
-		// /* temporary unused */
 	}
 
 	private void userDisconn() {
-		mChatApplication.newLocalUserMessage(CONTROLLER_CMD_CONN_DISCONN);
+		mChatApplication.newLocalUserMessage(TVCONTROLLER_CMD.CONN_DISCONN);
 	}
 
 	/* notification catcher listener */
@@ -549,25 +510,21 @@ public class MainActivity extends Activity implements Observer {
 			String pack = intent.getStringExtra("package");
 			String title = intent.getStringExtra("title");
 			String text = intent.getStringExtra("text");
-			String msg = CONTROLLER_NOTIFICATION_SYSNOTI + " -" + pack + " --" + title + " ---" + text;
+			String msg = TVCONTROLLER_CMD.SYSNOTI + " -" + pack + " --" + title + " ---" + text;
 			mChatApplication.newLocalUserMessage(msg);
 			Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_LONG).show();
 		}
 	};
 	
-	private void saveBitmap(Bitmap bmp){
-		
+	private void saveBitmap(Bitmap bmp){		
 		Date now = new Date();
 	    android.text.format.DateFormat.format("yyyy-MM-dd_hh:mm:ss", now);
 	    String mPath = Environment.getExternalStorageDirectory().toString() + "/image/" + now + ".jpg";
-	   Log.d("Pathhhhhh" , mPath);
+	    Log.d("Pathhhhhh" , mPath);
 		FileOutputStream out = null;
 		try {
 		    out = new FileOutputStream(mPath);
-		    bmp.compress(Bitmap.CompressFormat.JPEG, 100, out); // bmp is your Bitmap instance
-		    Toast.makeText(MainActivity.this, "compress success ", Toast.LENGTH_SHORT).show();
-		   
-		    
+		    bmp.compress(Bitmap.CompressFormat.JPEG, 100, out); // bmp is a Bitmap instance
 		} catch (Exception e) {
 		    e.printStackTrace();
 		} finally {
@@ -582,12 +539,6 @@ public class MainActivity extends Activity implements Observer {
 		// notify VideoviewActivity
 		Intent intent = new Intent("screenshotPath");
 		intent.putExtra("screenshotPath", mPath);
-		this.sendBroadcast(intent);
-		
-		
+		this.sendBroadcast(intent);		
 	}
-	
-	
-	
-
 }

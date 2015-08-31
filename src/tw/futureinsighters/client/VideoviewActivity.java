@@ -1,7 +1,6 @@
 package tw.futureinsighters.client;
 
 import java.io.File;
-import java.util.List;
 
 import org.allseenaliance.alljoyn.CafeApplication;
 
@@ -12,7 +11,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.pm.ResolveInfo;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.hardware.Sensor;
@@ -21,11 +19,13 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v7.graphics.Palette;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
@@ -48,12 +48,12 @@ public class VideoviewActivity extends Activity {
 	private final String CONTROLLER_VIDEOVIEWER_SHUFFLE_OFF = "ISTVSVIDshuoff";
 	private final String CONTROLLER_VIDEOVIEWER_VOLUME = "ISTVSVIDvl";
 	private final String CONTROLLER_VIDEOVIEWER_SCREENSHOT = "ISTVSVIDss";
+	private final String CONTROLLER_VIDEOVIEWER_CLOSE = "ISTVSVIDbye";
 
 	/* Buttons */
-	private Button playBtn, previousBtn, nextBtn, shuffleBtn, replayBtn, snapBtn, repeatBtn, fbBtn;
+	private Button playBtn, previousBtn, nextBtn, shuffleBtn, replayBtn, snapBtn, repeatBtn, shareBtn;
 	private ToggleButton gestureToggle;
 	private Boolean pause_clicked = false, shuffle_clicked = false, repeat_clicked = false;
-	
 
 	/* Sensor */
 	private boolean is_appslist_on = false;
@@ -80,6 +80,7 @@ public class VideoviewActivity extends Activity {
 	private ImageView screenshotPreview;
 	private String currentPath;
 	private File screenshotImg;
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -90,7 +91,8 @@ public class VideoviewActivity extends Activity {
 			@Override
 			public void onReceive(Context context, Intent intent) {
 				// NOT FINISHED YET!!! ERROR NOT HANDLED
-				Toast.makeText(context, "MSG Got!", Toast.LENGTH_SHORT).show();
+				// Toast.makeText(context, "MSG Got!",
+				// Toast.LENGTH_SHORT).show();
 				currentPath = intent.getStringExtra("screenshotPath");
 				updateImagePreview();
 			}
@@ -112,7 +114,7 @@ public class VideoviewActivity extends Activity {
 		shuffleBtn = (Button) findViewById(R.id.shuffleBtn);
 		snapBtn = (Button) findViewById(R.id.snapBtn);
 		repeatBtn = (Button) findViewById(R.id.repeatBtn);
-		fbBtn = (Button) findViewById(R.id.fbBtn);
+		shareBtn = (Button) findViewById(R.id.shareBtn);
 
 		playBtn.setBackgroundResource(R.drawable.ic_play_arrow_black_48dp);
 		previousBtn.setBackgroundResource(R.drawable.ic_skip_previous_black_48dp);
@@ -132,11 +134,11 @@ public class VideoviewActivity extends Activity {
 			@Override
 			public void onClick(View v) {
 				if (!pause_clicked) {
-					playBtn.setBackgroundResource(R.drawable.ic_pause_black_48dp);
+					playBtn.setBackgroundResource(R.drawable.ic_play_arrow_black_48dp);
 					pause_clicked = true;
 					mChatApplication.newLocalUserMessage(CONTROLLER_VIDEOVIEWER_PAUSE);
 				} else {
-					playBtn.setBackgroundResource(R.drawable.ic_play_arrow_black_48dp);
+					playBtn.setBackgroundResource(R.drawable.ic_pause_black_48dp);
 					pause_clicked = false;
 					mChatApplication.newLocalUserMessage(CONTROLLER_VIDEOVIEWER_PLAY);
 				}
@@ -205,15 +207,6 @@ public class VideoviewActivity extends Activity {
 			}
 		});
 
-		replayBtn.setOnClickListener(new OnClickListener() {
-
-			@Override
-			public void onClick(View v) {
-				mChatApplication.newLocalUserMessage(CONTROLLER_VIDEOVIEWER_NEXT);
-
-			}
-		});
-
 		gestureToggle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
 			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 				if (isChecked) {
@@ -241,18 +234,21 @@ public class VideoviewActivity extends Activity {
 			}
 		});
 
-		fbBtn.setOnClickListener(new OnClickListener() {
+		shareBtn.setOnClickListener(new OnClickListener() {
 
 			@Override
 			public void onClick(View v) {
-			    Toast.makeText(VideoviewActivity.this, "OPEN! ", Toast.LENGTH_SHORT).show();
-			    Intent intent = new Intent();
-			    intent.setAction(Intent.ACTION_VIEW);
-			    Uri uri = Uri.fromFile(screenshotImg);
-			    intent.setDataAndType(uri, "image/*");
-			    startActivity(intent);
-			
 
+				if (currentPath == null) {
+					Toast.makeText(getApplicationContext(), "You have nothing to share!", Toast.LENGTH_SHORT).show();
+					return;
+				}
+				Toast.makeText(VideoviewActivity.this, "OPEN AND SHARE!", Toast.LENGTH_SHORT).show();
+				Intent intent = new Intent();
+				intent.setAction(Intent.ACTION_VIEW);
+				Uri uri = Uri.fromFile(screenshotImg);
+				intent.setDataAndType(uri, "image/*");
+				startActivity(intent);
 			}
 		});
 
@@ -290,6 +286,7 @@ public class VideoviewActivity extends Activity {
 			sensorManager.unregisterListener(aSensorListener);
 			sensorManager.unregisterListener(gSensorListener);
 		}
+		mChatApplication.newLocalUserMessage(CONTROLLER_VIDEOVIEWER_CLOSE);
 		super.onBackPressed();
 	}
 
@@ -409,48 +406,26 @@ public class VideoviewActivity extends Activity {
 	}
 
 	private void moveMotion(Direction direction) {
-		if (is_appslist_on) {
-			if (is_controllable) {
-				is_controllable = false;
-				new android.os.Handler().postDelayed(new Runnable() {
-					public void run() {
-						is_controllable = true;
-					}
-				}, 500);
-			} else {
-				return;
-			}
-			switch (direction) {
-			case LEFT: {
-				// mChatApplication.newLocalUserMessage(CONTROLLER_VIDEOVIEWER_NEXT);
-				break;
-			}
-			case RIGHT: {
-				// mChatApplication.newLocalUserMessage(CONTROLLER_VIDEOVIEWER_PRE);
-				break;
-			}
-			}
+
+		if (is_controllable) {
+			is_controllable = false;
+			new android.os.Handler().postDelayed(new Runnable() {
+				public void run() {
+					is_controllable = true;
+				}
+			}, 200); // Channel switches faster
 		} else {
-			if (is_controllable) {
-				is_controllable = false;
-				new android.os.Handler().postDelayed(new Runnable() {
-					public void run() {
-						is_controllable = true;
-					}
-				}, 200); // Channel switches faster
-			} else {
-				return;
-			}
-			switch (direction) {
-			case LEFT: {
-				mChatApplication.newLocalUserMessage(CONTROLLER_VIDEOVIEWER_PRE);
-				break;
-			}
-			case RIGHT: {
-				mChatApplication.newLocalUserMessage(CONTROLLER_VIDEOVIEWER_NEXT);
-				break;
-			}
-			}
+			return;
+		}
+		switch (direction) {
+		case LEFT: {
+			mChatApplication.newLocalUserMessage(CONTROLLER_VIDEOVIEWER_PRE);
+			break;
+		}
+		case RIGHT: {
+			mChatApplication.newLocalUserMessage(CONTROLLER_VIDEOVIEWER_NEXT);
+			break;
+		}
 		}
 
 	}
@@ -504,13 +479,22 @@ public class VideoviewActivity extends Activity {
 	}
 
 	private void updateImagePreview() {
-
+		LinearLayout videoLayout = (LinearLayout)findViewById(R.id.videoLayoutMain);
+		LinearLayout mediaBtnLayout = (LinearLayout)findViewById(R.id.mediaBtn);
 		screenshotImg = new File(currentPath);
 		if (screenshotImg.exists()) {
 			Bitmap myBitmap = BitmapFactory.decodeFile(screenshotImg.getAbsolutePath());
 			screenshotPreview.setImageBitmap(myBitmap);
+			 Palette palette = Palette.generate(myBitmap); 
+			 if (palette.getLightVibrantColor() != null) {
+				 videoLayout.setBackgroundColor(palette .getDarkVibrantColor().getRgb());
+			 }
+			 if (palette.getLightVibrantColor() != null) {
+				 mediaBtnLayout.setBackgroundColor(palette .getLightVibrantColor().getRgb());
+			 }		
 		}
 	}
+	
 	
 
 }
