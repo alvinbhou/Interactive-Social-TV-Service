@@ -11,10 +11,12 @@ import com.technalt.serverlessCafe.R;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Rect;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Vibrator;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
 import android.view.LayoutInflater;
@@ -79,6 +81,8 @@ public class SettingsActivity extends Activity implements AbsListView.OnScrollLi
 						Toast.makeText(SettingsActivity.this, "All your settings have been saved", Toast.LENGTH_SHORT)
 								.show();
 						mChatApplication.newLocalUserMessage(new SettingsManager(getApplicationContext()).getCMD());
+						Vibrator v = (Vibrator)getSystemService(Context.VIBRATOR_SERVICE);
+						v.vibrate(500);
 					}
 				}, 3000);
 			}

@@ -6,6 +6,7 @@ import com.technalt.serverlessCafe.R;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
@@ -14,6 +15,7 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
+import android.os.Vibrator;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -260,6 +262,8 @@ public class ControllerActivity extends Activity {
 		} else {
 			return;
 		}
+		Vibrator v = (Vibrator)getSystemService(Context.VIBRATOR_SERVICE);
+		v.vibrate(500);
 		mChatApplication.newLocalUserMessage(TVCONTROLLER_CMD.UI_OK);
 		ok_movement();
 	}

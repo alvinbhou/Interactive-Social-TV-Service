@@ -1,12 +1,8 @@
 package tw.futureinsighters.client;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.security.acl.LastOwnerException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -16,7 +12,6 @@ import com.technalt.serverlessCafe.R;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.backup.SharedPreferencesBackupHelper;
 import android.content.ActivityNotFoundException;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -25,20 +20,17 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.ResolveInfo;
-import android.graphics.Bitmap;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.media.MediaRouter.UserRouteInfo;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
+import android.os.Vibrator;
 import android.speech.RecognizerIntent;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.DrawerLayout.DrawerListener;
-import android.support.v4.widget.SwipeRefreshLayout;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.util.TypedValue;
@@ -774,6 +766,8 @@ public class TvControllerActivity extends Activity {
 		} else {
 			return;
 		}
+		Vibrator v = (Vibrator)getSystemService(Context.VIBRATOR_SERVICE);
+		v.vibrate(500);
 		mChatApplication.newLocalUserMessage(TVCONTROLLER_CMD.UI_OK);
 	}
 
@@ -855,6 +849,8 @@ public class TvControllerActivity extends Activity {
 		requestCurChannelInfo();
 		channelValue = (TextView) findViewById(R.id.channelValue);
 		channelValue.setText(String.valueOf(number));
+		Vibrator v = (Vibrator)getSystemService(Context.VIBRATOR_SERVICE);
+		v.vibrate(400);
 
 	}
 
