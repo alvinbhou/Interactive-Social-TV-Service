@@ -25,7 +25,7 @@
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="#616161"
+                android:background="#212121"
                 android:orientation="vertical"
                 android:paddingBottom="@dimen/activity_vertical_margin"
                 android:paddingLeft="@dimen/activity_horizontal_margin"
@@ -76,7 +76,7 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="#01579B"
+                android:background="#424242"
                 android:orientation="horizontal" >
 
                 <Button
@@ -105,7 +105,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_marginTop="10dp"
-                android:background="#0097A7"
+                android:background="#616161"
                 android:orientation="horizontal"
                 android:paddingBottom="@dimen/activity_vertical_margin"
                 android:paddingLeft="@dimen/activity_horizontal_margin"
@@ -151,7 +151,7 @@
                     android:layout_marginRight="@dimen/activity_horizontal_margin"
                     android:layout_weight="1"
                     android:animateLayoutChanges="true"
-                    android:background="#FFC107"
+                    android:background="#424242"
                     android:orientation="vertical"
                     android:visibility="visible" >
 
@@ -192,7 +192,7 @@
                     android:layout_height="match_parent"
                     android:layout_weight="3"
                     android:animateLayoutChanges="true"
-                    android:background="#FFC107"
+                    android:background="#424242"
                     android:orientation="vertical"
                     android:paddingLeft="@dimen/activity_horizontal_margin" >
 
@@ -299,9 +299,9 @@
                         android:id="@+id/voice_layout"
                         android:layout_width="match_parent"
                         android:layout_height="0dp"
-                        android:layout_weight="1"                        
-                        android:orientation="horizontal"
-                        android:gravity="center|bottom" >
+                        android:layout_weight="1"
+                        android:gravity="center|bottom"
+                        android:orientation="horizontal" >
 
                         <ImageView
                             android:id="@+id/voice_img"
@@ -311,20 +311,19 @@
 
                         <Button
                             android:id="@+id/voice_btn"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
+                            android:layout_width="60dp"
+                            android:layout_height="60dp"
+                            android:background="@drawable/google_voice_btn"
                             android:gravity="center"
-                            android:text="Voice"
                             android:textColor="#ffffff" />
 
                         <Button
                             android:id="@+id/fb_btn"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"                          
-                            android:text="FB"
-                            android:textColor="#ffffff" />
+                            android:layout_width="60dp"
+                            android:layout_height="60dp"
+                            android:background="@drawable/fb_icon" />
                     </LinearLayout>
-                </LinearLayout>               
+                </LinearLayout>
             </LinearLayout>
         </LinearLayout>
 

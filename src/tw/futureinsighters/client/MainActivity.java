@@ -51,14 +51,12 @@ public class MainActivity extends Activity implements Observer {
 	private double screenWidth, screenHeight;
 
 	// alljoyn
-
 	private Button join;
 	private Button stop;
-	private Button leave;
-	
+	private Button leave;	
 
 	private CafeApplication mChatApplication = null;
-	private TextView preview;
+	private TextView preview, controller_text;
 	
 	private static final int HANDLE_APPLICATION_QUIT_EVENT = 0;
 	private static final int HANDLE_CHANNEL_STATE_CHANGED_EVENT = 1;
@@ -75,7 +73,6 @@ public class MainActivity extends Activity implements Observer {
 	Boolean controller_connected_clicked = false;
 	Button connect_success, connect_failure;
 	int imagesToShow[], imageCount = 0;
-	
 
 
 	@Override
@@ -312,7 +309,6 @@ public class MainActivity extends Activity implements Observer {
 			this.sendBroadcast(intent);
 		} else if (messager.contains(TVResponse.IMAGE_TRANSFER_START)) {
 			// begin the transport of image
-
 			encodedImage = "";
 			imageTransitCount = Integer
 					.parseInt(messager.substring(messager.indexOf(TVResponse.IMAGE_TRANSFER_START) + 12));
@@ -418,7 +414,6 @@ public class MainActivity extends Activity implements Observer {
 		display.getSize(size);
 		screenWidth = size.x;
 		screenHeight = size.y;
-		;
 	}
 	
 	// connection image (rotate and stuff)
@@ -442,6 +437,7 @@ public class MainActivity extends Activity implements Observer {
 
 		connect_success = (Button) findViewById(R.id.connect_success);
 		connect_failure = (Button) findViewById(R.id.connect_fail);
+		controller_text  = (TextView) findViewById(R.id.controllerText);
 		connect_success.setOnClickListener(new OnClickListener() {
 
 			@Override
@@ -450,6 +446,7 @@ public class MainActivity extends Activity implements Observer {
 				connectImage.clearAnimation();
 				connectImage.setEnabled(false);
 				controllerImage.setEnabled(true);
+				controller_text.setText("Let's get started!");
 				flash();
 				userConnectTV();
 			}
@@ -510,7 +507,7 @@ public class MainActivity extends Activity implements Observer {
 		FileOutputStream out = null;
 		try {
 		    out = new FileOutputStream(mPath);
-		    bmp.compress(Bitmap.CompressFormat.JPEG, 100, out); // bmp is a Bitmap instance
+		    bmp.compress(Bitmap.CompressFormat.JPEG, 100, out);
 		} catch (Exception e) {
 		    e.printStackTrace();
 		} finally {

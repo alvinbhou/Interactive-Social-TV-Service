@@ -5,6 +5,8 @@ import org.allseenaliance.alljoyn.CafeApplication;
 import com.technalt.serverlessCafe.R;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.hardware.Sensor;
@@ -12,9 +14,11 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.TextView;
+import android.widget.Toast;
 import tw.futureinsighters.defines.TVCONTROLLER_CMD;
 
 public class ControllerActivity extends Activity {
@@ -36,16 +40,17 @@ public class ControllerActivity extends Activity {
 	private SensorManager sensorManager;
 	private Sensor aSensor;
 	private Sensor gSensor;
-
 	private float mAccel; // acceleration apart from gravity
 	private float mAccelCurrent; // current acceleration including gravity
 	private float mAccelLast; // last acceleration including gravity
+	private AlertDialog.Builder tutorialDialog;
+	private static boolean[] tutorial = new boolean[] {true,true,true};
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_controller);
+		setContentView(R.layout.activity_controller);		
 
 		/* OK Click */
 		TextView ok_mid = (TextView) findViewById(R.id.oK_mid);
@@ -70,6 +75,41 @@ public class ControllerActivity extends Activity {
 		mAccelCurrent = SensorManager.GRAVITY_EARTH;
 		mAccelLast = SensorManager.GRAVITY_EARTH;
 
+		if (tutorial[0]) {
+			LayoutInflater inflater = getLayoutInflater();
+			View view = inflater.inflate(R.layout.dialog_customize, null);
+			TextView header, tutorialContent, footer;
+
+			header = (TextView) view.findViewById(R.id.programName_dialog);
+			tutorialContent = (TextView) view.findViewById(R.id.programDescription_dialog);
+			footer = (TextView) view.findViewById(R.id.isAds_dialog);
+			header.setText("TUTORIAL");
+			header.setBackgroundColor(0xFF4CAF50);
+			tutorialContent.setText(
+					"Welcome to Gesture controll mode!    Let's try and tilt your phone left and right and see what happens!");
+			footer.setText("Controll can be such easy and fashion!");
+
+			tutorialDialog = new AlertDialog.Builder(ControllerActivity.this).setPositiveButton("DONE",
+					new DialogInterface.OnClickListener() {
+
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+
+						}
+
+					});
+			tutorialDialog.setCustomTitle(view);
+			AlertDialog alert = tutorialDialog.create();
+			alert.show();
+			tutorial[0] = false;
+		}
+
+	}
+
+	@Override
+	public void onBackPressed() {
+		mChatApplication.newLocalUserMessage(TVCONTROLLER_CMD.HOME);
+		super.onBackPressed();
 	}
 
 	protected void onPause() {
@@ -82,7 +122,6 @@ public class ControllerActivity extends Activity {
 		super.onResume();
 		sensorManager.registerListener(aSensorListener, aSensor, SensorManager.SENSOR_DELAY_NORMAL);
 		sensorManager.registerListener(gSensorListener, gSensor, SensorManager.SENSOR_DELAY_NORMAL);
-
 	}
 
 	private SensorEventListener aSensorListener = new SensorEventListener() {
@@ -108,7 +147,6 @@ public class ControllerActivity extends Activity {
 					return;
 				}
 				mChatApplication.newLocalUserMessage(TVCONTROLLER_CMD.CHANGE_QUOTE);
-
 			}
 
 			// motion handler
@@ -239,11 +277,19 @@ public class ControllerActivity extends Activity {
 		}
 		switch (direction) {
 		case LEFT: {
+			if (tutorial[1]) {
+				tutorial[1] = false;
+				Toast.makeText(ControllerActivity.this, "Moves left!", Toast.LENGTH_SHORT).show();
+			}
 			left_movement();
 			mChatApplication.newLocalUserMessage(TVCONTROLLER_CMD.UI_LEFT);
 			break;
 		}
 		case RIGHT: {
+			if (tutorial[2]) {
+				tutorial[2] = false;
+				Toast.makeText(ControllerActivity.this, "Moves right!", Toast.LENGTH_SHORT).show();
+			}
 			right_movement();
 			mChatApplication.newLocalUserMessage(TVCONTROLLER_CMD.UI_RIGHT);
 			break;
@@ -295,5 +341,7 @@ public class ControllerActivity extends Activity {
 
 		}, 500);
 	}
+
+
 
 }

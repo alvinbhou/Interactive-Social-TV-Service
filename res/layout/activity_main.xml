@@ -118,7 +118,7 @@
                 android:fontFamily="serif"
                 android:gravity="center"
                 android:padding="20dp"
-                android:text="Get started!"
+                android:text="Waiting for connection."
                 android:textColor="@android:color/white"
                 android:textSize="24sp" />
 

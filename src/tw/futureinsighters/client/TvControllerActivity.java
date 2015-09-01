@@ -281,7 +281,16 @@ public class TvControllerActivity extends Activity {
 
 			@Override
 			public void onClick(View v) {
-				String inforToShare = "http://www.getfresh.org.tw/";
+				
+				String query = "Something went wrong!";
+				try {
+					query = URLEncoder.encode(curChannelInfo.programName, "utf-8");
+				} catch (UnsupportedEncodingException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				String inforToShare = "http://lmgtfy.com/?q=" + query;
+				
 				Intent intent = new Intent(Intent.ACTION_SEND);
 				intent.setType("text/plain");
 				// intent.putExtra(Intent.EXTRA_SUBJECT, "Foo bar"); // NB: has
