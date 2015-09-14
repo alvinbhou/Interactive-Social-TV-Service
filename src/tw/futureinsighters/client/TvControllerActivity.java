@@ -76,7 +76,7 @@ public class TvControllerActivity extends Activity {
 	private boolean is_up = false, is_up_long = false;
 	private boolean is_down = false, is_down_long = false;
 	private boolean is_controllable = true;
-	private boolean sensor_on = false;
+	private boolean sensor_on = false, voice_on = false;
 
 	private CafeApplication mChatApplication = null;
 
@@ -596,6 +596,7 @@ public class TvControllerActivity extends Activity {
 		switch (requestCode) {
 		case 1: {
 			if (resultCode == Activity.RESULT_OK && null != data) {
+				voice_on = true;
 				String voiceResult = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS).get(0);
 
 				if (voiceResult.contains("turn to channel ")) {
@@ -627,9 +628,12 @@ public class TvControllerActivity extends Activity {
 
 	@Override
 	protected void onResume() {
-		super.onResume();	
+		super.onResume();
+		if(!voice_on)
+			initializeChannel();	
 		if(sensor_on)
 			gesture_return.performClick();
+		voice_on = false;
 	}
 
 	/* Send backToHome message to Tv */
@@ -849,6 +853,7 @@ public class TvControllerActivity extends Activity {
 		requestCurChannelInfo();
 		channelValue = (TextView) findViewById(R.id.channelValue);
 		channelValue.setText(String.valueOf(number));
+		curChannelInfo.number = number;
 		Vibrator v = (Vibrator)getSystemService(Context.VIBRATOR_SERVICE);
 		v.vibrate(400);
 
