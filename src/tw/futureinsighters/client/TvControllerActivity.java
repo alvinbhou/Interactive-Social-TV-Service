@@ -1,5 +1,6 @@
 package tw.futureinsighters.client;
 
+import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
@@ -27,6 +28,7 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Vibrator;
 import android.speech.RecognizerIntent;
 import android.support.v4.view.GravityCompat;
@@ -281,17 +283,22 @@ public class TvControllerActivity extends Activity {
 			@Override
 			public void onClick(View v) {
 
+				/* Share text (removed)
 				String query = "Something went wrong!";
 				try {
 					query = URLEncoder.encode(curChannelInfo.programName, "utf-8");
 				} catch (UnsupportedEncodingException e) {
-					e.printStackTrace();
+					e.printStackTrace();````````````````````````````
 				}
-				String inforToShare = "http://lmgtfy.com/?q=" + query;
-
+				String inforToShare = "http://lmgtfy.com/?q=" + query; */
+				
+				// The path should be dynamically allocated if we can screenshot */
+				String path=Environment.getExternalStorageDirectory().toString()+"/Download/HBO.jpg";
 				Intent intent = new Intent(Intent.ACTION_SEND);
-				intent.setType("text/plain");
-				intent.putExtra(Intent.EXTRA_TEXT, inforToShare);
+				intent.setType("image/*");
+				intent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(new File(path)));				
+				startActivity( Intent.createChooser(intent,"Send with"));
+			
 
 				// See if official Facebook app is found
 				boolean facebookAppFound = false;
@@ -304,12 +311,7 @@ public class TvControllerActivity extends Activity {
 					}
 				}
 
-				// As fallback, launch sharer.php in a browser
-				if (!facebookAppFound) {
-					String sharerUrl = "https://www.facebook.com/sharer/sharer.php?u=" + inforToShare;
-					intent = new Intent(Intent.ACTION_VIEW, Uri.parse(sharerUrl));
-				}
-				startActivity(intent);
+			
 			}
 		});
 
