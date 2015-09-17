@@ -1,7 +1,7 @@
 package tw.futureinsighters.defines;
 
 
-public class TVCONTROLLER_CMD{
+public class TvcontrollerCMD{
 	
 	/* TV Controller*/
 	public final static String UI_LEFT = "ISTVSgoleft";

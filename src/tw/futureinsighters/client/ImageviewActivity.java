@@ -105,9 +105,9 @@ public class ImageviewActivity extends Activity {
 			if (encode.length() > 500000) {
 				encode = encodeTobase64(bitmap, encode.length());
 			}
-			if (encode.length() > 700000) {
+			if (encode.length() > 600000) {
 				Toast.makeText(ImageviewActivity.this,
-						"WARNING! This image is probably too big for your device to handle. The image might not show. We apologize for your inconvenience.",
+						"WARNING! This image is probably too big for your device to handle. The image might not show.",
 						Toast.LENGTH_LONG).show();
 			}
 
@@ -116,13 +116,6 @@ public class ImageviewActivity extends Activity {
 			new MassRapidImageTransfer(mChatApplication, encode).exe();
 
 			text.setText(Integer.toString(encode.length()));
-			// mChatApplication.newLocalUserMessage("222");
-
-			// mChatApplication.newLocalUserMessage(cmd);
-			// mChatApplication.newLocalUserMessage("5");
-			// text.setText(Integer.toString(encode.length()));
-			// Toast.makeText(ImageviewActivity.this, code,
-			// Toast.LENGTH_LONG).show;
 			imageView.setImageBitmap(BitmapFactory.decodeFile(picturePath));
 			angle = 0;
 			imageView.setRotation(angle);
@@ -151,13 +144,13 @@ public class ImageviewActivity extends Activity {
 			immagex.compress(Bitmap.CompressFormat.JPEG, 60, baos);
 		byte[] b = baos.toByteArray();
 		String imageEncoded = Base64.encodeToString(b, Base64.DEFAULT);
-
-		// Log.e("LOOK", imageEncoded);
+		
 		return imageEncoded;
 	}
 
 	/*
-	 * decode, useless for now public static Bitmap decodeBase64(String input) {
+	 * decode, useless for now 
+	 * public static Bitmap decodeBase64(String input) {
 	 * byte[] decodedByte = Base64.decode(input, 0); return
 	 * BitmapFactory.decodeByteArray(decodedByte, 0, decodedByte.length); }
 	 */

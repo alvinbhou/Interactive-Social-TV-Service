@@ -42,7 +42,7 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
-import tw.futureinsighters.defines.TVCONTROLLER_CMD;
+import tw.futureinsighters.defines.TvcontrollerCMD;
 import tw.futureinsighters.defines.TVResponse;
 
 public class MainActivity extends Activity implements Observer {
@@ -483,7 +483,7 @@ public class MainActivity extends Activity implements Observer {
 	}
 
 	private void userDisconn() {
-		mChatApplication.newLocalUserMessage(TVCONTROLLER_CMD.CONN_DISCONN);
+		mChatApplication.newLocalUserMessage(TvcontrollerCMD.CONN_DISCONN);
 	}
 
 	/* notification catcher listener */
@@ -493,7 +493,7 @@ public class MainActivity extends Activity implements Observer {
 			String pack = intent.getStringExtra("package");
 			String title = intent.getStringExtra("title");
 			String text = intent.getStringExtra("text");
-			String msg = TVCONTROLLER_CMD.SYSNOTI + " -" + pack + " --" + title + " ---" + text;
+			String msg = TvcontrollerCMD.SYSNOTI + " -" + pack + " --" + title + " ---" + text;
 			mChatApplication.newLocalUserMessage(msg);
 			Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_LONG).show();
 		}

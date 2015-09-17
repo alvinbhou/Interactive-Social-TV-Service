@@ -19,9 +19,8 @@ public class MassRapidImageTransfer {
 		this.mChatApplication = cafeIn;
 	}
 
-	public void exe() {
+	public void exe() {		
 		codeLength = encode.length();
-
 		packageNum = codeLength / PACKAGE_SIZE;
 
 		cmd = IMAGEVIEWER_SHOW + Integer.toString(packageNum + 1);
@@ -30,11 +29,7 @@ public class MassRapidImageTransfer {
 		for (i = 0; i < packageNum; ++i) {
 			new android.os.Handler().postDelayed(new Runnable() {
 				public void run() {
-					cmd = encode.substring(PACKAGE_SIZE * packageCount, PACKAGE_SIZE * (packageCount + 1));
-					// Toast.makeText(ImageviewActivity.this,
-					// Integer.toString(i) + "**" +
-					// Integer.toString(tmp.length()),
-					// Toast.LENGTH_SHORT).show();
+					cmd = encode.substring(PACKAGE_SIZE * packageCount, PACKAGE_SIZE * (packageCount + 1));					
 					mChatApplication.newLocalUserMessage("ISTVSIMGs " + cmd);
 					packageCount++;
 				}
@@ -43,11 +38,7 @@ public class MassRapidImageTransfer {
 
 		new android.os.Handler().postDelayed(new Runnable() {
 			public void run() {
-
-				cmd = encode.substring(PACKAGE_SIZE * packageCount);
-				// Toast.makeText(ImageviewActivity.this, Integer.toString(i) +
-				// "**" + Integer.toString(tmp.length()),
-				// Toast.LENGTH_SHORT).show();
+				cmd = encode.substring(PACKAGE_SIZE * packageCount);				
 				mChatApplication.newLocalUserMessage("ISTVSIMGs " + cmd);
 			}
 		}, 400 * (i + 1) + 1000);

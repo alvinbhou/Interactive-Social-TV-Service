@@ -1,6 +1,6 @@
 package tw.futureinsighters.defines;
 
-public class VIDEOVIEWER_CMD {
+public class VidoeviewerCMD {
 	/* Videoview */	
 	public final String CONTROLLER_VIDEOVIEWER_PLAY = "ISTVSVIDplay";
 	public final String CONTROLLER_VIDEOVIEWER_PAUSE = "ISTVSVIDpause";

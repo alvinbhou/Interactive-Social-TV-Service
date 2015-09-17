@@ -21,7 +21,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.TextView;
 import android.widget.Toast;
-import tw.futureinsighters.defines.TVCONTROLLER_CMD;
+import tw.futureinsighters.defines.TvcontrollerCMD;
 
 public class ControllerActivity extends Activity {
 
@@ -110,7 +110,7 @@ public class ControllerActivity extends Activity {
 
 	@Override
 	public void onBackPressed() {
-		mChatApplication.newLocalUserMessage(TVCONTROLLER_CMD.HOME);
+		mChatApplication.newLocalUserMessage(TvcontrollerCMD.HOME);
 		super.onBackPressed();
 	}
 
@@ -148,27 +148,22 @@ public class ControllerActivity extends Activity {
 				} else {
 					return;
 				}
-				mChatApplication.newLocalUserMessage(TVCONTROLLER_CMD.CHANGE_QUOTE);
+				mChatApplication.newLocalUserMessage(TvcontrollerCMD.CHANGE_QUOTE);
 			}
 
 			// motion handler
-
-			if (a_x > 6 && a_y < 3 && a_y > -3 && a_z > 0) {
-				// $('left_bg').style.opacity = (x - 4) / 8.0;
+			if (a_x > 6 && a_y < 3 && a_y > -3 && a_z > 0) {				
 				moveAppList(Direction.LEFT);
-
 			} else {
-				// $('left_bg').style.opacity = 0;
+			
 			}
-			if (a_x < -6 && a_y < 3 && a_y > -3 && a_z > 0) {
-				// $('right_bg').style.opacity = (-x -4) / 8.0;
+			if (a_x < -6 && a_y < 3 && a_y > -3 && a_z > 0) {				
 				moveAppList(Direction.RIGHT);
 
 			} else {
-				// $('right_bg').style.opacity = 0;
+				
 			}
-			if (a_x < 3 && a_x > -3 && a_y > 7 && a_z > 0) {
-				// $('down_bg').style.opacity = (y - 4) / 8.0;
+			if (a_x < 3 && a_x > -3 && a_y > 7 && a_z > 0) {			
 				if (!is_up) {
 					is_up = true;
 
@@ -183,11 +178,9 @@ public class ControllerActivity extends Activity {
 					}, 1000);
 				}
 				if (is_up_long) {
-					// switchVolumn(false);
+					
 				}
-			} else {
-
-				// $('down_bg').style.opacity = 0;
+			} else {				
 				if (is_up) {
 					is_up = false;
 				}
@@ -195,27 +188,22 @@ public class ControllerActivity extends Activity {
 					is_up_long = false;
 				}
 			}
-			if (a_x < 3 && a_x > -3 && a_y < -5 && a_z > 0) {
-				// $('up_bg').style.opacity = (-y - 3) / 8.0;
+			if (a_x < 3 && a_x > -3 && a_y < -5 && a_z > 0) {			
 				if (!is_down) {
 					is_down = true;
 					new android.os.Handler().postDelayed(new Runnable() {
 						public void run() {
 							if (is_down) { // 長時間
 								is_down_long = true;
-							} else { // 發現是短時間
-										// ok_movement();
+							} else { // 發現是短時間										
 								runApp();
 							}
 						}
 					}, 1000);
 				}
-				if (is_down_long) {
-					// swichVolumn(....)
+				if (is_down_long) {					
 				}
 			} else {
-
-				// $('up_bg').style.opacity = 0;
 				if (is_down) {
 					is_down = false;
 				}
@@ -264,7 +252,7 @@ public class ControllerActivity extends Activity {
 		}
 		Vibrator v = (Vibrator)getSystemService(Context.VIBRATOR_SERVICE);
 		v.vibrate(500);
-		mChatApplication.newLocalUserMessage(TVCONTROLLER_CMD.UI_OK);
+		mChatApplication.newLocalUserMessage(TvcontrollerCMD.UI_OK);
 		ok_movement();
 	}
 
@@ -286,7 +274,7 @@ public class ControllerActivity extends Activity {
 				Toast.makeText(ControllerActivity.this, "Moves left!", Toast.LENGTH_SHORT).show();
 			}
 			left_movement();
-			mChatApplication.newLocalUserMessage(TVCONTROLLER_CMD.UI_LEFT);
+			mChatApplication.newLocalUserMessage(TvcontrollerCMD.UI_LEFT);
 			break;
 		}
 		case RIGHT: {
@@ -295,7 +283,7 @@ public class ControllerActivity extends Activity {
 				Toast.makeText(ControllerActivity.this, "Moves right!", Toast.LENGTH_SHORT).show();
 			}
 			right_movement();
-			mChatApplication.newLocalUserMessage(TVCONTROLLER_CMD.UI_RIGHT);
+			mChatApplication.newLocalUserMessage(TvcontrollerCMD.UI_RIGHT);
 			break;
 		}
 		}
@@ -345,7 +333,4 @@ public class ControllerActivity extends Activity {
 
 		}, 500);
 	}
-
-
-
 }
