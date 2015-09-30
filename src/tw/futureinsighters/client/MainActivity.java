@@ -131,6 +131,7 @@ public class MainActivity extends Activity implements Observer {
 		preview = (TextView) findViewById(R.id.textpreview);
 		leave = new Button(this);
 
+		// join channel
 		join.setOnClickListener(new OnClickListener() {
 
 			@Override

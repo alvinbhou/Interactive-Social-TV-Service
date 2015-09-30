@@ -1,7 +1,7 @@
 package tw.futureinsighters.defines;
 
 public class VidoeviewerCMD {
-	/* Videoview */	
+	/* Videoviewer to Tv */	
 	public final String CONTROLLER_VIDEOVIEWER_PLAY = "ISTVSVIDplay";
 	public final String CONTROLLER_VIDEOVIEWER_PAUSE = "ISTVSVIDpause";
 	public final String CONTROLLER_VIDEOVIEWER_RESTART = "ISTVSVIDrestart";

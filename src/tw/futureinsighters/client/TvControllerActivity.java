@@ -74,11 +74,11 @@ public class TvControllerActivity extends Activity {
 		LEFT, RIGHT
 	};
 
-	/* Touchpad */
+	/* Touchpad */ 
 	private float touchStartX = 0, curTouchX = 0;
 
 	/* Sensor */
-	private boolean is_appslist_on = false;
+	private boolean is_appslist_on = true;
 	private float a_x, a_y, a_z, g_x, g_y, g_z;
 	private boolean is_up = false, is_up_long = false;
 	private boolean is_down = false, is_down_long = false;
@@ -477,7 +477,7 @@ public class TvControllerActivity extends Activity {
 
 					return true;
 				case MotionEvent.ACTION_UP: // ©ñ¶}
-					channelBarOnTouched = false;
+					channelBarOnTouched = true;
 					return true;
 				}
 				return true;
@@ -1185,13 +1185,34 @@ public class TvControllerActivity extends Activity {
 	private void updateChannelInfoUI() {
 		final TextView channel_txt = (TextView) findViewById(R.id.channel_txt);
 		final TextView channel_infor = (TextView) findViewById(R.id.channel_infor);
-		channel_txt.setText(curChannelInfo.programName);
-		// NOT DONE
-		// search channel name for icon
-
+		final ImageView channel_img = (ImageView) findViewById(R.id.channel_img);
+		channel_txt.setText(curChannelInfo.programName);		
 		channel_infor.setText(curChannelInfo.programDescription);
-		// there's no room for is_ads info
+		
+		// since the channel doesn't match the program currently, so we just
+		// put four sample icons for demo		
+		switch(curChannelInfo.number){
+		case 6:
+			channel_img.setImageResource(R.drawable.ch6);
+			break;
+		case 13:
+			channel_img.setImageResource(R.drawable.ch13);
+			break;
+		case 35:
+			channel_img.setImageResource(R.drawable.ch35);
+			break;
+		case 65:
+			channel_img.setImageResource(R.drawable.ch65);
+			break;
+		default:
+			channel_img.setImageResource(R.drawable.chx);
+			break;
+			
+		}
 	}
+	
+	
+	
 
 	/* initialize to the last seen channel */
 	private void initializeChannel() {
@@ -1297,6 +1318,17 @@ public class TvControllerActivity extends Activity {
 
 	}
 
+	/* Record the last watch channel */
+	private void recordShareReference() {
+		SharedPreferences lastWatchedChannel = getSharedPreferences("lastChannel", 13);
+		SharedPreferences.Editor editor = lastWatchedChannel.edit();
+		editor.putInt("lastChannel", curChannelInfo.number);
+		editor.commit();
+	}
+	
+	
+	
+	
 	/* Bookmark onclick Listener */
 	private class bookmarkOnClickListener implements DialogInterface.OnClickListener {
 
@@ -1315,12 +1347,4 @@ public class TvControllerActivity extends Activity {
 			drawerUpdate();
 		}
 	};
-
-	/* Record the last watch channel */
-	private void recordShareReference() {
-		SharedPreferences lastWatchedChannel = getSharedPreferences("lastChannel", 13);
-		SharedPreferences.Editor editor = lastWatchedChannel.edit();
-		editor.putInt("lastChannel", curChannelInfo.number);
-		editor.commit();
-	}
 }
