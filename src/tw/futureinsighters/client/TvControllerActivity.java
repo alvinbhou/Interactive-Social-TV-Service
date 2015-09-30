@@ -433,14 +433,14 @@ public class TvControllerActivity extends Activity {
 			@Override
 			public boolean onTouch(View v, MotionEvent event) {
 				Log.d("in", Integer.toString(event.getAction()));
-				switch (event.getAction()) { // §PÂ_Ä²±±ªº°Ê§@
+				switch (event.getAction()) { // 
 
-				case MotionEvent.ACTION_DOWN: // «ö¤U
+				case MotionEvent.ACTION_DOWN: // æŒ‰ä¸‹
 					touchStartX = event.getX();
 					Log.d("down", "down");
 					is_controllable = true;
 					return true;
-				case MotionEvent.ACTION_MOVE: // ©ì¦²
+				case MotionEvent.ACTION_MOVE: // æ‹–æ›³
 					curTouchX = event.getX();
 					if (is_controllable) {
 						is_controllable = false;
@@ -476,8 +476,9 @@ public class TvControllerActivity extends Activity {
 					}
 
 					return true;
-				case MotionEvent.ACTION_UP: // ©ñ¶}
-					channelBarOnTouched = true;
+				case MotionEvent.ACTION_UP: // æ”¾é–‹
+					is_controllable = true;
+					channelBarOnTouched = false;
 					return true;
 				}
 				return true;
