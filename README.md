@@ -10,7 +10,7 @@ Users can view their channel bookmarks, watch history and social media notificat
 
 All of the control can be done by your smartphone. You can **voice commands** and  **simple gestures** to switch channels and APPs. You can view detailed channel information on your phone. 
 
-Have you been frustrated when switching channels between ads?  With ISTV, you can easily tell when the ads has finished and switch back to your desired channel. 
+Have you been frustrated when switching channels between ads?  With ISTV, you can easily tell when the ads were finished and switch back to your desired channel. 
 
 ## System Structure
 ![](https://i.imgur.com/8vApyFc.png)
@@ -21,17 +21,18 @@ The client and the server communicates through [Alljoyn](https://openconnectivit
 ## Features
 ### Launcher
 ![](https://i.imgur.com/CSltuML.png)
-Redesigned clean and simple launcher offers a better user experience than the original MStart TV. You can switch between APPS through hand gestures.
+Redesigned clean and simple launcher offers a better user experience than the original MStart TV. You can switch between Apps through hand gestures.
 
 ### Smart TV Viewer
 
 #### History and Bookmarks
 ![](demo/bookmark.gif)
-Easy to access your favorate channels and past history.
+
+Easy to access your favorite channels and past history.
 
 #### Notification and Recommendation
 ![](https://i.imgur.com/QdBFOSb.png)
-While watching TV, all your social media notifications will show on screen so that you don;t have to check your phone once a minute. Moreover, you can share your thoughts about the channel you are current watching to your social media with just a click.
+While watching TV, all your social media notifications will show on screen so that you don't have to check your phone once a minute. Moreover, you can share your thoughts about the channel you are current watching to your social media with just a click.
 
 Through recording users' watching history, our model will recommend the channels that you are most likely to be interested in.
 
