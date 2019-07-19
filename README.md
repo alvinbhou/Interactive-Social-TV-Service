@@ -3,6 +3,14 @@
 
 ![](https://i.imgur.com/bZPpZxg.png)
 
+## Awards
+**National Champion** at Taiwan Ministry of Economic Affairs ‘Get Fresh’ System Development Competition 2015 ([link](http://www.getfresh.org.tw/achievement_detail.aspx?No=249))
+
+The work is done by [Franklyn Chen](https://github.com/franklynChen), [Alvin Hou](https://github.com/CryoliteZ) and Leo Chou
+
+Advisor: Prof. [Ling-Chieh Kun](http://www.im.ntu.edu.tw/~lckung/)
+
+
 ## What's new?
 Interactive Social TV (ISTV) provides a modern viewing experience when watching traditional cable TV channels along with staying connect with social media.
 
@@ -41,12 +49,6 @@ Through recording users' watching history, our model will recommend the channels
 ![](demo/image-upload.gif)
 
 You can share your photos with your friends and family with ISTV easily.
-
-
-## Awards
-**National Champion** at Ministry of Economic Affairs ‘Get Fresh’ System Development Competition 2015 ([link](http://www.getfresh.org.tw/achievement_detail.aspx?No=249))
-
-Advisor: Prof. Ling-Chieh Kun
 
 ## Notes
 Demo Video: https://www.youtube.com/watch?v=1Ml-EV4KOPw
